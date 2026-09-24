@@ -9,7 +9,7 @@ Each task is written so that it can be independently verified. Spike tasks link 
 
 | Phase | Name | Tasks | DONE |
 |---|---|---|---|
-| P0 | Corpus Audit & Architecture Planning | 9 | 8 |
+| P0 | Corpus Audit & Architecture Planning | 9 | 9 |
 | P1 | Foundations | 13 | 0 |
 | P2 | Source Registry, Manifest & Exact Dedup | 14 | 0 |
 | P3 | Gold Set & Extraction Spikes (decision gate) | 11 | 0 |
@@ -24,7 +24,7 @@ Each task is written so that it can be independently verified. Spike tasks link 
 | P12 | External Research & Approval | 7 | 0 |
 | P13 | Scale-out, Hardening & Operations | 10 | 0 |
 | P14 | Project/Idea Integration (future) | 3 | 0 |
-| **Total** | | **146** | **8** |
+| **Total** | | **146** | **9** |
 
 ## P0 — Corpus Audit & Architecture Planning
 
@@ -118,7 +118,7 @@ Each task is written so that it can be independently verified. Spike tasks link 
 
 ### T-P0-08 — Owner review and approval of the plan; answer blocking questions
 - **Phase:** P0
-- **Status:** NOT_STARTED
+- **Status:** DONE
 - **Priority:** critical
 - **Dependencies:** T-P0-06, T-P0-09
 - **Human approval:** required
@@ -127,6 +127,7 @@ Each task is written so that it can be independently verified. Spike tasks link 
 - **Acceptance criteria:** Q-B05 answered 'approved'; answers recorded in 25 and propagated.
 - **Validation method:** Execution state updated; decisions updated.
 - **Expected artifacts:** Updated 25_OPEN_QUESTIONS.md, 35_EXECUTION_STATE.json
+- **Completion note (2026-09-24):** Owner approval given explicitly in the implementation-authorization message of 2026-09-24, conditional on a safely completed duplicate quarantine and a consistent baseline. Both verified: `DEDUP_EXECUTION_STATE.json` phase `POSTVERIFIED_COMPLETE`, `quarantine_summary.json` postverification PASS, `t2_to_t3_comparison.json` zero unexpected path changes (docs/38). Q-B05 = approved; Q-B01 closed; Q-B02–Q-B04 stay open for the phases they gate. See 25 and 24 §Owner decisions.
 
 ### T-P0-09 — T2 corpus re-audit and Phase-0 reconciliation
 - **Phase:** P0
@@ -1132,7 +1133,7 @@ Each task is written so that it can be independently verified. Spike tasks link 
 
 ### T-P7-02 — SPIKE-MODELGW: access to OpenCode-configured models
 - **Phase:** P7
-- **Status:** NOT_STARTED
+- **Status:** BLOCKED
 - **Priority:** critical
 - **Dependencies:** T-P0-08
 - **Human approval:** none
@@ -1142,6 +1143,7 @@ Each task is written so that it can be independently verified. Spike tasks link 
 - **Acceptance criteria:** Working call to ≥2 roles' models from Python; recommendation.
 - **Validation method:** Spike report.
 - **Expected artifacts:** eval/reports/spike_modelgw.md
+- **Blocked by:** Q-B04 (model access and credentials are owner decisions; recorded 2026-09-24 when T-P0-08 made the task dependency-eligible).
 
 ### T-P7-03 — Answer schema with knowledge-layer basis
 - **Phase:** P7

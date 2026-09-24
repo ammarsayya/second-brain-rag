@@ -158,3 +158,13 @@ All entries are dated 2026-09-24 unless noted. Format per entry: context → dec
 
 ### ADR-037 — MBI vault separate from the owner's Brain; the Brain holds registry metadata only
 - **Status:** PROPOSED (Q-B02) · **Rationale:** Brain governance forbids project-documentation mirrors and bulk content. The corpus vault would add tens of thousands of notes.
+
+---
+## Owner decisions (non-ADR governance records)
+
+| Date | Decision | Evidence | Effect |
+|---|---|---|---|
+| 2026-09-24 | **Plan approved (Q-B05)**. Implementation authorized through the T-P0-08 gate, conditional on a safe exact-duplicate quarantine and a consistent baseline | Owner's implementation-authorization message (2026-09-24); `audit/dedup_quarantine/DEDUP_EXECUTION_STATE.json` (`POSTVERIFIED_COMPLETE`), `audit/phase0/t3/quarantine_summary.json` (PASS) | T-P0-08 DONE; T-P1-01 eligible. No ADR status changed |
+| 2026-09-24 | **Q-B01 closed**; t3 is the implementation-source baseline, t2 the pre-quarantine historical baseline | docs/37 §24, docs/38, `audit/phase0/t3/t2_to_t3_comparison.json` | T-P2-12 compares against t3 |
+| 2026-09-24 | `D:\studium_duplicated` is quarantine and rollback evidence, **not a source root**. It is never ingested and never written by sbr | Owner authorization message; docs/38 | Config must not list it as a source root |
+| 2026-09-24 | T-P7-02 (SPIKE-MODELGW) set BLOCKED on Q-B04 | 25 Q-B04 | Resumes when the owner answers Q-B04 |

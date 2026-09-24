@@ -2,10 +2,10 @@
   "schema_version": "1.0",
   "project": "second-brain-rag",
   "last_updated": "2026-09-24",
-  "updated_by": "Claude Opus 5.5 (t2 corpus re-audit and reconciliation, T-P0-09)",
+  "updated_by": "Claude Opus 5.5 (T-P0-08 owner approval recorded; P1 implementation)",
   "authoritative_docs": "docs/28_TASK_REGISTER.md (tasks), docs/24_DECISION_LOG.md (decisions), docs/25_OPEN_QUESTIONS.md, docs/34_RESEARCH_AND_SPIKE_REGISTER.md",
-  "current_phase": "P0",
-  "current_phase_status": "awaiting_owner_approval (t2 re-audit complete)",
+  "current_phase": "P1",
+  "current_phase_status": "in_progress (plan approved 2026-09-24)",
   "phases": {
     "P0": {
       "tasks": 9
@@ -55,10 +55,10 @@
   },
   "task_totals": {
     "total": 146,
-    "DONE": 8,
-    "NOT_STARTED": 135,
+    "DONE": 9,
+    "NOT_STARTED": 133,
     "IN_PROGRESS": 0,
-    "BLOCKED": 0,
+    "BLOCKED": 1,
     "DEFERRED": 3
   },
   "tasks": {
@@ -69,7 +69,7 @@
     "T-P0-05": "DONE",
     "T-P0-06": "DONE",
     "T-P0-07": "DONE",
-    "T-P0-08": "NOT_STARTED",
+    "T-P0-08": "DONE",
     "T-P0-09": "DONE",
     "T-P1-01": "NOT_STARTED",
     "T-P1-02": "NOT_STARTED",
@@ -148,7 +148,7 @@
     "T-P6-12": "NOT_STARTED",
     "T-P6-13": "NOT_STARTED",
     "T-P7-01": "NOT_STARTED",
-    "T-P7-02": "NOT_STARTED",
+    "T-P7-02": "BLOCKED",
     "T-P7-03": "NOT_STARTED",
     "T-P7-04": "NOT_STARTED",
     "T-P7-05": "NOT_STARTED",
@@ -217,12 +217,15 @@
     "T-P0-05",
     "T-P0-06",
     "T-P0-07",
+    "T-P0-08",
     "T-P0-09"
   ],
   "in_progress_tasks": [],
-  "blocked_tasks": [],
+  "blocked_tasks": [
+    "T-P7-02"
+  ],
   "next_eligible_tasks": [
-    "T-P0-08"
+    "T-P1-01"
   ],
   "first_implementation_task_after_approval": "T-P1-01",
   "decisions": {
@@ -277,17 +280,6 @@
   },
   "unresolved_blockers": [
     {
-      "id": "Q-B01",
-      "summary": "Corpus migration: owner reports finished; t2/t2b/t2c identical over 45 min (14:04-14:49). RECOMMENDED RESOLUTION: close. Pending owner confirmation.",
-      "blocks": [
-        "T-P2-12",
-        "T-P13-01"
-      ],
-      "recommended_resolution": "close",
-      "owner_confirmed": false,
-      "evidence": "docs/37_T2_CORPUS_REAUDIT.md §24"
-    },
-    {
       "id": "Q-B02",
       "summary": "Vault location and relation to the Brain",
       "blocks": [
@@ -310,13 +302,6 @@
       "blocks": [
         "T-P7-02",
         "T-P7-01"
-      ]
-    },
-    {
-      "id": "Q-B05",
-      "summary": "Owner approval of the plan",
-      "blocks": [
-        "T-P0-08"
       ]
     }
   ],
@@ -474,7 +459,17 @@
       "new_since_t1_files": 152,
       "new_since_t1_unique_contents": 136,
       "moved_or_copied_exact": 30870,
-      "note": "authoritative baseline; docs/37"
+      "note": "authoritative PRE-quarantine baseline (historical); docs/37"
+    },
+    "t3": {
+      "files": 83880,
+      "bytes": 558752407625,
+      "pdf_paths": 11757,
+      "quarantined_files": 2033,
+      "quarantined_bytes": 2750581224,
+      "unexpected_path_changes": 0,
+      "remaining_exact_redundant_paths_from_t2_hashes": 48723,
+      "note": "authoritative POST-quarantine implementation-source baseline; docs/38; audit/phase0/t3/"
     }
   },
   "environment": {
@@ -494,9 +489,25 @@
       "source_root": "D:\\MBI-BRAIN",
       "vault_root": "D:\\MBI-VAULT (proposed, Q-B02)",
       "var": "var/",
-      "curation": "curation/"
+      "curation": "curation/",
+      "quarantine_not_a_source": "D:\\studium_duplicated (never ingested, never written)"
     },
     "t2_audit": "audit/phase0/t2/",
-    "t2_report": "docs/37_T2_CORPUS_REAUDIT.md"
-  }
+    "t2_report": "docs/37_T2_CORPUS_REAUDIT.md",
+    "quarantine_report": "docs/38_EXACT_DUPLICATE_QUARANTINE.md"
+  },
+  "resolved_questions": [
+    {
+      "id": "Q-B05",
+      "answer": "approved",
+      "date": "2026-09-24",
+      "evidence": "owner implementation authorization 2026-09-24; docs/24 Owner decisions"
+    },
+    {
+      "id": "Q-B01",
+      "answer": "closed; t3 is the implementation-source baseline",
+      "date": "2026-09-24",
+      "evidence": "docs/38; audit/phase0/t3/t2_to_t3_comparison.json"
+    }
+  ]
 }

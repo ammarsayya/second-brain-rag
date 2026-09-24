@@ -2,7 +2,7 @@
 
 **Project:** Second Brain RAG (`second-brain-rag`, CLI name `sbr`)
 **Owner:** Ammar Sayyadi (personal project)
-**Status:** Phase 0 planning complete and reconciled against the finalized corpus (t2 re-audit, `37_T2_CORPUS_REAUDIT.md`). **Awaiting owner review (T-P0-08).**
+**Status:** Phase 0 planning complete and reconciled against the finalized corpus (t2 re-audit, `37_T2_CORPUS_REAUDIT.md`). **Plan approved by the owner on 2026-09-24 (T-P0-08 DONE); Phase 1 implementation in progress.** Post-quarantine source baseline: t3 (`38_EXACT_DUPLICATE_QUARANTINE.md`).
 **Last updated:** 2026-09-24
 
 ## What this is
@@ -50,4 +50,4 @@ Human curation decisions (canonical overrides, taxonomy edits, exclusions, appro
 17 Model Strategy · 18 Storage · 19 Obsidian · 20 Evaluation · 21 Observability & Operations · 22 Security & Safety ·
 23 Failure Recovery · 24 Decision Log · 25 Open Questions · 26 Risk Register · 27 Phases & Milestones · 28 Task Register ·
 29 Dependency Map · 30 Implementation Sequence · 31 Corpus Manifest Spec · 32 Data & Metadata Schemas · 33 Test Strategy ·
-34 Research & Spike Register · 35 Execution State (JSON) · 36 Technology Assessment (added: the per-dependency evaluation required by the mission) · 37 T2 Corpus Re-audit (authoritative current corpus baseline)
+34 Research & Spike Register · 35 Execution State (JSON) · 36 Technology Assessment (added: the per-dependency evaluation required by the mission) · 37 T2 Corpus Re-audit (pre-quarantine baseline) · 38 Exact-duplicate quarantine (t3 post-quarantine baseline)
