@@ -113,10 +113,10 @@ class FakeSourceFS:
 
 class SpyQueue:
     def __init__(self) -> None:
-        self.calls: list[tuple[str, str, str]] = []
+        self.calls: list[tuple[str, str, str, int]] = []
 
-    def enqueue(self, subject_id: str, stage: str, stage_version: str) -> None:
-        self.calls.append((subject_id, stage, stage_version))
+    def enqueue(self, subject_id: str, stage: str, stage_version: str, *, priority: int = 0) -> None:
+        self.calls.append((subject_id, stage, stage_version, priority))
 
 
 def _entry(
@@ -170,7 +170,11 @@ def test_deterministic_order_windows_relpaths_and_protected_link_not_followed(
     try:
         observations = db.repo(reg.PATH_OBSERVATION).find()
         by_id = {item.obs_id: item.relpath for item in observations}
-        assert [by_id[subject] for subject, _, _ in queue.calls] == ["Dossier\\a.txt", "Dossier\\β.txt", "z.txt"]
+        assert [by_id[subject] for subject, _, _, _ in queue.calls] == [
+            "Dossier\\a.txt",
+            "Dossier\\β.txt",
+            "z.txt",
+        ]
         assert fake.calls == ["", "Dossier"]
         assert all("/" not in item.relpath for item in observations)
         assert record.errors == 0
@@ -203,7 +207,7 @@ def test_repeat_scan_reuses_observations_and_only_enqueues_changes(
         assert changed.obs_id == before[changed.relpath].obs_id
         assert changed.last_seen_scan == third.scan_id
         assert changed.blob_id is None
-        assert spy.calls == [(changed.obs_id, HASH_STAGE, "1")]
+        assert spy.calls == [(changed.obs_id, HASH_STAGE, "1", 100)]
 
 
 def test_interrupt_marks_scan_and_activity_then_root_can_restart(make_config: Callable[..., SbrConfig]) -> None:

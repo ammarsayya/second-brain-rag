@@ -339,7 +339,7 @@ Each task is written so that it can be independently verified. Spike tasks link 
 
 ### T-P2-02 — Content hashing stage (BLAKE3)
 - **Phase:** P2
-- **Status:** NOT_STARTED
+- **Status:** IN_PROGRESS
 - **Priority:** critical
 - **Dependencies:** T-P2-01, T-P1-04
 - **Human approval:** none
@@ -349,6 +349,10 @@ Each task is written so that it can be independently verified. Spike tasks link 
 - **Acceptance criteria:** All document blobs hashed; re-run skips unchanged files; interrupt/resume works.
 - **Validation method:** Tests; spot-check 50 hashes vs independent tool.
 - **Expected artifacts:** src/sbr/registry/hash.py
+- **Verification (2026-09-24):** S2 worker, document-first queue priority, CLI, independent validator, queue
+  crash/resume coverage, per-item error isolation, idempotent scan-to-hash coverage, duplicate-content convergence, and
+  TS-SAFE-3 source-mutation guard are implemented. Fixture-corpus independent BLAKE3 validation is complete. Status
+  remains IN_PROGRESS pending the owner's 50-file `tools/validate_hash.py` spot-check against the real corpus.
 
 ### T-P2-03 — Change detection (new/modified/moved/deleted)
 - **Phase:** P2

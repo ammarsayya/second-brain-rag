@@ -16,6 +16,7 @@ import pytest
 
 from sbr.config import SbrConfig
 from sbr.db.registry import RegistryDB
+from sbr.registry.hash import hash_pending
 from sbr.registry.scan import scan_root
 from sbr.safety import SourceWriteError, SourceWriteGuard, assert_writable
 from sbr.sourcefs import SourceFS
@@ -133,5 +134,20 @@ def test_full_scan_makes_zero_source_mutations(make_config: Callable[..., SbrCon
         with SourceWriteGuard.for_config(cfg) as guard:
             record = scan_root(cfg, db, "fx")
     assert record.files_seen == sum(1 for path in source_tree.rglob("*") if path.is_file())
+    assert guard.violations == []
+    assert tree_digest(source_tree) == before
+
+
+def test_full_hash_makes_zero_source_mutations(make_config: Callable[..., SbrConfig], source_tree: Path) -> None:
+    """TS-SAFE-3 for S2: hash through SourceFS while every source mutator is guarded."""
+    cfg = make_config()
+    before = tree_digest(source_tree)
+    with RegistryDB.open(cfg) as db:
+        db.migrate()
+        scan_root(cfg, db, "fx")
+        with SourceWriteGuard.for_config(cfg) as guard:
+            result = hash_pending(cfg, db)
+    assert result.hashed == sum(1 for path in source_tree.rglob("*") if path.is_file())
+    assert result.failed == 0
     assert guard.violations == []
     assert tree_digest(source_tree) == before

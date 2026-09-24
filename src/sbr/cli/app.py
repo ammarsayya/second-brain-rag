@@ -20,6 +20,7 @@ from sbr import __version__
 from sbr.cli.runtime import Runtime, command_runtime
 from sbr.config import ConfigError
 from sbr.db import registry as reg
+from sbr.registry.hash import DEFAULT_BATCH_SIZE, hash_pending
 from sbr.registry.scan import scan_sources
 from sbr.schemas import WorkItemState
 
@@ -157,6 +158,29 @@ def scan_cmd(
         }
 
     _run("scan", config, body)
+
+
+@app.command("hash")
+def hash_cmd(
+    batch_size: int = typer.Option(DEFAULT_BATCH_SIZE, "--batch-size", help="Hash-job leases per batch."),
+    config: Path | None = ConfigOption,
+) -> None:
+    """Hash all currently-ready S2 work through read-only SourceFS streams."""
+    if batch_size < 1:
+        raise typer.BadParameter("--batch-size must be at least 1")
+
+    def body(rt: Runtime) -> dict[str, object]:
+        result = hash_pending(rt.config, rt.db, batch_size=batch_size)
+        return {
+            "activity_id": result.activity_id,
+            "leased": result.leased,
+            "hashed": result.hashed,
+            "bytes_hashed": result.bytes_hashed,
+            "failed": result.failed,
+            "elapsed_seconds": round(result.elapsed_seconds, 6),
+        }
+
+    _run("hash", config, body)
 
 
 @config_app.command("show")

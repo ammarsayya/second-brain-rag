@@ -25,6 +25,7 @@ from sbr.ids import new_id
 from sbr.jobs import JobQueue
 from sbr.obs.logging import get_logger
 from sbr.provenance import ProvenanceStore
+from sbr.registry.priority import hash_priority
 from sbr.schemas import ActivityStatus, PathObservation, ScanRecord, SourceRootRecord
 from sbr.schemas.registry import ObservationState, RootKind, ScanStatus
 from sbr.sourcefs import SourceAccessError, SourceEntry, SourceFS, split_relpath
@@ -162,7 +163,12 @@ def scan_root(
             with transaction(db.conn):
                 observations.upsert(observation)
                 if changed:
-                    jobs.enqueue(observation.obs_id, HASH_STAGE, hash_stage_version)
+                    jobs.enqueue(
+                        observation.obs_id,
+                        HASH_STAGE,
+                        hash_stage_version,
+                        priority=hash_priority(observation.relpath),
+                    )
             files_seen += 1
             bytes_seen += entry.size
         status = ScanStatus.COMPLETED
