@@ -1,0 +1,27 @@
+# sbr configuration example (docs/32 §6). Copy to config/sbr.toml (git-ignored) and adjust.
+# Environment overrides: SBR_<SECTION>__<KEY>, e.g. SBR_GOVERNOR__MAX_WORKERS=4. SBR_CONFIG selects another file.
+
+[roots]
+# Source roots are always read-only (HC-01/HC-03). `read_only = false` is rejected.
+sources = [{ id = "mbi", path = 'D:\MBI-BRAIN', kind = "university" }]
+var = 'D:\AgenticAI\second-brain-rag\var'
+curation = 'D:\AgenticAI\second-brain-rag\curation'
+# vault = 'D:\MBI-VAULT'          # open question Q-B02; leave unset until answered
+# Never read or written by sbr, and never a source root (docs/24 "Owner decisions").
+protected = ['D:\studium_duplicated']
+
+[governor]
+max_workers = 6
+max_ram_gb = 40
+disk_floor_gb = 50
+priority = "below_normal"
+time_windows = []
+
+[logging]
+level = "INFO"
+
+# Model roles (docs/17). Concrete models are decided by SPIKE-MODELGW after Q-B04; leave `primary` unset until then.
+# `restricted` is never allowed in allowed_sensitivity.
+[models.roles.reason]
+fallbacks = []
+allowed_sensitivity = ["normal"]

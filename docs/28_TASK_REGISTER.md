@@ -10,7 +10,7 @@ Each task is written so that it can be independently verified. Spike tasks link 
 | Phase | Name | Tasks | DONE |
 |---|---|---|---|
 | P0 | Corpus Audit & Architecture Planning | 9 | 9 |
-| P1 | Foundations | 13 | 1 |
+| P1 | Foundations | 13 | 2 |
 | P2 | Source Registry, Manifest & Exact Dedup | 14 | 0 |
 | P3 | Gold Set & Extraction Spikes (decision gate) | 11 | 0 |
 | P4 | Extraction & Normalization | 16 | 0 |
@@ -24,7 +24,7 @@ Each task is written so that it can be independently verified. Spike tasks link 
 | P12 | External Research & Approval | 7 | 0 |
 | P13 | Scale-out, Hardening & Operations | 10 | 0 |
 | P14 | Project/Idea Integration (future) | 3 | 0 |
-| **Total** | | **146** | **10** |
+| **Total** | | **146** | **11** |
 
 ## P0 — Corpus Audit & Architecture Planning
 
@@ -160,7 +160,7 @@ Each task is written so that it can be independently verified. Spike tasks link 
 
 ### T-P1-02 — Configuration system
 - **Phase:** P1
-- **Status:** NOT_STARTED
+- **Status:** DONE
 - **Priority:** critical
 - **Dependencies:** T-P1-01
 - **Human approval:** none
@@ -170,6 +170,7 @@ Each task is written so that it can be independently verified. Spike tasks link 
 - **Acceptance criteria:** Invalid configs rejected with clear errors; source roots cannot be configured writable.
 - **Validation method:** Unit tests for load/validate/override by env.
 - **Expected artifacts:** src/sbr/config.py, config/sbr.example.toml
+- **Completion note (2026-09-24):** pydantic-settings config loaded from TOML (config/sbr.toml, SBR_CONFIG override) with SBR_<SECTION>__<KEY> environment overrides that are validated. Enforced: read-only source roots (read_only=false rejected); no overlap between sources and var/curation/vault; protected paths (D:\studium_duplicated) can be neither a source root nor a writable root; 'restricted' is rejected for every model role; unknown keys and relative paths rejected; every validation problem listed with its location. The vault stays unset (Q-B02) and role primaries stay unset (Q-B04). Stable config_hash for the run ledger. Evidence: tests/test_config.py 21 passed; tools/check.ps1 CHECK GREEN.
 
 ### T-P1-03 — SourceFS read-only guard
 - **Phase:** P1

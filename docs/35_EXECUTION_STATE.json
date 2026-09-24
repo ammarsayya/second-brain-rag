@@ -55,8 +55,8 @@
   },
   "task_totals": {
     "total": 146,
-    "DONE": 10,
-    "NOT_STARTED": 132,
+    "DONE": 11,
+    "NOT_STARTED": 131,
     "IN_PROGRESS": 0,
     "BLOCKED": 1,
     "DEFERRED": 3
@@ -72,7 +72,7 @@
     "T-P0-08": "DONE",
     "T-P0-09": "DONE",
     "T-P1-01": "DONE",
-    "T-P1-02": "NOT_STARTED",
+    "T-P1-02": "DONE",
     "T-P1-03": "NOT_STARTED",
     "T-P1-04": "NOT_STARTED",
     "T-P1-05": "NOT_STARTED",
@@ -219,14 +219,15 @@
     "T-P0-07",
     "T-P0-08",
     "T-P0-09",
-    "T-P1-01"
+    "T-P1-01",
+    "T-P1-02"
   ],
   "in_progress_tasks": [],
   "blocked_tasks": [
     "T-P7-02"
   ],
   "next_eligible_tasks": [
-    "T-P1-02",
+    "T-P1-03",
     "T-P1-04",
     "T-P1-05",
     "T-P1-13"
@@ -533,6 +534,18 @@
         "README.md"
       ],
       "verification": "uv run pytest 3 passed; uv run sbr --help prints the command group; pre-commit run --all-files all 5 hooks Passed; tools/check.ps1 CHECK GREEN"
+    },
+    {
+      "task": "T-P1-02",
+      "date": "2026-09-24",
+      "status": "DONE",
+      "summary": "pydantic-settings config loaded from TOML (config/sbr.toml, SBR_CONFIG override) with SBR_<SECTION>__<KEY> environment overrides that are validated. Enforced: read-only source roots (read_only=false rejected); no overlap between sources and var/curation/vault; protected paths (D:\\studium_duplicated) can be neither a source root nor a writable root; 'restricted' is rejected for every model role; unknown keys and relative paths rejected; every validation problem listed with its location. The vault stays unset (Q-B02) and role primaries stay unset (Q-B04). Stable config_hash for the run ledger.",
+      "files": [
+        "src/sbr/config.py",
+        "config/sbr.example.toml",
+        "tests/test_config.py"
+      ],
+      "verification": "tests/test_config.py 21 passed; tools/check.ps1 CHECK GREEN"
     }
   ]
 }
