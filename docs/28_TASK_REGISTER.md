@@ -10,7 +10,7 @@ Each task is written so that it can be independently verified. Spike tasks link 
 | Phase | Name | Tasks | DONE |
 |---|---|---|---|
 | P0 | Corpus Audit & Architecture Planning | 9 | 9 |
-| P1 | Foundations | 13 | 0 |
+| P1 | Foundations | 13 | 1 |
 | P2 | Source Registry, Manifest & Exact Dedup | 14 | 0 |
 | P3 | Gold Set & Extraction Spikes (decision gate) | 11 | 0 |
 | P4 | Extraction & Normalization | 16 | 0 |
@@ -24,7 +24,7 @@ Each task is written so that it can be independently verified. Spike tasks link 
 | P12 | External Research & Approval | 7 | 0 |
 | P13 | Scale-out, Hardening & Operations | 10 | 0 |
 | P14 | Project/Idea Integration (future) | 3 | 0 |
-| **Total** | | **146** | **9** |
+| **Total** | | **146** | **10** |
 
 ## P0 — Corpus Audit & Architecture Planning
 
@@ -146,7 +146,7 @@ Each task is written so that it can be independently verified. Spike tasks link 
 
 ### T-P1-01 — Repository bootstrap
 - **Phase:** P1
-- **Status:** NOT_STARTED
+- **Status:** DONE
 - **Priority:** critical
 - **Dependencies:** T-P0-08
 - **Human approval:** none
@@ -156,6 +156,7 @@ Each task is written so that it can be independently verified. Spike tasks link 
 - **Acceptance criteria:** `uv run pytest` passes an empty suite; `uv run sbr --help` works; pre-commit runs.
 - **Validation method:** CI-like local script `tools/check.ps1` runs lint+type+tests.
 - **Expected artifacts:** pyproject.toml, src/sbr/__init__.py, .gitignore, tools/check.ps1
+- **Completion note (2026-09-24):** uv project (Python 3.12.14, hatchling, src/sbr layout), Typer entry point, ruff + strict mypy, pytest + hypothesis, pre-commit (detect-secrets with a clean baseline, ruff, mypy, plan validator; audit/ and handoff reports excluded so evidence is never rewritten), .gitignore (var/, .venv*, local-only audit data, reports/, eval/gold/, config/sbr.toml). The repository was already git-initialized by the owner; implementation proceeds on branch p1-foundations. Tracked audit data from the owner's initial commit was left tracked (owner decision). Evidence: uv run pytest 3 passed; uv run sbr --help prints the command group; pre-commit run --all-files all 5 hooks Passed; tools/check.ps1 CHECK GREEN.
 
 ### T-P1-02 — Configuration system
 - **Phase:** P1

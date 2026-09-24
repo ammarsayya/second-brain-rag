@@ -55,8 +55,8 @@
   },
   "task_totals": {
     "total": 146,
-    "DONE": 9,
-    "NOT_STARTED": 133,
+    "DONE": 10,
+    "NOT_STARTED": 132,
     "IN_PROGRESS": 0,
     "BLOCKED": 1,
     "DEFERRED": 3
@@ -71,7 +71,7 @@
     "T-P0-07": "DONE",
     "T-P0-08": "DONE",
     "T-P0-09": "DONE",
-    "T-P1-01": "NOT_STARTED",
+    "T-P1-01": "DONE",
     "T-P1-02": "NOT_STARTED",
     "T-P1-03": "NOT_STARTED",
     "T-P1-04": "NOT_STARTED",
@@ -218,14 +218,18 @@
     "T-P0-06",
     "T-P0-07",
     "T-P0-08",
-    "T-P0-09"
+    "T-P0-09",
+    "T-P1-01"
   ],
   "in_progress_tasks": [],
   "blocked_tasks": [
     "T-P7-02"
   ],
   "next_eligible_tasks": [
-    "T-P1-01"
+    "T-P1-02",
+    "T-P1-04",
+    "T-P1-05",
+    "T-P1-13"
   ],
   "first_implementation_task_after_approval": "T-P1-01",
   "decisions": {
@@ -508,6 +512,27 @@
       "answer": "closed; t3 is the implementation-source baseline",
       "date": "2026-09-24",
       "evidence": "docs/38; audit/phase0/t3/t2_to_t3_comparison.json"
+    }
+  ],
+  "implementation_log": [
+    {
+      "task": "T-P1-01",
+      "date": "2026-09-24",
+      "status": "DONE",
+      "summary": "uv project (Python 3.12.14, hatchling, src/sbr layout), Typer entry point, ruff + strict mypy, pytest + hypothesis, pre-commit (detect-secrets with a clean baseline, ruff, mypy, plan validator; audit/ and handoff reports excluded so evidence is never rewritten), .gitignore (var/, .venv*, local-only audit data, reports/, eval/gold/, config/sbr.toml). The repository was already git-initialized by the owner; implementation proceeds on branch p1-foundations. Tracked audit data from the owner's initial commit was left tracked (owner decision).",
+      "files": [
+        "pyproject.toml",
+        "uv.lock",
+        "src/sbr/__init__.py",
+        "src/sbr/cli/app.py",
+        ".gitignore",
+        ".pre-commit-config.yaml",
+        ".secrets.baseline",
+        "tools/check.ps1",
+        "tests/test_cli_smoke.py",
+        "README.md"
+      ],
+      "verification": "uv run pytest 3 passed; uv run sbr --help prints the command group; pre-commit run --all-files all 5 hooks Passed; tools/check.ps1 CHECK GREEN"
     }
   ]
 }
