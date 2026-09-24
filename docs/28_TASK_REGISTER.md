@@ -10,7 +10,7 @@ Each task is written so that it can be independently verified. Spike tasks link 
 | Phase | Name | Tasks | DONE |
 |---|---|---|---|
 | P0 | Corpus Audit & Architecture Planning | 9 | 9 |
-| P1 | Foundations | 13 | 3 |
+| P1 | Foundations | 13 | 4 |
 | P2 | Source Registry, Manifest & Exact Dedup | 14 | 0 |
 | P3 | Gold Set & Extraction Spikes (decision gate) | 11 | 0 |
 | P4 | Extraction & Normalization | 16 | 0 |
@@ -24,7 +24,7 @@ Each task is written so that it can be independently verified. Spike tasks link 
 | P12 | External Research & Approval | 7 | 0 |
 | P13 | Scale-out, Hardening & Operations | 10 | 0 |
 | P14 | Project/Idea Integration (future) | 3 | 0 |
-| **Total** | | **146** | **12** |
+| **Total** | | **146** | **13** |
 
 ## P0 — Corpus Audit & Architecture Planning
 
@@ -188,7 +188,7 @@ Each task is written so that it can be independently verified. Spike tasks link 
 
 ### T-P1-04 — Identifier and hashing core
 - **Phase:** P1
-- **Status:** NOT_STARTED
+- **Status:** DONE
 - **Priority:** critical
 - **Dependencies:** T-P1-01
 - **Human approval:** none
@@ -198,6 +198,7 @@ Each task is written so that it can be independently verified. Spike tasks link 
 - **Acceptance criteria:** Hashes match reference vectors; streaming hash of 2 GB file within memory bound; ULIDs sortable.
 - **Validation method:** Unit + property tests.
 - **Expected artifacts:** src/sbr/ids.py
+- **Completion note (2026-09-24):** BLAKE3-256 blob ids (b3:<64 hex>), streamed through one reusable buffer via readinto (with a read() fallback); optional xxh3-128 pre-filter (x3:, never an identity); thread-safe monotonic ULID generator (Crockford base32; injectable clock and entropy; stays monotonic if the clock steps back) with type-prefixed ids from docs/32; 64-bit SimHash anchor fingerprint over NFKC case-folded 3-gram shingles of text plus LaTeX; Hamming distance. Evidence: official BLAKE3 vectors (len 0 and 1) match; hypothesis: stream == one-shot for arbitrary chunk sizes; 2 GiB synthetic stream hashed with peak Python allocation < 8 MiB; ULID sort and monotonicity tests; fingerprint similarity ordering; tests 63 passed; tools/check.ps1 CHECK GREEN.
 
 ### T-P1-05 — Core schema package (pydantic models + JSON Schema export)
 - **Phase:** P1

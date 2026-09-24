@@ -55,8 +55,8 @@
   },
   "task_totals": {
     "total": 146,
-    "DONE": 12,
-    "NOT_STARTED": 130,
+    "DONE": 13,
+    "NOT_STARTED": 129,
     "IN_PROGRESS": 0,
     "BLOCKED": 1,
     "DEFERRED": 3
@@ -74,7 +74,7 @@
     "T-P1-01": "DONE",
     "T-P1-02": "DONE",
     "T-P1-03": "DONE",
-    "T-P1-04": "NOT_STARTED",
+    "T-P1-04": "DONE",
     "T-P1-05": "NOT_STARTED",
     "T-P1-06": "NOT_STARTED",
     "T-P1-07": "NOT_STARTED",
@@ -221,14 +221,14 @@
     "T-P0-09",
     "T-P1-01",
     "T-P1-02",
-    "T-P1-03"
+    "T-P1-03",
+    "T-P1-04"
   ],
   "in_progress_tasks": [],
   "blocked_tasks": [
     "T-P7-02"
   ],
   "next_eligible_tasks": [
-    "T-P1-04",
     "T-P1-05",
     "T-P1-13"
   ],
@@ -561,6 +561,17 @@
         "tests/safety/test_runtime_guard.py"
       ],
       "verification": "TS-SAFE-1/2/3 harness: tests/safety 27 passed (the junction-escape, junction-into-quarantine and >300-char long-path tests executed on Windows, not skipped); 26 mutation attempts all blocked with source and quarantine bytes and mtimes unchanged; tools/check.ps1 CHECK GREEN"
+    },
+    {
+      "task": "T-P1-04",
+      "date": "2026-09-24",
+      "status": "DONE",
+      "summary": "BLAKE3-256 blob ids (b3:<64 hex>), streamed through one reusable buffer via readinto (with a read() fallback); optional xxh3-128 pre-filter (x3:, never an identity); thread-safe monotonic ULID generator (Crockford base32; injectable clock and entropy; stays monotonic if the clock steps back) with type-prefixed ids from docs/32; 64-bit SimHash anchor fingerprint over NFKC case-folded 3-gram shingles of text plus LaTeX; Hamming distance.",
+      "files": [
+        "src/sbr/ids.py",
+        "tests/test_ids.py"
+      ],
+      "verification": "official BLAKE3 vectors (len 0 and 1) match; hypothesis: stream == one-shot for arbitrary chunk sizes; 2 GiB synthetic stream hashed with peak Python allocation < 8 MiB; ULID sort and monotonicity tests; fingerprint similarity ordering; tests 63 passed; tools/check.ps1 CHECK GREEN"
     }
   ]
 }
