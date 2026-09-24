@@ -55,8 +55,8 @@
   },
   "task_totals": {
     "total": 146,
-    "DONE": 16,
-    "NOT_STARTED": 126,
+    "DONE": 17,
+    "NOT_STARTED": 125,
     "IN_PROGRESS": 0,
     "BLOCKED": 1,
     "DEFERRED": 3
@@ -78,7 +78,7 @@
     "T-P1-05": "DONE",
     "T-P1-06": "DONE",
     "T-P1-07": "DONE",
-    "T-P1-08": "NOT_STARTED",
+    "T-P1-08": "DONE",
     "T-P1-09": "NOT_STARTED",
     "T-P1-10": "NOT_STARTED",
     "T-P1-11": "NOT_STARTED",
@@ -225,20 +225,22 @@
     "T-P1-04",
     "T-P1-05",
     "T-P1-06",
-    "T-P1-07"
+    "T-P1-07",
+    "T-P1-08"
   ],
   "in_progress_tasks": [],
   "blocked_tasks": [
     "T-P7-02"
   ],
   "next_eligible_tasks": [
-    "T-P1-08",
     "T-P1-09",
+    "T-P1-11",
     "T-P1-12",
     "T-P1-13",
     "T-P13-04",
     "T-P4-01",
-    "T-P7-03"
+    "T-P7-03",
+    "T-P9-02"
   ],
   "first_implementation_task_after_approval": "T-P1-01",
   "decisions": {
@@ -631,6 +633,24 @@
         "tests/db/*"
       ],
       "verification": "TS-PROV-1: writes to all 7 provenance-bearing tables plus derived_from refused for finished and unknown activities; TS-PROV-2: PV-1 violations (no link or unknown activity) and dangling locators reported; atomic rollback of entity plus links, including under an outer transaction; the 0001 to 0002 upgrade is covered by the generic N-1 migration test; tests 130 passed; tools/check.ps1 CHECK GREEN"
+    },
+    {
+      "task": "T-P1-08",
+      "date": "2026-09-24",
+      "status": "DONE",
+      "summary": "Migration 0003_runs: run table (run_id, command path only (no arguments, which may contain paths), config_hash, code_version, git_sha with a +dirty flag, pid, times, status running/succeeded/failed/interrupted, exit_code, error_class, counts JSON); runs are never deleted and finished runs are immutable; a trigger makes activity.run_id reference a recorded run. RunRecord schema (exported). RunLedger plus run_scope(): records the run, sets the run_id contextvar, and finishes as succeeded, failed (error class only), interrupted (KeyboardInterrupt) or by SystemExit code. cli/runtime.command_runtime() gives every stateful CLI command config, a migrated registry, logging and exactly one run row; --help and version stay stateless. JSONL logging: one object per line (ts, level, logger, msg, run_id, stage, subject_id, extra fields), size rotation from the config, RedactionFilter hashing sensitive keys (path, relpath, text, content, ...) and cutting any source-root or protected path (either separator, any case, extended-length form) out of messages and tracebacks; the log dir is checked against protected roots.",
+      "files": [
+        "migrations/registry/0003_runs{",
+        ".down}.sql",
+        "src/sbr/schemas/operations.py",
+        "schemas/RunRecord.json",
+        "src/sbr/obs/{__init__",
+        "logging",
+        "runs}.py",
+        "src/sbr/cli/runtime.py",
+        "tests/test_obs.py"
+      ],
+      "verification": "3 CLI invocations produced 3 correct run rows (succeeded / failed ValueError / exit 2); logs parse as JSONL with a single run_id per run; secret names, grades and paths absent from the log file including tracebacks; rotation produced .1 files, all valid JSONL; run delete/update and unknown activity.run_id refused; tests 138 passed; tools/check.ps1 CHECK GREEN"
     }
   ]
 }

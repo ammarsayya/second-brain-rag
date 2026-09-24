@@ -4,6 +4,7 @@ Regenerate the exported schemas with ``uv run python tools/export_schemas.py``; 
 """
 
 from sbr.schemas.base import SCHEMA_VERSION, StrictModel
+from sbr.schemas.operations import RunRecord, RunStatus
 from sbr.schemas.provenance import Activity, ActivityStatus, DerivationRole, DerivedFrom, Locator, ProvenanceClass
 from sbr.schemas.registry import (
     ArchiveMember,
@@ -28,6 +29,7 @@ EXPORTED_MODELS: tuple[type[StrictModel], ...] = (
     BlobClassification,
     BlobRelation,
     ChangeEvent,
+    RunRecord,
 )
 
 __all__ = [
@@ -45,6 +47,8 @@ __all__ = [
     "Locator",
     "PathObservation",
     "ProvenanceClass",
+    "RunRecord",
+    "RunStatus",
     "ScanRecord",
     "SourceRootRecord",
     "StrictModel",

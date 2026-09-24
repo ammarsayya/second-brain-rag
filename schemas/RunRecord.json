@@ -1,0 +1,127 @@
+{
+  "$defs": {
+    "RunStatus": {
+      "enum": [
+        "running",
+        "succeeded",
+        "failed",
+        "interrupted"
+      ],
+      "title": "RunStatus",
+      "type": "string"
+    }
+  },
+  "$id": "sbr/1.0.0/RunRecord.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "description": "One stateful CLI or worker invocation. ``command`` is the command path only; arguments are not stored.",
+  "properties": {
+    "code_version": {
+      "title": "Code Version",
+      "type": "string"
+    },
+    "command": {
+      "pattern": "^[a-z][a-z0-9 _.-]{0,79}$",
+      "title": "Command",
+      "type": "string"
+    },
+    "config_hash": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Config Hash"
+    },
+    "counts": {
+      "additionalProperties": {
+        "type": "integer"
+      },
+      "title": "Counts",
+      "type": "object"
+    },
+    "ended_at": {
+      "anyOf": [
+        {
+          "format": "date-time",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Ended At"
+    },
+    "error_class": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Error Class"
+    },
+    "exit_code": {
+      "anyOf": [
+        {
+          "type": "integer"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Exit Code"
+    },
+    "git_sha": {
+      "anyOf": [
+        {
+          "pattern": "^[0-9a-f]{7,40}(\\+dirty)?$",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Git Sha"
+    },
+    "pid": {
+      "minimum": 0,
+      "title": "Pid",
+      "type": "integer"
+    },
+    "run_id": {
+      "pattern": "^run_[0-7][0-9A-HJKMNP-TV-Z]{25}$",
+      "title": "Run Id",
+      "type": "string"
+    },
+    "started_at": {
+      "format": "date-time",
+      "title": "Started At",
+      "type": "string"
+    },
+    "status": {
+      "$ref": "#/$defs/RunStatus",
+      "default": "running"
+    }
+  },
+  "required": [
+    "run_id",
+    "command",
+    "code_version",
+    "pid",
+    "started_at"
+  ],
+  "title": "RunRecord",
+  "type": "object",
+  "x-sbr-schema-version": "1.0.0"
+}

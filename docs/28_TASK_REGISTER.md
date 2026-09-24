@@ -10,7 +10,7 @@ Each task is written so that it can be independently verified. Spike tasks link 
 | Phase | Name | Tasks | DONE |
 |---|---|---|---|
 | P0 | Corpus Audit & Architecture Planning | 9 | 9 |
-| P1 | Foundations | 13 | 7 |
+| P1 | Foundations | 13 | 8 |
 | P2 | Source Registry, Manifest & Exact Dedup | 14 | 0 |
 | P3 | Gold Set & Extraction Spikes (decision gate) | 11 | 0 |
 | P4 | Extraction & Normalization | 16 | 0 |
@@ -24,7 +24,7 @@ Each task is written so that it can be independently verified. Spike tasks link 
 | P12 | External Research & Approval | 7 | 0 |
 | P13 | Scale-out, Hardening & Operations | 10 | 0 |
 | P14 | Project/Idea Integration (future) | 3 | 0 |
-| **Total** | | **146** | **16** |
+| **Total** | | **146** | **17** |
 
 ## P0 — Corpus Audit & Architecture Planning
 
@@ -243,7 +243,7 @@ Each task is written so that it can be independently verified. Spike tasks link 
 
 ### T-P1-08 — Run ledger and structured logging
 - **Phase:** P1
-- **Status:** NOT_STARTED
+- **Status:** DONE
 - **Priority:** high
 - **Dependencies:** T-P1-06
 - **Human approval:** none
@@ -253,6 +253,7 @@ Each task is written so that it can be independently verified. Spike tasks link 
 - **Acceptance criteria:** Every CLI invocation creates a run row; logs are valid JSONL; sensitive fields redacted in tests.
 - **Validation method:** Unit tests.
 - **Expected artifacts:** src/sbr/obs/*
+- **Completion note (2026-09-24):** Migration 0003_runs: run table (run_id, command path only (no arguments, which may contain paths), config_hash, code_version, git_sha with a +dirty flag, pid, times, status running/succeeded/failed/interrupted, exit_code, error_class, counts JSON); runs are never deleted and finished runs are immutable; a trigger makes activity.run_id reference a recorded run. RunRecord schema (exported). RunLedger plus run_scope(): records the run, sets the run_id contextvar, and finishes as succeeded, failed (error class only), interrupted (KeyboardInterrupt) or by SystemExit code. cli/runtime.command_runtime() gives every stateful CLI command config, a migrated registry, logging and exactly one run row; --help and version stay stateless. JSONL logging: one object per line (ts, level, logger, msg, run_id, stage, subject_id, extra fields), size rotation from the config, RedactionFilter hashing sensitive keys (path, relpath, text, content, ...) and cutting any source-root or protected path (either separator, any case, extended-length form) out of messages and tracebacks; the log dir is checked against protected roots. Evidence: 3 CLI invocations produced 3 correct run rows (succeeded / failed ValueError / exit 2); logs parse as JSONL with a single run_id per run; secret names, grades and paths absent from the log file including tracebacks; rotation produced .1 files, all valid JSONL; run delete/update and unknown activity.run_id refused; tests 138 passed; tools/check.ps1 CHECK GREEN.
 
 ### T-P1-09 — Job queue with leases and checkpoints
 - **Phase:** P1

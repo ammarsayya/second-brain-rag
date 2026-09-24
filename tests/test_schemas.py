@@ -26,6 +26,8 @@ from sbr.schemas import (
     Locator,
     PathObservation,
     ProvenanceClass,
+    RunRecord,
+    RunStatus,
     ScanRecord,
     SourceRootRecord,
 )
@@ -119,6 +121,19 @@ def samples() -> list[BaseModel]:
             activity_id=ACT,
         ),
         ChangeEvent(scan_id=SCAN, type=ChangeType.MOVED, obs_id=OBS, blob_id=B1, activity_id=ACT),
+        RunRecord(
+            run_id=new_id("run"),
+            command="scan",
+            config_hash="sha256:" + "0" * 64,
+            code_version="0.1.0",
+            git_sha="abcdef1+dirty",
+            pid=1,
+            started_at=T0,
+            ended_at=T0 + timedelta(seconds=1),
+            status=RunStatus.SUCCEEDED,
+            exit_code=0,
+            counts={"files": 3},
+        ),
     ]
 
 

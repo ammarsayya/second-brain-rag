@@ -81,7 +81,8 @@ class Repository[M: BaseModel]:
             data[c] = json.dumps(data[c], ensure_ascii=False, sort_keys=True, separators=(",", ":"))
         return data
 
-    def _from_row(self, row: Iterable[Any], names: Iterable[str]) -> M:
+    def from_row(self, row: Iterable[Any], names: Iterable[str]) -> M:
+        """Map one result row (column order ``names``) back to a validated model."""
         data = dict(zip(names, row, strict=True))
         for c in self.spec.json_columns:
             if data.get(c) is not None:
@@ -120,7 +121,7 @@ class Repository[M: BaseModel]:
         where = " AND ".join(f"{c} = ?" for c in self.spec.pk)
         cur = self.conn.execute(f"SELECT {', '.join(self._cols)} FROM {self._table} WHERE {where}", key)  # noqa: S608
         row = cur.fetchone()
-        return None if row is None else self._from_row(row, self._cols)
+        return None if row is None else self.from_row(row, self._cols)
 
     def find(
         self, where: Mapping[str, Any] | None = None, *, order_by: str | None = None, limit: int | None = None
@@ -131,7 +132,7 @@ class Repository[M: BaseModel]:
             sql += f" ORDER BY {_ident(order_by)}"
         if limit is not None:
             sql += f" LIMIT {int(limit)}"
-        return [self._from_row(r, self._cols) for r in self.conn.execute(sql, params)]
+        return [self.from_row(r, self._cols) for r in self.conn.execute(sql, params)]
 
     def count(self, where: Mapping[str, Any] | None = None) -> int:
         clause, params = self._where(where)

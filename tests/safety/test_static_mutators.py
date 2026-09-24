@@ -25,6 +25,7 @@ ALLOW: dict[str, str] = {
     "sourcefs.py": "os.open with read-only flags only (asserted below)",
     "safety.py": "the runtime guard wraps mutators; it never calls them itself on its own behalf",
     "db/connection.py": "creates var/db and backup directories after assert_outside(protected roots)",
+    "obs/logging.py": "creates var/logs after assert_outside(protected roots)",
 }
 
 
