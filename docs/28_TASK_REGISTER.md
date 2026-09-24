@@ -10,7 +10,7 @@ Each task is written so that it can be independently verified. Spike tasks link 
 | Phase | Name | Tasks | DONE |
 |---|---|---|---|
 | P0 | Corpus Audit & Architecture Planning | 9 | 9 |
-| P1 | Foundations | 13 | 5 |
+| P1 | Foundations | 13 | 6 |
 | P2 | Source Registry, Manifest & Exact Dedup | 14 | 0 |
 | P3 | Gold Set & Extraction Spikes (decision gate) | 11 | 0 |
 | P4 | Extraction & Normalization | 16 | 0 |
@@ -24,7 +24,7 @@ Each task is written so that it can be independently verified. Spike tasks link 
 | P12 | External Research & Approval | 7 | 0 |
 | P13 | Scale-out, Hardening & Operations | 10 | 0 |
 | P14 | Project/Idea Integration (future) | 3 | 0 |
-| **Total** | | **146** | **14** |
+| **Total** | | **146** | **15** |
 
 ## P0 — Corpus Audit & Architecture Planning
 
@@ -215,7 +215,7 @@ Each task is written so that it can be independently verified. Spike tasks link 
 
 ### T-P1-06 — SQLite data layer and migrations
 - **Phase:** P1
-- **Status:** NOT_STARTED
+- **Status:** DONE
 - **Priority:** critical
 - **Dependencies:** T-P1-05
 - **Human approval:** none
@@ -225,6 +225,7 @@ Each task is written so that it can be independently verified. Spike tasks link 
 - **Acceptance criteria:** Fresh DB migrates to head; migration from N-1 fixture works; backup created before migration.
 - **Validation method:** TS-MIG tests.
 - **Expected artifacts:** src/sbr/db/*, migrations/registry/*.sql
+- **Completion note (2026-09-24):** registry.sqlite in var/db (path checked against protected roots before anything is created). Connections use WAL, synchronous=NORMAL, foreign_keys=ON and a busy timeout, in autocommit mode with explicit BEGIN IMMEDIATE transactions (single-writer discipline). Numbered migrations (migrations/registry/NNNN_name.sql plus .down.sql) with contiguity checks. schema_version stores SHA-256 checksums over CRLF-normalized text, so edited or unknown applied migrations are refused. Each migration applies in one transaction with foreign_key_check before COMMIT and rolls back on failure. The SQLite online-backup copy goes to var/backups/registry before any change to an existing DB; downgrades are supported. 0001_registry: STRICT tables for activity plus all docs/31 tables, CHECK constraints mirroring the model invariants, FKs from every derived row to activity, and a partial unique index (one present observation per path). Generic typed Repository (insert, upsert, get, find, count; no delete) that validates on write and on read and checks that model fields exist as columns. Evidence: TS-MIG: fresh to head; every N-1 (1..head) to head with a synthetic next migration (data retained; backup exists and holds version N-1 with data); failing and FK-violating migrations roll back to N-1; downgrade to 0 and re-upgrade; tamper, CRLF and newer-DB checks. Repository round-trip, upsert, FK/CHECK/UNIQUE enforcement, transaction rollback. tests 122 passed; tools/check.ps1 CHECK GREEN.
 
 ### T-P1-07 — Provenance core (activities and derived_from)
 - **Phase:** P1

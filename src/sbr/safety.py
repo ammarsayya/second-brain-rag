@@ -31,11 +31,16 @@ def protected_roots(config: SbrConfig) -> tuple[str, ...]:
     return (*(s.path for s in config.roots.sources), *config.roots.protected)
 
 
+def assert_outside(path: str | os.PathLike[str], roots: Iterable[str]) -> None:
+    """Raise :class:`SourceWriteError` if ``path`` lies inside any of ``roots``."""
+    for root in roots:
+        if is_within(os.path.abspath(path), root):  # noqa: PTH100 - lexical, see _targets_protected
+            raise SourceWriteError("refusing to write inside a read-only source or protected root")
+
+
 def assert_writable(path: str | os.PathLike[str], config: SbrConfig) -> None:
     """Raise :class:`SourceWriteError` if ``path`` lies inside a source root or a protected path."""
-    for root in protected_roots(config):
-        if is_within(path, root):
-            raise SourceWriteError("refusing to write inside a read-only source or protected root")
+    assert_outside(path, protected_roots(config))
 
 
 _WRITE_FLAGS = (

@@ -55,8 +55,8 @@
   },
   "task_totals": {
     "total": 146,
-    "DONE": 14,
-    "NOT_STARTED": 128,
+    "DONE": 15,
+    "NOT_STARTED": 127,
     "IN_PROGRESS": 0,
     "BLOCKED": 1,
     "DEFERRED": 3
@@ -76,7 +76,7 @@
     "T-P1-03": "DONE",
     "T-P1-04": "DONE",
     "T-P1-05": "DONE",
-    "T-P1-06": "NOT_STARTED",
+    "T-P1-06": "DONE",
     "T-P1-07": "NOT_STARTED",
     "T-P1-08": "NOT_STARTED",
     "T-P1-09": "NOT_STARTED",
@@ -223,16 +223,19 @@
     "T-P1-02",
     "T-P1-03",
     "T-P1-04",
-    "T-P1-05"
+    "T-P1-05",
+    "T-P1-06"
   ],
   "in_progress_tasks": [],
   "blocked_tasks": [
     "T-P7-02"
   ],
   "next_eligible_tasks": [
-    "T-P1-06",
+    "T-P1-07",
+    "T-P1-08",
     "T-P1-12",
     "T-P1-13",
+    "T-P13-04",
     "T-P4-01",
     "T-P7-03"
   ],
@@ -593,6 +596,25 @@
         "tests/test_schemas.py"
       ],
       "verification": "tests/test_schemas.py 38 passed (JSON round-trip of every exported model, strict rejection cases, schema snapshot, export --check); full suite 101 passed; tools/check.ps1 CHECK GREEN"
+    },
+    {
+      "task": "T-P1-06",
+      "date": "2026-09-24",
+      "status": "DONE",
+      "summary": "registry.sqlite in var/db (path checked against protected roots before anything is created). Connections use WAL, synchronous=NORMAL, foreign_keys=ON and a busy timeout, in autocommit mode with explicit BEGIN IMMEDIATE transactions (single-writer discipline). Numbered migrations (migrations/registry/NNNN_name.sql plus .down.sql) with contiguity checks. schema_version stores SHA-256 checksums over CRLF-normalized text, so edited or unknown applied migrations are refused. Each migration applies in one transaction with foreign_key_check before COMMIT and rolls back on failure. The SQLite online-backup copy goes to var/backups/registry before any change to an existing DB; downgrades are supported. 0001_registry: STRICT tables for activity plus all docs/31 tables, CHECK constraints mirroring the model invariants, FKs from every derived row to activity, and a partial unique index (one present observation per path). Generic typed Repository (insert, upsert, get, find, count; no delete) that validates on write and on read and checks that model fields exist as columns.",
+      "files": [
+        "src/sbr/db/{__init__",
+        "connection",
+        "migrations",
+        "repository",
+        "registry}.py",
+        "migrations/registry/0001_registry{",
+        ".down}.sql",
+        "src/sbr/safety.py (assert_outside)",
+        "tests/db/test_migrations.py",
+        "tests/db/test_registry_repository.py"
+      ],
+      "verification": "TS-MIG: fresh to head; every N-1 (1..head) to head with a synthetic next migration (data retained; backup exists and holds version N-1 with data); failing and FK-violating migrations roll back to N-1; downgrade to 0 and re-upgrade; tamper, CRLF and newer-DB checks. Repository round-trip, upsert, FK/CHECK/UNIQUE enforcement, transaction rollback. tests 122 passed; tools/check.ps1 CHECK GREEN"
     }
   ]
 }
