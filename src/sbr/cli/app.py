@@ -20,6 +20,7 @@ from sbr import __version__
 from sbr.cli.runtime import Runtime, command_runtime
 from sbr.config import ConfigError
 from sbr.db import registry as reg
+from sbr.registry.scan import scan_sources
 from sbr.schemas import WorkItemState
 
 app = typer.Typer(
@@ -125,6 +126,37 @@ def doctor_cmd(config: Path | None = ConfigOption) -> None:
         }
 
     _run("doctor", config, body)
+
+
+@app.command("scan")
+def scan_cmd(
+    root_id: str | None = typer.Option(None, "--root", help="Scan only this configured source-root id."),
+    config: Path | None = ConfigOption,
+) -> None:
+    """Observe source paths read-only and enqueue hashing for new or changed files."""
+
+    def body(rt: Runtime) -> dict[str, object]:
+        if root_id is not None:
+            try:
+                rt.config.source_root(root_id)
+            except KeyError:
+                raise typer.BadParameter(f"unknown source root id {root_id!r}", param_hint="--root") from None
+        records = scan_sources(rt.config, rt.db, root_ids=None if root_id is None else (root_id,))
+        return {
+            "scans": [
+                {
+                    "scan_id": record.scan_id,
+                    "root_id": record.root_id,
+                    "status": record.status.value,
+                    "files_seen": record.files_seen,
+                    "bytes_seen": record.bytes_seen,
+                    "errors": record.errors,
+                }
+                for record in records
+            ]
+        }
+
+    _run("scan", config, body)
 
 
 @config_app.command("show")

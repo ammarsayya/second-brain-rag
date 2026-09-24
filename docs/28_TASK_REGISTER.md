@@ -322,7 +322,7 @@ Each task is written so that it can be independently verified. Spike tasks link 
 
 ### T-P2-01 — Scanner (path observations)
 - **Phase:** P2
-- **Status:** NOT_STARTED
+- **Status:** IN_PROGRESS
 - **Priority:** critical
 - **Dependencies:** T-P1-03, T-P1-09
 - **Human approval:** none
@@ -332,6 +332,9 @@ Each task is written so that it can be independently verified. Spike tasks link 
 - **Acceptance criteria:** Scan of fixtures correct; scan of D:\MBI-BRAIN completes read-only in < 5 min with counts matching an independent os.walk.
 - **Validation method:** Tests + real-corpus smoke run (read-only).
 - **Expected artifacts:** src/sbr/registry/scan.py
+- **Progress note (2026-09-24):** Fixture/unit acceptance and TS-SAFE-1/2/3 coverage are implemented. The required
+  read-only `D:\MBI-BRAIN` count/time smoke run remains pending owner/orchestrator execution with
+  `tools/validate_scan.py`; therefore this task is not DONE.
 
 ### T-P2-02 — Content hashing stage (BLAKE3)
 - **Phase:** P2

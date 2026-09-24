@@ -15,6 +15,8 @@ from pathlib import Path
 import pytest
 
 from sbr.config import SbrConfig
+from sbr.db.registry import RegistryDB
+from sbr.registry.scan import scan_root
 from sbr.safety import SourceWriteError, SourceWriteGuard, assert_writable
 from sbr.sourcefs import SourceFS
 
@@ -120,3 +122,16 @@ def test_assert_writable(make_config: Callable[..., SbrConfig], source_tree: Pat
         assert_writable(Path(cfg.roots.protected[0]) / "x", cfg)
     with pytest.raises(SourceWriteError):
         assert_writable(str(source_tree).upper().replace("\\", "/"), cfg)
+
+
+def test_full_scan_makes_zero_source_mutations(make_config: Callable[..., SbrConfig], source_tree: Path) -> None:
+    """TS-SAFE-3 for S1: run the real scanner while every source mutator is guarded."""
+    cfg = make_config()
+    before = tree_digest(source_tree)
+    with RegistryDB.open(cfg) as db:
+        db.migrate()
+        with SourceWriteGuard.for_config(cfg) as guard:
+            record = scan_root(cfg, db, "fx")
+    assert record.files_seen == sum(1 for path in source_tree.rglob("*") if path.is_file())
+    assert guard.violations == []
+    assert tree_digest(source_tree) == before
