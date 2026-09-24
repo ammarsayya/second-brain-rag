@@ -283,7 +283,7 @@ Each task is written so that it can be independently verified. Spike tasks link 
 
 ### T-P1-11 — CLI skeleton
 - **Phase:** P1
-- **Status:** NOT_STARTED
+- **Status:** DONE
 - **Priority:** high
 - **Dependencies:** T-P1-02, T-P1-08
 - **Human approval:** none

@@ -2,7 +2,7 @@
   "schema_version": "1.0",
   "project": "second-brain-rag",
   "last_updated": "2026-09-24",
-  "updated_by": "Claude (T-P1-10 resource governor implemented and verified)",
+  "updated_by": "Claude (T-P1-11 CLI skeleton implemented and verified)",
   "authoritative_docs": "docs/28_TASK_REGISTER.md (tasks), docs/24_DECISION_LOG.md (decisions), docs/25_OPEN_QUESTIONS.md, docs/34_RESEARCH_AND_SPIKE_REGISTER.md",
   "current_phase": "P1",
   "current_phase_status": "in_progress (plan approved 2026-09-24)",
@@ -55,8 +55,8 @@
   },
   "task_totals": {
     "total": 146,
-    "DONE": 19,
-    "NOT_STARTED": 123,
+    "DONE": 20,
+    "NOT_STARTED": 122,
     "IN_PROGRESS": 0,
     "BLOCKED": 1,
     "DEFERRED": 3
@@ -81,7 +81,7 @@
     "T-P1-08": "DONE",
     "T-P1-09": "DONE",
     "T-P1-10": "DONE",
-    "T-P1-11": "NOT_STARTED",
+    "T-P1-11": "DONE",
     "T-P1-12": "NOT_STARTED",
     "T-P1-13": "NOT_STARTED",
     "T-P2-01": "NOT_STARTED",
@@ -228,14 +228,14 @@
     "T-P1-07",
     "T-P1-08",
     "T-P1-09",
-    "T-P1-10"
+    "T-P1-10",
+    "T-P1-11"
   ],
   "in_progress_tasks": [],
   "blocked_tasks": [
     "T-P7-02"
   ],
   "next_eligible_tasks": [
-    "T-P1-11",
     "T-P1-12",
     "T-P1-13",
     "T-P13-04",
@@ -685,6 +685,17 @@
         "tests/jobs/test_governor.py"
       ],
       "verification": "Unit tests with simulated SystemMetrics (no real disk/RAM probing, no real Windows API call): queue pauses exactly at the disk floor (inclusive boundary verified both sides); RAM ceiling pause; worker-pool count respected at the exact configured max; per-stage concurrency independent of the pool-wide limit; time windows admit inside and refuse outside, including a window that wraps past midnight, and an empty time_windows list always admits; when several limits are breached at once a reason is still returned (most-urgent-first ordering). set_process_priority() verified against a monkeypatched fake ctypes.windll.kernel32 (asserts SetPriorityClass is called with BELOW_NORMAL_PRIORITY_CLASS) and verified to return False (no-op) when ctypes.windll is absent, as it is on this Linux container. 12/12 new tests passed; full suite 158 passed, the same 3 pre-existing Windows-only sourcefs/runtime-guard failures as before (unrelated to this task). ruff and mypy clean on every file touched. tools/export_schemas.py --check clean (no schema change this task). tools/validate_plan.py: PLAN CONSISTENT. tools/audit_crossrefs.py: CROSSREFS CLEAN."
+    },
+    {
+      "task": "T-P1-11",
+      "date": "2026-09-24",
+      "status": "DONE",
+      "summary": "src/sbr/cli/app.py: sbr status, sbr runs [--limit], sbr doctor and sbr config show, all built on the existing T-P1-08 command_runtime() (each opens the migrated registry and records exactly one run row); --help and version stay stateless as before. status prints schema_version, config_hash and record counts (activities/source_roots/scans/blobs/path_observations/work_items by state) so it is meaningful even against a freshly migrated, empty database. runs prints the N most recent run-ledger rows, newest first. doctor is the acceptance-criteria stub: config loads, database migrates to head, source roots listed, status 'ok'; deeper checks are for a later task. config show prints the effective, validated SbrConfig as JSON. Every data command prints one JSON object to stdout and exits 0; a ConfigError (e.g. missing config file) is caught once in a shared _run() helper, printed as a single line to stderr, and exits 1 -- no traceback -- giving all four commands the same consistent output and exit-code behavior.",
+      "files": [
+        "src/sbr/cli/app.py",
+        "tests/test_cli_commands.py"
+      ],
+      "verification": "sbr status and sbr runs both verified against a freshly migrated, empty database (zero counts, empty run list apart from the invocation's own still-running row) via Typer's CliRunner. runs --limit is respected and a non-positive --limit is rejected. doctor reports ok with the configured source root ids. config show's JSON round-trips the configured source root id and the governor's built-in default. A missing config file exits 1 with a clean, traceback-free message. --help and version confirmed to never create the database file. 8/8 new tests passed; full suite 166 passed, the same 3 pre-existing Windows-only sourcefs/runtime-guard failures as before (unrelated to this task). ruff and mypy clean on every file touched. tools/export_schemas.py --check clean (no schema change this task). tools/validate_plan.py: PLAN CONSISTENT."
     }
   ]
 }
