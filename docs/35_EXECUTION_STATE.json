@@ -55,8 +55,8 @@
   },
   "task_totals": {
     "total": 146,
-    "DONE": 11,
-    "NOT_STARTED": 131,
+    "DONE": 12,
+    "NOT_STARTED": 130,
     "IN_PROGRESS": 0,
     "BLOCKED": 1,
     "DEFERRED": 3
@@ -73,7 +73,7 @@
     "T-P0-09": "DONE",
     "T-P1-01": "DONE",
     "T-P1-02": "DONE",
-    "T-P1-03": "NOT_STARTED",
+    "T-P1-03": "DONE",
     "T-P1-04": "NOT_STARTED",
     "T-P1-05": "NOT_STARTED",
     "T-P1-06": "NOT_STARTED",
@@ -220,14 +220,14 @@
     "T-P0-08",
     "T-P0-09",
     "T-P1-01",
-    "T-P1-02"
+    "T-P1-02",
+    "T-P1-03"
   ],
   "in_progress_tasks": [],
   "blocked_tasks": [
     "T-P7-02"
   ],
   "next_eligible_tasks": [
-    "T-P1-03",
     "T-P1-04",
     "T-P1-05",
     "T-P1-13"
@@ -546,6 +546,21 @@
         "tests/test_config.py"
       ],
       "verification": "tests/test_config.py 21 passed; tools/check.ps1 CHECK GREEN"
+    },
+    {
+      "task": "T-P1-03",
+      "date": "2026-09-24",
+      "status": "DONE",
+      "summary": "SourceFS is the only source-access module: stat, iter_dir (never follows links, reports junctions and reparse points, records per-entry errors without paths), open_binary and read_bytes (os.open with O_RDONLY|O_BINARY|O_NOINHERIT; the returned object refuses writes). (root_id, relpath) addressing refuses '..', drive or absolute components, NUL and ':' (ADS). Extended-length \\\\?\\ paths handle long names and trailing dots or spaces. The real path must stay inside the root and outside protected paths (junction escapes refused). Original display path kept for provenance. SourceWriteGuard (runtime) patches os/shutil/open/io.open/os.open mutators and refuses and records any target under source or protected roots. assert_writable() is the check for all future writers. The static AST scan has a reviewed allow-list (sourcefs.py, safety.py).",
+      "files": [
+        "src/sbr/sourcefs.py",
+        "src/sbr/safety.py",
+        "tests/conftest.py",
+        "tests/safety/test_sourcefs.py",
+        "tests/safety/test_static_mutators.py",
+        "tests/safety/test_runtime_guard.py"
+      ],
+      "verification": "TS-SAFE-1/2/3 harness: tests/safety 27 passed (the junction-escape, junction-into-quarantine and >300-char long-path tests executed on Windows, not skipped); 26 mutation attempts all blocked with source and quarantine bytes and mtimes unchanged; tools/check.ps1 CHECK GREEN"
     }
   ]
 }

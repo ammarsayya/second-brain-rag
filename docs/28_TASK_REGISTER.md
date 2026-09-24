@@ -10,7 +10,7 @@ Each task is written so that it can be independently verified. Spike tasks link 
 | Phase | Name | Tasks | DONE |
 |---|---|---|---|
 | P0 | Corpus Audit & Architecture Planning | 9 | 9 |
-| P1 | Foundations | 13 | 2 |
+| P1 | Foundations | 13 | 3 |
 | P2 | Source Registry, Manifest & Exact Dedup | 14 | 0 |
 | P3 | Gold Set & Extraction Spikes (decision gate) | 11 | 0 |
 | P4 | Extraction & Normalization | 16 | 0 |
@@ -24,7 +24,7 @@ Each task is written so that it can be independently verified. Spike tasks link 
 | P12 | External Research & Approval | 7 | 0 |
 | P13 | Scale-out, Hardening & Operations | 10 | 0 |
 | P14 | Project/Idea Integration (future) | 3 | 0 |
-| **Total** | | **146** | **11** |
+| **Total** | | **146** | **12** |
 
 ## P0 — Corpus Audit & Architecture Planning
 
@@ -174,7 +174,7 @@ Each task is written so that it can be independently verified. Spike tasks link 
 
 ### T-P1-03 — SourceFS read-only guard
 - **Phase:** P1
-- **Status:** NOT_STARTED
+- **Status:** DONE
 - **Priority:** critical
 - **Dependencies:** T-P1-02
 - **Human approval:** none
@@ -184,6 +184,7 @@ Each task is written so that it can be independently verified. Spike tasks link 
 - **Acceptance criteria:** Any attempt to write/rename/delete under a source root raises; static test finds no forbidden calls outside allow-list.
 - **Validation method:** TS-SAFE-1..3 tests.
 - **Expected artifacts:** src/sbr/sourcefs.py, tests/safety/*
+- **Completion note (2026-09-24):** SourceFS is the only source-access module: stat, iter_dir (never follows links, reports junctions and reparse points, records per-entry errors without paths), open_binary and read_bytes (os.open with O_RDONLY|O_BINARY|O_NOINHERIT; the returned object refuses writes). (root_id, relpath) addressing refuses '..', drive or absolute components, NUL and ':' (ADS). Extended-length \\?\ paths handle long names and trailing dots or spaces. The real path must stay inside the root and outside protected paths (junction escapes refused). Original display path kept for provenance. SourceWriteGuard (runtime) patches os/shutil/open/io.open/os.open mutators and refuses and records any target under source or protected roots. assert_writable() is the check for all future writers. The static AST scan has a reviewed allow-list (sourcefs.py, safety.py). Evidence: TS-SAFE-1/2/3 harness: tests/safety 27 passed (the junction-escape, junction-into-quarantine and >300-char long-path tests executed on Windows, not skipped); 26 mutation attempts all blocked with source and quarantine bytes and mtimes unchanged; tools/check.ps1 CHECK GREEN.
 
 ### T-P1-04 — Identifier and hashing core
 - **Phase:** P1
