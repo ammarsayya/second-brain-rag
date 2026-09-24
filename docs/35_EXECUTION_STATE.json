@@ -2,7 +2,7 @@
   "schema_version": "1.0",
   "project": "second-brain-rag",
   "last_updated": "2026-09-24",
-  "updated_by": "Claude (T-P1-09 job queue implemented and verified)",
+  "updated_by": "Claude (T-P1-10 resource governor implemented and verified)",
   "authoritative_docs": "docs/28_TASK_REGISTER.md (tasks), docs/24_DECISION_LOG.md (decisions), docs/25_OPEN_QUESTIONS.md, docs/34_RESEARCH_AND_SPIKE_REGISTER.md",
   "current_phase": "P1",
   "current_phase_status": "in_progress (plan approved 2026-09-24)",
@@ -55,8 +55,8 @@
   },
   "task_totals": {
     "total": 146,
-    "DONE": 18,
-    "NOT_STARTED": 124,
+    "DONE": 19,
+    "NOT_STARTED": 123,
     "IN_PROGRESS": 0,
     "BLOCKED": 1,
     "DEFERRED": 3
@@ -80,7 +80,7 @@
     "T-P1-07": "DONE",
     "T-P1-08": "DONE",
     "T-P1-09": "DONE",
-    "T-P1-10": "NOT_STARTED",
+    "T-P1-10": "DONE",
     "T-P1-11": "NOT_STARTED",
     "T-P1-12": "NOT_STARTED",
     "T-P1-13": "NOT_STARTED",
@@ -227,14 +227,14 @@
     "T-P1-06",
     "T-P1-07",
     "T-P1-08",
-    "T-P1-09"
+    "T-P1-09",
+    "T-P1-10"
   ],
   "in_progress_tasks": [],
   "blocked_tasks": [
     "T-P7-02"
   ],
   "next_eligible_tasks": [
-    "T-P1-10",
     "T-P1-11",
     "T-P1-12",
     "T-P1-13",
@@ -673,6 +673,18 @@
         "tests/test_schemas.py (samples)"
       ],
       "verification": "TS-QUEUE crash-resume test with an injectable millisecond clock (no real sleep, no subprocess): worker A leases an item and is never called again (simulated kill); a fresh JobQueue instance (worker B, as a restarted process would open) cannot claim it before the lease expires, claims it exactly once after, and worker A's stale lease_token can no longer complete it. Stage-version bump re-enqueues only the affected subject (the other subject's row is untouched). Backoff schedule and the max-attempts terminal transition verified; poison items confirmed never returned by lease() again, including via the expired-lease-reap path. Stage DAG advance() verified idempotent and correctly gated on prerequisite completion at the right version. 12/12 new tests passed; full suite 146 passed, 3 pre-existing Windows-only sourcefs/runtime-guard failures (this container is Linux, not Windows/WSL, so a `Regelungstechnik\\\\skript.pdf`-style os_path literal never resolves here; unrelated to this task, present before it). ruff and mypy clean on every file touched (both had pre-existing, unrelated debt in tools/validate_plan.py and tools/audit_crossrefs.py, and one pre-existing unused-ignore in tests/test_schemas.py:220 predating this session). tools/export_schemas.py --check clean. tools/validate_plan.py: PLAN CONSISTENT. tools/audit_crossrefs.py: CROSSREFS CLEAN."
+    },
+    {
+      "task": "T-P1-10",
+      "date": "2026-09-24",
+      "status": "DONE",
+      "summary": "src/sbr/jobs/governor.py: ResourceGovernor.check(stage, active_workers=, active_in_stage=) is pure admission control \u2014 it answers 'may a worker for this stage (keep) run(ning) right now', ordered time-window, disk-floor, RAM-ceiling, worker-pool, per-stage-concurrency, and never touches work_item rows itself; the caller (pipeline runner) owns its own in-flight counts and passes them in. Metrics come through an injectable MetricsProvider (SystemMetrics: disk_free_gb, ram_used_gb, now), so the decision logic is unit-tested against simulated values (real_metrics() uses stdlib shutil.disk_usage for disk and resource.getrusage for RAM, no new third-party dependency added without a spike). time_windows (already validated in config.GovernorConfig as 'HH:MM-HH:MM') support windows that wrap past midnight. set_process_priority() sets the Windows process priority class via ctypes (IDLE/BELOW_NORMAL/NORMAL) and is a documented no-op (returns False) on platforms without ctypes.windll, matching the acceptance criterion that priority is set on Windows specifically.",
+      "files": [
+        "src/sbr/jobs/governor.py",
+        "src/sbr/jobs/__init__.py",
+        "tests/jobs/test_governor.py"
+      ],
+      "verification": "Unit tests with simulated SystemMetrics (no real disk/RAM probing, no real Windows API call): queue pauses exactly at the disk floor (inclusive boundary verified both sides); RAM ceiling pause; worker-pool count respected at the exact configured max; per-stage concurrency independent of the pool-wide limit; time windows admit inside and refuse outside, including a window that wraps past midnight, and an empty time_windows list always admits; when several limits are breached at once a reason is still returned (most-urgent-first ordering). set_process_priority() verified against a monkeypatched fake ctypes.windll.kernel32 (asserts SetPriorityClass is called with BELOW_NORMAL_PRIORITY_CLASS) and verified to return False (no-op) when ctypes.windll is absent, as it is on this Linux container. 12/12 new tests passed; full suite 158 passed, the same 3 pre-existing Windows-only sourcefs/runtime-guard failures as before (unrelated to this task). ruff and mypy clean on every file touched. tools/export_schemas.py --check clean (no schema change this task). tools/validate_plan.py: PLAN CONSISTENT. tools/audit_crossrefs.py: CROSSREFS CLEAN."
     }
   ]
 }

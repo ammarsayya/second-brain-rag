@@ -3,6 +3,14 @@
 from __future__ import annotations
 
 from sbr.jobs.dag import ready_stages
+from sbr.jobs.governor import (
+    MetricsProvider,
+    PauseReason,
+    ResourceGovernor,
+    SystemMetrics,
+    real_metrics,
+    set_process_priority,
+)
 from sbr.jobs.queue import (
     BACKOFF_BASE_MS,
     BACKOFF_CAP_MS,
@@ -20,6 +28,12 @@ __all__ = [
     "DEFAULT_MAX_ATTEMPTS",
     "JobQueue",
     "LeaseError",
+    "MetricsProvider",
+    "PauseReason",
+    "ResourceGovernor",
+    "SystemMetrics",
     "backoff_ms",
     "ready_stages",
+    "real_metrics",
+    "set_process_priority",
 ]
