@@ -1,0 +1,4 @@
+# Curation ledger: owner-added ingestion exclusions on top of the default excludes (docs/08 §7; git-tracked).
+# scope: "path" (a relpath glob under a source root) or "blob" (a b3: blob id). Loaded/validated by
+# sbr.curation.load_exclusions. Empty by default: only the built-in default excludes apply.
+exclusions: []

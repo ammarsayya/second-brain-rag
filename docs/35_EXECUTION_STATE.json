@@ -2,7 +2,7 @@
   "schema_version": "1.0",
   "project": "second-brain-rag",
   "last_updated": "2026-09-24",
-  "updated_by": "Claude (T-P1-11 CLI skeleton implemented and verified)",
+  "updated_by": "Claude (T-P1-12 curation ledger implemented and verified)",
   "authoritative_docs": "docs/28_TASK_REGISTER.md (tasks), docs/24_DECISION_LOG.md (decisions), docs/25_OPEN_QUESTIONS.md, docs/34_RESEARCH_AND_SPIKE_REGISTER.md",
   "current_phase": "P1",
   "current_phase_status": "in_progress (plan approved 2026-09-24)",
@@ -55,8 +55,8 @@
   },
   "task_totals": {
     "total": 146,
-    "DONE": 20,
-    "NOT_STARTED": 122,
+    "DONE": 21,
+    "NOT_STARTED": 121,
     "IN_PROGRESS": 0,
     "BLOCKED": 1,
     "DEFERRED": 3
@@ -82,7 +82,7 @@
     "T-P1-09": "DONE",
     "T-P1-10": "DONE",
     "T-P1-11": "DONE",
-    "T-P1-12": "NOT_STARTED",
+    "T-P1-12": "DONE",
     "T-P1-13": "NOT_STARTED",
     "T-P2-01": "NOT_STARTED",
     "T-P2-02": "NOT_STARTED",
@@ -229,18 +229,19 @@
     "T-P1-08",
     "T-P1-09",
     "T-P1-10",
-    "T-P1-11"
+    "T-P1-11",
+    "T-P1-12"
   ],
   "in_progress_tasks": [],
   "blocked_tasks": [
     "T-P7-02"
   ],
   "next_eligible_tasks": [
-    "T-P1-12",
     "T-P1-13",
     "T-P13-04",
     "T-P2-01",
     "T-P4-01",
+    "T-P4-13",
     "T-P7-03",
     "T-P9-02"
   ],
@@ -696,6 +697,26 @@
         "tests/test_cli_commands.py"
       ],
       "verification": "sbr status and sbr runs both verified against a freshly migrated, empty database (zero counts, empty run list apart from the invocation's own still-running row) via Typer's CliRunner. runs --limit is respected and a non-positive --limit is rejected. doctor reports ok with the configured source root ids. config show's JSON round-trips the configured source root id and the governor's built-in default. A missing config file exits 1 with a clean, traceback-free message. --help and version confirmed to never create the database file. 8/8 new tests passed; full suite 166 passed, the same 3 pre-existing Windows-only sourcefs/runtime-guard failures as before (unrelated to this task). ruff and mypy clean on every file touched. tools/export_schemas.py --check clean (no schema change this task). tools/validate_plan.py: PLAN CONSISTENT."
+    },
+    {
+      "task": "T-P1-12",
+      "date": "2026-09-24",
+      "status": "DONE",
+      "summary": "src/sbr/curation.py: schemas, loader and validation for the 7 curation/*.yaml files (ADR-029, HC-12): TaxonomyConcept, CourseMapEntry, CanonicalOverride, Exclusion, SensitivityOverride, ConceptCurationEntry, Approval, each a closed-world CurationModel (extra='forbid', frozen, but not StrictModel's strict=True -- YAML values are not already fully typed the way validate_json's input is). load_curation_file() parses with ruamel.yaml in round-trip mode (typ='rt': preserves comments, key order and quoting style) and validates every record; a syntax error carries ruamel's own line/column message, and a schema-validation error looks up the failing entry's source line from ruamel's CommentedMap line-tracking (.lc.line) -- both surface as CurationError naming the file and line, never a bare traceback. New dependency: ruamel.yaml>=0.18 (a narrow, uncontroversial YAML serialization library, not a docs/34-gated technology choice; no spike needed, same footing as the project's existing blake3/xxhash/typer/pydantic dependencies). append_approval() is the only write path for approvals.yaml (the one append-only file): it loads the existing document with ruamel (so untouched entries' comments survive), appends the new entry, verifies every previously-recorded entry is still present as an exact prefix before writing, and refuses a duplicate approval_id or a file that is not the bare list it is defined as. Seeded curation/*.yaml (taxonomy, course_map, canonical_overrides, exclusions, sensitivity_overrides, concept_curation, approvals), each an empty, valid, header-commented file; later tasks (T-P4-14/15 etc.) populate them.",
+      "files": [
+        "src/sbr/curation.py",
+        "curation/taxonomy.yaml",
+        "curation/course_map.yaml",
+        "curation/canonical_overrides.yaml",
+        "curation/exclusions.yaml",
+        "curation/sensitivity_overrides.yaml",
+        "curation/concept_curation.yaml",
+        "curation/approvals.yaml",
+        "tests/test_curation.py",
+        "pyproject.toml (ruamel.yaml dependency)",
+        "uv.lock"
+      ],
+      "verification": "All 7 seeded curation/*.yaml files load cleanly with zero records via their dedicated loader functions. Each schema round-trips real content (bilingual taxonomy edges; mixed-case owner folder abbreviations in course_map, which schemas.base.Slug would have rejected -- a local, looser CurationId pattern is used instead; exclusion/sensitivity-override path vs blob scopes; concept rename actions). Rejection verified for: syntactically invalid YAML (line number present), a missing required field on one entry among several (names the failing entry index and its line), an unknown/extra field, a non-mapping top-level document, a missing file, and a bare-list file that is not a list. A plain read never rewrites the file (comments untouched). append_approval() verified to: create the file if absent; preserve an existing entry's comment when appending a second entry; refuse (and leave the file unchanged for) a duplicate approval_id; refuse a non-list approvals file. 17/17 new tests passed; full suite 183 passed, the same 3 pre-existing Windows-only sourcefs/runtime-guard failures as before (unrelated to this task). ruff and mypy clean on every file touched. detect-secrets scan of all new/changed files: no findings. tools/export_schemas.py --check clean (no sbr.schemas change this task -- curation records are a separate, hand-edited-file schema family, not registry/knowledge-DB records). tools/validate_plan.py: PLAN CONSISTENT."
     }
   ]
 }

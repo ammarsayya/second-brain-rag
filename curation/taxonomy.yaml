@@ -1,0 +1,4 @@
+# Curation ledger: bilingual, poly-hierarchical taxonomy (ADR-029, docs/12 §1; git-tracked, authoritative).
+# AI proposes concepts and edges; the owner is authoritative here. Loaded/validated by sbr.curation.load_taxonomy.
+# Seeded from the module handbook and curriculum is T-P4-15 (curation/taxonomy.yaml v0); this file starts empty.
+concepts: []

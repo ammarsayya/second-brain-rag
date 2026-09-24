@@ -1,0 +1,4 @@
+# Curation ledger: owner override of the auto-selected canonical among duplicate/twin blobs (ADR-031; git-tracked).
+# Dedup never deletes a source; this file only says which of a duplicate group's blobs is canonical for display.
+# Loaded/validated by sbr.curation.load_canonical_overrides. Empty by default: automatic selection applies.
+overrides: []

@@ -1,0 +1,3 @@
+# Curation ledger: human corrections to AI-proposed concepts (approve/reject/rename/merge; ADR-029; git-tracked).
+# Loaded/validated by sbr.curation.load_concept_curation. Empty by default.
+entries: []

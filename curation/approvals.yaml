@@ -1,0 +1,4 @@
+# Curation ledger: append-only record of owner approvals (ADR-029, HC-12; git-tracked). Human decisions must
+# survive var/ rebuilds. This file is a bare list; entries are only ever appended (sbr.curation.append_approval),
+# never edited or removed. Empty by default.
+[]

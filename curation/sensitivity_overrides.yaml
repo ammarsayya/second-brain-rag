@@ -1,0 +1,5 @@
+# Curation ledger: owner override of automatic sensitivity classification (docs/22 §3, ADR-035; git-tracked).
+# scope: "path" (a relpath glob under a source root) or "blob" (a b3: blob id). sensitivity: normal | personal |
+# third_party_personal | restricted. Loaded/validated by sbr.curation.load_sensitivity_overrides. Empty by default:
+# only the automatic path/name/content classification applies.
+overrides: []

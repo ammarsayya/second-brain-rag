@@ -1,0 +1,4 @@
+# Curation ledger: course id -> owner-known folder abbreviations and matching patterns (ADR-029; git-tracked).
+# Seeding from the module handbook and folder abbreviations (Reg1, RGT, MSR2, GrdInf, BS1, KONleh, ...) is T-P4-14;
+# this file starts empty. Loaded/validated by sbr.curation.load_course_map.
+courses: []
