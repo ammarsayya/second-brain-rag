@@ -64,20 +64,45 @@ this file is a human-readable summary plus session-to-session continuity notes, 
   `feat(P2): read-only source scanner (T-P2-01)`, `docs(P2): T-P2-01 DONE - real-corpus scan verified`.
 - `docs/28` and `docs/35` updated to `DONE`. `next_eligible_tasks` recomputed: adds T-P2-02, T-P2-13.
 
-### T-P2-02 — Content hashing stage (BLAKE3) — **IN PROGRESS**
-- Delegated to Codex (background job) with full context package: dependencies (`hash_stream` in `ids.py`,
-  `SourceFS.open_binary`, `JobQueue.lease/complete/fail`), non-goals (no magic-byte/classification — that's
-  T-P2-04's explicit scope per its own task text, not S2's despite docs/08's stage table wording), priority
-  design ("documents first, media at low priority" via an extension heuristic feeding `WorkItem.priority`),
-  and a `tools/validate_hash.py` spot-check script (mirrors `validate_scan.py`) for the "50 hashes vs
-  independent tool" acceptance criterion — to be run by Sonnet against the real corpus after review, same
-  pattern as T-P2-01.
-- **Not yet reviewed** — check back for completion, then: review diff, re-run tests independently, run
-  `tools/validate_hash.py` against `D:\MBI-BRAIN`, update state, commit, continue.
+### T-P2-02 — Content hashing stage (BLAKE3) — **DONE**
+- Implemented by Codex in two passes: (1) initial implementation (`src/sbr/registry/hash.py`,
+  `src/sbr/registry/priority.py`, `sbr hash` CLI, `tools/validate_hash.py`, `tests/test_hash.py`, TS-SAFE-3
+  coverage); Codex correctly paused mid-task to ask approval on the priority-heuristic design (extension
+  allow-list feeding `WorkItem.priority`, wired at `scan.py`'s existing enqueue call) — approved, matched what
+  was already recommended. (2) Review found a real issue: `tools/validate_hash.py --corpus` was calling the
+  unbounded `hash_pending()`, which would have BLAKE3-hashed the entire real corpus (558GB) just to sample 50
+  files. Sent back for a scoped fix — bootstrap mode now samples first, then production-hashes only the sampled
+  set. First resume attempt lost sandbox write access (a tooling artifact of `--resume`, not a permission
+  issue); retried as `--fresh` with full context, succeeded.
+- **Real-corpus validation executed** (2026-09-24, read-only, bounded):
+  `python tools/validate_hash.py --corpus "D:\MBI-BRAIN" -n 50` → 50/50 sampled hashes matched an independent
+  BLAKE3 read path (separate code path: plain file I/O + `blake3` package directly), 0 mismatches, 37.7s.
+  **PASS.**
+- Commits: `feat(P2): content hashing stage, BLAKE3 (T-P2-02)`, `docs(P2): T-P2-02 DONE - real-corpus hash
+  spot-check verified`.
+- `docs/28`/`docs/35` updated to `DONE`. `next_eligible_tasks` recomputed: adds T-P2-03, T-P2-04, T-P2-06,
+  T-P2-08.
 
-## Next eligible tasks (per `docs/35_EXECUTION_STATE.json`, updated after T-P2-01)
+### T-P2-03 — Change detection (new/modified/moved/deleted) — **IN PROGRESS**
+- Delegated to Codex with a full pre-worked design (given to avoid a design round-trip, since this task closes
+  two real gaps in already-shipped S1/S2 code): (1) vanished-path detection doesn't exist yet in `scan.py` —
+  paths that disappear from the source tree are never marked MOVED/DELETED; (2) the "previous blob_id" needed
+  to detect Modified + emit a `version_of` `BlobRelation` gets overwritten by `hash.py` before anything can
+  read it — recommended fix is to preserve it in the completed `WorkItem`'s artifacts dict rather than losing
+  it. Full event-detection design given for New/Alias/Modified/Moved/Deleted per docs/08 §3's table.
+  Acceptance: fixture scenarios (move, rename, modify, delete, re-add) via a new `tests/test_changes.py`
+  (TS-CHANGE), and the invariant that no row is ever deleted from any table. No real-corpus acceptance
+  criterion for this task (fixture-only), so Codex was authorized to mark it DONE directly if its own full test
+  run passes, unlike T-P2-01/02.
+- **Not yet reviewed** — check back for completion, then: review diff (this one needs particular scrutiny given
+  its depth — verify the blob_id preservation approach, the moved-vs-deleted logic, the re-added-path handling,
+  and that literally zero rows are ever deleted), re-run tests independently, update state if Codex's own
+  DONE claim doesn't hold up, commit, continue.
 
-`T-P13-04`, `T-P2-02` (in progress), `T-P2-13`, `T-P4-01`, `T-P4-13`, `T-P7-03`, `T-P9-02`.
+## Next eligible tasks (per `docs/35_EXECUTION_STATE.json`, updated after T-P2-02)
+
+`T-P13-04`, `T-P2-03` (in progress), `T-P2-04`, `T-P2-06`, `T-P2-08`, `T-P2-13`, `T-P4-01`, `T-P4-13`,
+`T-P7-03`, `T-P9-02`.
 
 Per `docs/30_IMPLEMENTATION_SEQUENCE.md`'s recommended linear order, the P2 sequence after T-P2-02 is:
 T-P2-03 (change detection) → T-P2-04 (classification) → T-P2-05 (exclusions/sensitivity, owner review) →
