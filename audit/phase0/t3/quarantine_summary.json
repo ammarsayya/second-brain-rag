@@ -1,0 +1,16 @@
+{
+  "planned": 2033,
+  "moved": 2033,
+  "bytes_moved": 2750581224,
+  "verified_after_move": 2033,
+  "rollback_records": 2033,
+  "canonical_paths_reverified": 1444,
+  "skipped": 0,
+  "failed": 0,
+  "restored_after_failure": 0,
+  "quarantine_files": 2033,
+  "quarantine_bytes": 2750581224,
+  "partial_hash_candidates_moved": 0,
+  "source_files_deleted": 0,
+  "postverification": "PASS"
+}

@@ -1,0 +1,150 @@
+{
+ "paths": 1393,
+ "unique_contents": 844,
+ "errors_paths": 3,
+ ".doc": {
+  "unique": 141,
+  "sig_equation3_files": 70,
+  "sig_mathtype_files": 7,
+  "sig_dsmt_files": 0,
+  "not_ole2_header": 1
+ },
+ ".docx": {
+  "unique": 158,
+  "with_omml": 31,
+  "omath_total": 2597,
+  "omathpara_total": 934,
+  "with_eq3_ole": 2,
+  "eq3_ole_total": 17,
+  "with_mathtype_ole": 0,
+  "errors": 3
+ },
+ ".dotx": {
+  "unique": 1,
+  "with_omml": 0,
+  "omath_total": 0,
+  "omathpara_total": 0,
+  "with_eq3_ole": 0,
+  "eq3_ole_total": 0,
+  "with_mathtype_ole": 0,
+  "errors": 0
+ },
+ ".pps": {
+  "unique": 1,
+  "sig_equation3_files": 0,
+  "sig_mathtype_files": 1,
+  "sig_dsmt_files": 0,
+  "not_ole2_header": 0
+ },
+ ".ppsx": {
+  "unique": 53,
+  "with_omml": 5,
+  "omath_total": 174,
+  "omathpara_total": 111,
+  "with_eq3_ole": 0,
+  "eq3_ole_total": 0,
+  "with_mathtype_ole": 0,
+  "errors": 0
+ },
+ ".ppt": {
+  "unique": 9,
+  "sig_equation3_files": 0,
+  "sig_mathtype_files": 1,
+  "sig_dsmt_files": 0,
+  "not_ole2_header": 0
+ },
+ ".pptx": {
+  "unique": 35,
+  "with_omml": 13,
+  "omath_total": 489,
+  "omathpara_total": 234,
+  "with_eq3_ole": 0,
+  "eq3_ole_total": 0,
+  "with_mathtype_ole": 0,
+  "errors": 0
+ },
+ ".xls": {
+  "unique": 88,
+  "sig_equation3_files": 0,
+  "sig_mathtype_files": 0,
+  "sig_dsmt_files": 0,
+  "not_ole2_header": 1
+ },
+ ".xlsx": {
+  "unique": 358,
+  "with_omml": 0,
+  "omath_total": 0,
+  "omathpara_total": 0,
+  "with_eq3_ole": 0,
+  "eq3_ole_total": 0,
+  "with_mathtype_ole": 0,
+  "errors": 0
+ },
+ "omml_files_distribution": {
+  ">=100": 7,
+  "20-99": 15,
+  "1-19": 27
+ },
+ "top_unique_omml": [
+  [
+   432,
+   139,
+   "BachelorArbeit\\MatlabBachelorArbeit\\Bacelorarbeit\\BA\\BachelorarbeitCopy.docx"
+  ],
+  [
+   424,
+   131,
+   "BachelorArbeit\\MatlabBachelorArbeit\\Bacelorarbeit\\Bachelorarbeit.docx"
+  ],
+  [
+   422,
+   152,
+   "BachelorArbeit\\MatlabBachelorArbeit\\Bacelorarbeit\\BA\\Bachelorarbeit.docx"
+  ],
+  [
+   419,
+   135,
+   "BachelorArbeit\\MatlabBachelorArbeit\\Bacelorarbeit\\BA\\Bachelorarbeit1.docx"
+  ],
+  [
+   388,
+   110,
+   "BachelorArbeit\\Praxisphase\\Bericht\\Praxisphase.docx"
+  ],
+  [
+   322,
+   127,
+   "Information\\MO\\Vorlesung_+_Übung_Informatik_I\\Aufgabenblätter\\Heimaufgaben\\Musterlösungen Präsenzübungen\\Übung11_lösung.pptx"
+  ],
+  [
+   100,
+   43,
+   "BachelorArbeit\\Praxisphase\\Bericht\\Kinematik.docx"
+  ],
+  [
+   67,
+   60,
+   "BachelorArbeit\\Praxisphase\\Bericht\\Gleichungen.docx"
+  ],
+  [
+   65,
+   56,
+   "Mechanical\\konstruktonsgrundlagen\\MAE_3\\Kinematik\\SelbstVideo\\SS-2019_Kinematik_Kap2_1_V2.ppsx"
+  ],
+  [
+   50,
+   0,
+   "BachelorArbeit\\Praxisphase\\Bericht\\Symbolverzeichnis.docx"
+  ],
+  [
+   47,
+   22,
+   "Information\\Vorlesung\\WISs\\Bestimmung der Dichte von Flüssigkeiten mit der Steighöhen.docx"
+  ],
+  [
+   43,
+   38,
+   "BachelorArbeit\\Praxisphase\\Bericht\\PraxisphaseAmmarSayyadi.pptx"
+  ]
+ ]
+}

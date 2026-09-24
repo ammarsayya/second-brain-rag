@@ -1,0 +1,502 @@
+{
+  "schema_version": "1.0",
+  "project": "second-brain-rag",
+  "last_updated": "2026-09-24",
+  "updated_by": "Claude Opus 5.5 (t2 corpus re-audit and reconciliation, T-P0-09)",
+  "authoritative_docs": "docs/28_TASK_REGISTER.md (tasks), docs/24_DECISION_LOG.md (decisions), docs/25_OPEN_QUESTIONS.md, docs/34_RESEARCH_AND_SPIKE_REGISTER.md",
+  "current_phase": "P0",
+  "current_phase_status": "awaiting_owner_approval (t2 re-audit complete)",
+  "phases": {
+    "P0": {
+      "tasks": 9
+    },
+    "P1": {
+      "tasks": 13
+    },
+    "P2": {
+      "tasks": 14
+    },
+    "P3": {
+      "tasks": 11
+    },
+    "P4": {
+      "tasks": 16
+    },
+    "P5": {
+      "tasks": 9
+    },
+    "P6": {
+      "tasks": 13
+    },
+    "P7": {
+      "tasks": 8
+    },
+    "P8": {
+      "tasks": 9
+    },
+    "P9": {
+      "tasks": 11
+    },
+    "P10": {
+      "tasks": 8
+    },
+    "P11": {
+      "tasks": 5
+    },
+    "P12": {
+      "tasks": 7
+    },
+    "P13": {
+      "tasks": 10
+    },
+    "P14": {
+      "tasks": 3
+    }
+  },
+  "task_totals": {
+    "total": 146,
+    "DONE": 8,
+    "NOT_STARTED": 135,
+    "IN_PROGRESS": 0,
+    "BLOCKED": 0,
+    "DEFERRED": 3
+  },
+  "tasks": {
+    "T-P0-01": "DONE",
+    "T-P0-02": "DONE",
+    "T-P0-03": "DONE",
+    "T-P0-04": "DONE",
+    "T-P0-05": "DONE",
+    "T-P0-06": "DONE",
+    "T-P0-07": "DONE",
+    "T-P0-08": "NOT_STARTED",
+    "T-P0-09": "DONE",
+    "T-P1-01": "NOT_STARTED",
+    "T-P1-02": "NOT_STARTED",
+    "T-P1-03": "NOT_STARTED",
+    "T-P1-04": "NOT_STARTED",
+    "T-P1-05": "NOT_STARTED",
+    "T-P1-06": "NOT_STARTED",
+    "T-P1-07": "NOT_STARTED",
+    "T-P1-08": "NOT_STARTED",
+    "T-P1-09": "NOT_STARTED",
+    "T-P1-10": "NOT_STARTED",
+    "T-P1-11": "NOT_STARTED",
+    "T-P1-12": "NOT_STARTED",
+    "T-P1-13": "NOT_STARTED",
+    "T-P2-01": "NOT_STARTED",
+    "T-P2-02": "NOT_STARTED",
+    "T-P2-03": "NOT_STARTED",
+    "T-P2-04": "NOT_STARTED",
+    "T-P2-05": "NOT_STARTED",
+    "T-P2-06": "NOT_STARTED",
+    "T-P2-07": "NOT_STARTED",
+    "T-P2-08": "NOT_STARTED",
+    "T-P2-09": "NOT_STARTED",
+    "T-P2-10": "NOT_STARTED",
+    "T-P2-11": "NOT_STARTED",
+    "T-P2-12": "NOT_STARTED",
+    "T-P2-13": "NOT_STARTED",
+    "T-P2-14": "NOT_STARTED",
+    "T-P3-01": "NOT_STARTED",
+    "T-P3-02": "NOT_STARTED",
+    "T-P3-03": "NOT_STARTED",
+    "T-P3-04": "NOT_STARTED",
+    "T-P3-05": "NOT_STARTED",
+    "T-P3-06": "NOT_STARTED",
+    "T-P3-07": "NOT_STARTED",
+    "T-P3-08": "NOT_STARTED",
+    "T-P3-09": "NOT_STARTED",
+    "T-P3-10": "NOT_STARTED",
+    "T-P3-11": "NOT_STARTED",
+    "T-P4-01": "NOT_STARTED",
+    "T-P4-02": "NOT_STARTED",
+    "T-P4-03": "NOT_STARTED",
+    "T-P4-04": "NOT_STARTED",
+    "T-P4-05": "NOT_STARTED",
+    "T-P4-06": "NOT_STARTED",
+    "T-P4-07": "NOT_STARTED",
+    "T-P4-08": "NOT_STARTED",
+    "T-P4-09": "NOT_STARTED",
+    "T-P4-10": "NOT_STARTED",
+    "T-P4-11": "NOT_STARTED",
+    "T-P4-12": "NOT_STARTED",
+    "T-P4-13": "NOT_STARTED",
+    "T-P4-14": "NOT_STARTED",
+    "T-P4-15": "NOT_STARTED",
+    "T-P4-16": "NOT_STARTED",
+    "T-P5-01": "NOT_STARTED",
+    "T-P5-02": "NOT_STARTED",
+    "T-P5-03": "NOT_STARTED",
+    "T-P5-04": "NOT_STARTED",
+    "T-P5-05": "NOT_STARTED",
+    "T-P5-06": "NOT_STARTED",
+    "T-P5-07": "NOT_STARTED",
+    "T-P5-08": "NOT_STARTED",
+    "T-P5-09": "NOT_STARTED",
+    "T-P6-01": "NOT_STARTED",
+    "T-P6-02": "NOT_STARTED",
+    "T-P6-03": "NOT_STARTED",
+    "T-P6-04": "NOT_STARTED",
+    "T-P6-05": "NOT_STARTED",
+    "T-P6-06": "NOT_STARTED",
+    "T-P6-07": "NOT_STARTED",
+    "T-P6-08": "NOT_STARTED",
+    "T-P6-09": "NOT_STARTED",
+    "T-P6-10": "NOT_STARTED",
+    "T-P6-11": "NOT_STARTED",
+    "T-P6-12": "NOT_STARTED",
+    "T-P6-13": "NOT_STARTED",
+    "T-P7-01": "NOT_STARTED",
+    "T-P7-02": "NOT_STARTED",
+    "T-P7-03": "NOT_STARTED",
+    "T-P7-04": "NOT_STARTED",
+    "T-P7-05": "NOT_STARTED",
+    "T-P7-06": "NOT_STARTED",
+    "T-P7-07": "NOT_STARTED",
+    "T-P7-08": "NOT_STARTED",
+    "T-P8-01": "NOT_STARTED",
+    "T-P8-02": "NOT_STARTED",
+    "T-P8-03": "NOT_STARTED",
+    "T-P8-04": "NOT_STARTED",
+    "T-P8-05": "NOT_STARTED",
+    "T-P8-06": "NOT_STARTED",
+    "T-P8-07": "NOT_STARTED",
+    "T-P8-08": "NOT_STARTED",
+    "T-P8-09": "NOT_STARTED",
+    "T-P9-01": "NOT_STARTED",
+    "T-P9-02": "NOT_STARTED",
+    "T-P9-03": "NOT_STARTED",
+    "T-P9-04": "NOT_STARTED",
+    "T-P9-05": "NOT_STARTED",
+    "T-P9-06": "NOT_STARTED",
+    "T-P9-07": "NOT_STARTED",
+    "T-P9-08": "NOT_STARTED",
+    "T-P9-09": "NOT_STARTED",
+    "T-P9-10": "NOT_STARTED",
+    "T-P9-11": "NOT_STARTED",
+    "T-P10-01": "NOT_STARTED",
+    "T-P10-02": "NOT_STARTED",
+    "T-P10-03": "NOT_STARTED",
+    "T-P10-04": "NOT_STARTED",
+    "T-P10-05": "NOT_STARTED",
+    "T-P10-06": "NOT_STARTED",
+    "T-P10-07": "NOT_STARTED",
+    "T-P10-08": "NOT_STARTED",
+    "T-P11-01": "NOT_STARTED",
+    "T-P11-02": "NOT_STARTED",
+    "T-P11-03": "NOT_STARTED",
+    "T-P11-04": "NOT_STARTED",
+    "T-P11-05": "NOT_STARTED",
+    "T-P12-01": "NOT_STARTED",
+    "T-P12-02": "NOT_STARTED",
+    "T-P12-03": "NOT_STARTED",
+    "T-P12-04": "NOT_STARTED",
+    "T-P12-05": "NOT_STARTED",
+    "T-P12-06": "NOT_STARTED",
+    "T-P12-07": "NOT_STARTED",
+    "T-P13-01": "NOT_STARTED",
+    "T-P13-02": "NOT_STARTED",
+    "T-P13-03": "NOT_STARTED",
+    "T-P13-04": "NOT_STARTED",
+    "T-P13-05": "NOT_STARTED",
+    "T-P13-06": "NOT_STARTED",
+    "T-P13-07": "NOT_STARTED",
+    "T-P13-08": "NOT_STARTED",
+    "T-P13-09": "NOT_STARTED",
+    "T-P13-10": "NOT_STARTED",
+    "T-P14-01": "DEFERRED",
+    "T-P14-02": "DEFERRED",
+    "T-P14-03": "DEFERRED"
+  },
+  "completed_tasks": [
+    "T-P0-01",
+    "T-P0-02",
+    "T-P0-03",
+    "T-P0-04",
+    "T-P0-05",
+    "T-P0-06",
+    "T-P0-07",
+    "T-P0-09"
+  ],
+  "in_progress_tasks": [],
+  "blocked_tasks": [],
+  "next_eligible_tasks": [
+    "T-P0-08"
+  ],
+  "first_implementation_task_after_approval": "T-P1-01",
+  "decisions": {
+    "accepted": [
+      "ADR-001",
+      "ADR-002",
+      "ADR-003",
+      "ADR-004",
+      "ADR-005",
+      "ADR-006",
+      "ADR-007",
+      "ADR-009(OMML-first part)",
+      "ADR-011",
+      "ADR-012",
+      "ADR-013",
+      "ADR-014",
+      "ADR-023",
+      "ADR-025",
+      "ADR-028",
+      "ADR-029",
+      "ADR-031",
+      "ADR-032",
+      "ADR-034",
+      "ADR-035"
+    ],
+    "proposed": [
+      "ADR-008",
+      "ADR-009(recognizer)",
+      "ADR-010",
+      "ADR-015",
+      "ADR-016",
+      "ADR-017",
+      "ADR-018",
+      "ADR-019",
+      "ADR-020",
+      "ADR-021",
+      "ADR-024",
+      "ADR-026",
+      "ADR-027",
+      "ADR-033",
+      "ADR-037",
+      "ADR-038"
+    ],
+    "deferred": [
+      "ADR-030",
+      "ADR-036"
+    ],
+    "rejected": [
+      "ADR-022"
+    ],
+    "superseded": []
+  },
+  "unresolved_blockers": [
+    {
+      "id": "Q-B01",
+      "summary": "Corpus migration: owner reports finished; t2/t2b/t2c identical over 45 min (14:04-14:49). RECOMMENDED RESOLUTION: close. Pending owner confirmation.",
+      "blocks": [
+        "T-P2-12",
+        "T-P13-01"
+      ],
+      "recommended_resolution": "close",
+      "owner_confirmed": false,
+      "evidence": "docs/37_T2_CORPUS_REAUDIT.md §24"
+    },
+    {
+      "id": "Q-B02",
+      "summary": "Vault location and relation to the Brain",
+      "blocks": [
+        "T-P4-13",
+        "T-P10-01"
+      ]
+    },
+    {
+      "id": "Q-B03",
+      "summary": "Compute/privacy policy (cloud APIs, GPU rental, budget)",
+      "blocks": [
+        "T-P3-09",
+        "T-P3-11",
+        "T-P13-01"
+      ]
+    },
+    {
+      "id": "Q-B04",
+      "summary": "How OpenCode-configured models are accessed programmatically",
+      "blocks": [
+        "T-P7-02",
+        "T-P7-01"
+      ]
+    },
+    {
+      "id": "Q-B05",
+      "summary": "Owner approval of the plan",
+      "blocks": [
+        "T-P0-08"
+      ]
+    }
+  ],
+  "spikes": {
+    "SPIKE-PARSER": {
+      "task": "T-P3-05",
+      "status": "NOT_STARTED"
+    },
+    "SPIKE-MATH": {
+      "task": "T-P3-06",
+      "status": "NOT_STARTED"
+    },
+    "SPIKE-OMML": {
+      "task": "T-P3-07",
+      "status": "NOT_STARTED"
+    },
+    "SPIKE-OCR": {
+      "task": "T-P3-08",
+      "status": "NOT_STARTED"
+    },
+    "SPIKE-COMPUTE": {
+      "task": "T-P3-09",
+      "status": "NOT_STARTED"
+    },
+    "SPIKE-FIGURE": {
+      "task": "T-P3-10",
+      "status": "NOT_STARTED"
+    },
+    "SPIKE-EMBED": {
+      "task": "T-P6-04",
+      "status": "NOT_STARTED"
+    },
+    "SPIKE-HYBRID": {
+      "task": "T-P6-05",
+      "status": "NOT_STARTED"
+    },
+    "SPIKE-CHUNK": {
+      "task": "T-P6-06",
+      "status": "NOT_STARTED"
+    },
+    "SPIKE-MATHRET": {
+      "task": "T-P6-09",
+      "status": "NOT_STARTED"
+    },
+    "SPIKE-RERANK": {
+      "task": "T-P6-11",
+      "status": "NOT_STARTED"
+    },
+    "SPIKE-MODELGW": {
+      "task": "T-P7-02",
+      "status": "NOT_STARTED"
+    },
+    "SPIKE-GRAPH": {
+      "task": "T-P8-06",
+      "status": "NOT_STARTED"
+    },
+    "SPIKE-GRAPHIFY": {
+      "task": "T-P8-07",
+      "status": "NOT_STARTED"
+    },
+    "SPIKE-AGENTFW": {
+      "task": "T-P9-01",
+      "status": "NOT_STARTED"
+    },
+    "SPIKE-MULTIMODAL": {
+      "task": "T-P9-09",
+      "status": "NOT_STARTED"
+    },
+    "SPIKE-MEDIA": {
+      "task": "T-P13-08",
+      "status": "NOT_STARTED"
+    },
+    "SPIKE-IDEAS": {
+      "task": "T-P14-02",
+      "status": "DEFERRED"
+    }
+  },
+  "critical_chain": [
+    "T-P0-01",
+    "T-P0-02",
+    "T-P0-03",
+    "T-P0-04",
+    "T-P0-05",
+    "T-P0-06",
+    "T-P0-07",
+    "T-P0-09",
+    "T-P0-08",
+    "T-P1-01",
+    "T-P1-05",
+    "T-P1-06",
+    "T-P1-07",
+    "T-P1-09",
+    "T-P2-01",
+    "T-P2-02",
+    "T-P2-04",
+    "T-P2-10",
+    "T-P3-01",
+    "T-P3-04",
+    "T-P3-08",
+    "T-P3-09",
+    "T-P3-11",
+    "T-P4-03",
+    "T-P4-04",
+    "T-P4-07",
+    "T-P4-14",
+    "T-P4-15",
+    "T-P5-01",
+    "T-P5-07",
+    "T-P6-01",
+    "T-P6-02",
+    "T-P6-04",
+    "T-P6-07",
+    "T-P6-08",
+    "T-P6-10",
+    "T-P6-12",
+    "T-P6-13",
+    "T-P7-04",
+    "T-P9-01",
+    "T-P12-01",
+    "T-P12-04",
+    "T-P12-05",
+    "T-P12-06",
+    "T-P12-07"
+  ],
+  "corpus_snapshot": {
+    "t0": {
+      "files": 39478,
+      "bytes_gb": 371.1,
+      "pdf_files": 8614,
+      "unique_pdf_blobs": 3566,
+      "unique_pdf_pages": 328418,
+      "note": "corrected per docs/37 §18 (was reported as 328,409)"
+    },
+    "t1": {
+      "files": 73441,
+      "bytes_gb": 561.0,
+      "pdf_files": 13552,
+      "note": "metadata only; migration ongoing"
+    },
+    "t2": {
+      "files": 85913,
+      "bytes": 561502988849,
+      "dirs": 10606,
+      "pdf_paths": 13695,
+      "unique_pdfs": 4660,
+      "unique_pdf_pages": 361061,
+      "exact_dup_groups": 23512,
+      "exact_redundant_paths": 50756,
+      "exact_redundant_gb": 99.03,
+      "candidate_partial_groups": 27,
+      "images": 13766,
+      "archives": 812,
+      "html": 24516,
+      "stable_window": "14:04:04-14:49:27 identical",
+      "new_since_t1_files": 152,
+      "new_since_t1_unique_contents": 136,
+      "moved_or_copied_exact": 30870,
+      "note": "authoritative baseline; docs/37"
+    }
+  },
+  "environment": {
+    "cpu": "Intel Core 7 150U (10C/12T)",
+    "ram_gb": 63.7,
+    "gpu": "none (Intel iGPU)",
+    "d_free_gb_t0": 377,
+    "system_python": "3.14.7",
+    "project_python": "3.12 (planned)"
+  },
+  "artifact_paths": {
+    "docs": "docs/",
+    "audit": "audit/phase0/",
+    "claude_md": "CLAUDE.md",
+    "validator": "tools/validate_plan.py",
+    "planned": {
+      "source_root": "D:\\MBI-BRAIN",
+      "vault_root": "D:\\MBI-VAULT (proposed, Q-B02)",
+      "var": "var/",
+      "curation": "curation/"
+    },
+    "t2_audit": "audit/phase0/t2/",
+    "t2_report": "docs/37_T2_CORPUS_REAUDIT.md"
+  }
+}

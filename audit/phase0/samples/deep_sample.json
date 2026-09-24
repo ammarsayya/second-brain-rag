@@ -1,0 +1,126 @@
+{
+ "thesis": {
+  "page": 22,
+  "pages": 73,
+  "math_spans": 227,
+  "chars": 2005,
+  "toc": []
+ },
+ "dynamics": {
+  "page": 48,
+  "pages": 130,
+  "math_spans": 277,
+  "chars": 1643,
+  "toc": []
+ },
+ "modelling": {
+  "page": 34,
+  "pages": 98,
+  "math_spans": 141,
+  "chars": 2036,
+  "toc": []
+ },
+ "control_h2": {
+  "page": 5,
+  "pages": 8,
+  "math_spans": 202,
+  "chars": 1660,
+  "toc": []
+ },
+ "fem": {
+  "page": 37,
+  "pages": 75,
+  "math_spans": 270,
+  "chars": 1235,
+  "toc": []
+ },
+ "numerics_book": {
+  "page": 27,
+  "pages": 426,
+  "math_spans": 10,
+  "chars": 1795,
+  "toc": [
+   [
+    1,
+    "Vorwort zur 3. Auflage",
+    5
+   ],
+   [
+    1,
+    "Vorwort zur 2. Auflage",
+    6
+   ],
+   [
+    1,
+    "Vorwort",
+    7
+   ],
+   [
+    1,
+    "Inhaltsverzeichnis",
+    10
+   ],
+   [
+    1,
+    "Programmverzeichnis",
+    13
+   ],
+   [
+    1,
+    "1 Einführung",
+    15
+   ],
+   [
+    2,
+    "1.1 Zahldarstellung und Fehlertypen bei numerischen Rechnungen",
+    15
+   ],
+   [
+    3,
+    "1.1.1 Zahlen auf Rechnern",
+    16
+   ],
+   [
+    3,
+    "1.1.2 Verbreitete Gleitpunkt-Zahlensysteme",
+    20
+   ],
+   [
+    2,
+    "1.2 Fehlerverstärkung und -fortpflanzung bei Rechenoperationen",
+    22
+   ],
+   [
+    2,
+    "1.3 Hilfsmittel der linearen Algebra zur Fehlerabschätzung",
+    27
+   ],
+   [
+    2,
+    "1.4 Fehlerabschätzungen bei linearen Gleichungssystemen",
+    30
+   ]
+  ]
+ },
+ "robotics_dh": {
+  "page": 9,
+  "pages": 10,
+  "math_spans": 69,
+  "chars": 1871,
+  "toc": []
+ },
+ "cs_algdat": {
+  "page": 4,
+  "pages": 32,
+  "math_spans": 51,
+  "chars": 730,
+  "toc": []
+ },
+ "control_exam": {
+  "page": 11,
+  "pages": 12,
+  "math_spans": 106,
+  "chars": 1141,
+  "toc": []
+ }
+}

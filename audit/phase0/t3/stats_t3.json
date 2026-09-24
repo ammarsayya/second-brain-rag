@@ -1,0 +1,869 @@
+{
+  "files": 83880,
+  "bytes": 558752407625,
+  "pdf_paths": 11757,
+  "by_ext": {
+    "": {
+      "files": 1665,
+      "bytes": 212927103
+    },
+    ".0": {
+      "files": 140,
+      "bytes": 7698432
+    },
+    ".1": {
+      "files": 117,
+      "bytes": 18324090
+    },
+    ".11": {
+      "files": 2,
+      "bytes": 258618
+    },
+    ".12": {
+      "files": 2,
+      "bytes": 216256
+    },
+    ".15": {
+      "files": 21,
+      "bytes": 6033699
+    },
+    ".2": {
+      "files": 84,
+      "bytes": 8382209
+    },
+    ".20": {
+      "files": 21,
+      "bytes": 7834428
+    },
+    ".22": {
+      "files": 1,
+      "bytes": 119232
+    },
+    ".23": {
+      "files": 1,
+      "bytes": 111701
+    },
+    ".3": {
+      "files": 52,
+      "bytes": 5025939
+    },
+    ".33": {
+      "files": 18,
+      "bytes": 146141676
+    },
+    ".4": {
+      "files": 25,
+      "bytes": 1872509
+    },
+    ".5": {
+      "files": 19,
+      "bytes": 1233512
+    },
+    ".6": {
+      "files": 5,
+      "bytes": 571810
+    },
+    ".7": {
+      "files": 2,
+      "bytes": 117233
+    },
+    ".8": {
+      "files": 4,
+      "bytes": 494498
+    },
+    ".9": {
+      "files": 4,
+      "bytes": 334794
+    },
+    ".a": {
+      "files": 2,
+      "bytes": 214736
+    },
+    ".aapresults": {
+      "files": 13,
+      "bytes": 30096
+    },
+    ".actres": {
+      "files": 3,
+      "bytes": 914
+    },
+    ".actunits": {
+      "files": 2,
+      "bytes": 20
+    },
+    ".agdb": {
+      "files": 36,
+      "bytes": 86298256
+    },
+    ".apk": {
+      "files": 1,
+      "bytes": 2348969
+    },
+    ".asm": {
+      "files": 4,
+      "bytes": 2402
+    },
+    ".asv": {
+      "files": 25,
+      "bytes": 334979
+    },
+    ".avi": {
+      "files": 107,
+      "bytes": 10226400840
+    },
+    ".bat": {
+      "files": 35,
+      "bytes": 6009
+    },
+    ".bitmap": {
+      "files": 1,
+      "bytes": 14898
+    },
+    ".bluej": {
+      "files": 314,
+      "bytes": 514386
+    },
+    ".bmp": {
+      "files": 1128,
+      "bytes": 1634246136
+    },
+    ".bsy": {
+      "files": 1,
+      "bytes": 8078
+    },
+    ".c": {
+      "files": 344,
+      "bytes": 506619
+    },
+    ".cat": {
+      "files": 2,
+      "bytes": 154662
+    },
+    ".cfs": {
+      "files": 9,
+      "bytes": 2607
+    },
+    ".check": {
+      "files": 2,
+      "bytes": 496476
+    },
+    ".class": {
+      "files": 3930,
+      "bytes": 7253822
+    },
+    ".cnd": {
+      "files": 20,
+      "bytes": 60497
+    },
+    ".conf": {
+      "files": 7,
+      "bytes": 48678
+    },
+    ".cpp": {
+      "files": 15,
+      "bytes": 188683
+    },
+    ".css": {
+      "files": 8,
+      "bytes": 143316
+    },
+    ".csv": {
+      "files": 58,
+      "bytes": 98342
+    },
+    ".ctxt": {
+      "files": 1508,
+      "bytes": 1695013
+    },
+    ".dat": {
+      "files": 293,
+      "bytes": 296946371
+    },
+    ".db": {
+      "files": 45,
+      "bytes": 28409856
+    },
+    ".definition": {
+      "files": 8,
+      "bytes": 1892
+    },
+    ".dem": {
+      "files": 28,
+      "bytes": 10132
+    },
+    ".dfr": {
+      "files": 6,
+      "bytes": 2694
+    },
+    ".dft": {
+      "files": 13,
+      "bytes": 18340864
+    },
+    ".dm": {
+      "files": 1,
+      "bytes": 132
+    },
+    ".doc": {
+      "files": 355,
+      "bytes": 52775560
+    },
+    ".docx": {
+      "files": 220,
+      "bytes": 134821455
+    },
+    ".dotx": {
+      "files": 2,
+      "bytes": 125110
+    },
+    ".ds_store": {
+      "files": 8,
+      "bytes": 1246
+    },
+    ".dsp": {
+      "files": 13,
+      "bytes": 30799
+    },
+    ".dspmatk": {
+      "files": 2,
+      "bytes": 0
+    },
+    ".dspstack": {
+      "files": 2,
+      "bytes": 0
+    },
+    ".dspsymb": {
+      "files": 2,
+      "bytes": 36700160
+    },
+    ".dsptri": {
+      "files": 2,
+      "bytes": 0
+    },
+    ".dsptriu": {
+      "files": 2,
+      "bytes": 0
+    },
+    ".engd": {
+      "files": 76,
+      "bytes": 2698468
+    },
+    ".eps": {
+      "files": 14,
+      "bytes": 3504307
+    },
+    ".err": {
+      "files": 53,
+      "bytes": 176537
+    },
+    ".esav": {
+      "files": 4,
+      "bytes": 61669376
+    },
+    ".exe": {
+      "files": 90,
+      "bytes": 1240573754
+    },
+    ".exml": {
+      "files": 2807,
+      "bytes": 6260772
+    },
+    ".ext": {
+      "files": 4,
+      "bytes": 1944
+    },
+    ".f90": {
+      "files": 36,
+      "bytes": 29520
+    },
+    ".fig": {
+      "files": 658,
+      "bytes": 2789249764
+    },
+    ".filters": {
+      "files": 2,
+      "bytes": 2176
+    },
+    ".full": {
+      "files": 1,
+      "bytes": 0
+    },
+    ".gen": {
+      "files": 10,
+      "bytes": 15527
+    },
+    ".gif": {
+      "files": 558,
+      "bytes": 63146143
+    },
+    ".gst": {
+      "files": 2,
+      "bytes": 583872
+    },
+    ".h": {
+      "files": 239,
+      "bytes": 955003
+    },
+    ".history": {
+      "files": 91,
+      "bytes": 135222
+    },
+    ".hpp": {
+      "files": 1,
+      "bytes": 600
+    },
+    ".htm": {
+      "files": 2,
+      "bytes": 1205
+    },
+    ".html": {
+      "files": 24516,
+      "bytes": 378716476
+    },
+    ".ico": {
+      "files": 5,
+      "bytes": 18190
+    },
+    ".idx": {
+      "files": 6,
+      "bytes": 1943248
+    },
+    ".igs": {
+      "files": 1,
+      "bytes": 37764608
+    },
+    ".index": {
+      "files": 353,
+      "bytes": 326945218
+    },
+    ".inf": {
+      "files": 5,
+      "bytes": 205
+    },
+    ".ini": {
+      "files": 12,
+      "bytes": 1010
+    },
+    ".ino": {
+      "files": 85,
+      "bytes": 295694
+    },
+    ".intfor": {
+      "files": 2,
+      "bytes": 112640
+    },
+    ".intfor01": {
+      "files": 2,
+      "bytes": 45830144
+    },
+    ".intfor02": {
+      "files": 2,
+      "bytes": 319488
+    },
+    ".ipch": {
+      "files": 7,
+      "bytes": 49676288
+    },
+    ".ipynb": {
+      "files": 1,
+      "bytes": 11010
+    },
+    ".jar": {
+      "files": 38,
+      "bytes": 15447119
+    },
+    ".java": {
+      "files": 7180,
+      "bytes": 17904732
+    },
+    ".jmdac": {
+      "files": 7,
+      "bytes": 31087602
+    },
+    ".jpeg": {
+      "files": 129,
+      "bytes": 30882227
+    },
+    ".jpg": {
+      "files": 8009,
+      "bytes": 2467496426
+    },
+    ".js": {
+      "files": 6,
+      "bytes": 34098
+    },
+    ".json": {
+      "files": 1,
+      "bytes": 562
+    },
+    ".k": {
+      "files": 4,
+      "bytes": 563131
+    },
+    ".launch": {
+      "files": 528,
+      "bytes": 422798
+    },
+    ".lnk": {
+      "files": 6,
+      "bytes": 7769
+    },
+    ".lock": {
+      "files": 22,
+      "bytes": 0
+    },
+    ".log": {
+      "files": 38,
+      "bytes": 3185375
+    },
+    ".lst": {
+      "files": 21,
+      "bytes": 15985
+    },
+    ".m": {
+      "files": 1869,
+      "bytes": 11688540
+    },
+    ".m4a": {
+      "files": 1,
+      "bytes": 122176251
+    },
+    ".m4v": {
+      "files": 15,
+      "bytes": 364077627
+    },
+    ".make": {
+      "files": 1,
+      "bytes": 807
+    },
+    ".mat": {
+      "files": 2807,
+      "bytes": 2416191972
+    },
+    ".md": {
+      "files": 1,
+      "bytes": 9026
+    },
+    ".mechdb": {
+      "files": 36,
+      "bytes": 343182016
+    },
+    ".memo": {
+      "files": 1,
+      "bytes": 595
+    },
+    ".mexw64": {
+      "files": 14,
+      "bytes": 697344
+    },
+    ".mkv": {
+      "files": 13,
+      "bytes": 5380453171
+    },
+    ".mlapp": {
+      "files": 20,
+      "bytes": 6513704
+    },
+    ".mlappinstall": {
+      "files": 4,
+      "bytes": 53936496
+    },
+    ".mlx": {
+      "files": 4,
+      "bytes": 414920
+    },
+    ".mntr": {
+      "files": 23,
+      "bytes": 18521
+    },
+    ".mod": {
+      "files": 1,
+      "bytes": 9567
+    },
+    ".mov": {
+      "files": 4,
+      "bytes": 226854333
+    },
+    ".mp3": {
+      "files": 22,
+      "bytes": 78918352
+    },
+    ".mp4": {
+      "files": 1595,
+      "bytes": 428177867517
+    },
+    ".msi": {
+      "files": 2,
+      "bytes": 6604800
+    },
+    ".mtl": {
+      "files": 1,
+      "bytes": 85
+    },
+    ".nlh": {
+      "files": 6,
+      "bytes": 34588
+    },
+    ".o": {
+      "files": 24,
+      "bytes": 285864
+    },
+    ".obj": {
+      "files": 2,
+      "bytes": 1032664
+    },
+    ".ods": {
+      "files": 2,
+      "bytes": 21086
+    },
+    ".odt": {
+      "files": 7,
+      "bytes": 560958
+    },
+    ".onepkg": {
+      "files": 2,
+      "bytes": 31462096
+    },
+    ".out": {
+      "files": 116,
+      "bytes": 3799139
+    },
+    ".pack": {
+      "files": 6,
+      "bytes": 172980515
+    },
+    ".page": {
+      "files": 25,
+      "bytes": 0
+    },
+    ".pap": {
+      "files": 3,
+      "bytes": 38224
+    },
+    ".par": {
+      "files": 40,
+      "bytes": 12626944
+    },
+    ".pbk": {
+      "files": 2,
+      "bytes": 15812764
+    },
+    ".pcapng": {
+      "files": 1,
+      "bytes": 1883912
+    },
+    ".pcs": {
+      "files": 18,
+      "bytes": 54131
+    },
+    ".pd": {
+      "files": 1,
+      "bytes": 907862
+    },
+    ".pdf": {
+      "files": 11757,
+      "bytes": 31846540682
+    },
+    ".pkt": {
+      "files": 1,
+      "bytes": 42669
+    },
+    ".plt": {
+      "files": 8,
+      "bytes": 3076
+    },
+    ".png": {
+      "files": 3942,
+      "bytes": 1402118288
+    },
+    ".pps": {
+      "files": 3,
+      "bytes": 1196544
+    },
+    ".ppsx": {
+      "files": 109,
+      "bytes": 4688963581
+    },
+    ".ppt": {
+      "files": 38,
+      "bytes": 36405760
+    },
+    ".pptx": {
+      "files": 57,
+      "bytes": 1244281649
+    },
+    ".prefs": {
+      "files": 242,
+      "bytes": 148271
+    },
+    ".prj": {
+      "files": 4,
+      "bytes": 88152
+    },
+    ".pro": {
+      "files": 53,
+      "bytes": 8313396
+    },
+    ".properties": {
+      "files": 19,
+      "bytes": 372675
+    },
+    ".ps": {
+      "files": 1,
+      "bytes": 375387
+    },
+    ".py": {
+      "files": 22,
+      "bytes": 32643
+    },
+    ".r2019b": {
+      "files": 4,
+      "bytes": 112492
+    },
+    ".rar": {
+      "files": 54,
+      "bytes": 1351896394
+    },
+    ".resources": {
+      "files": 10,
+      "bytes": 9245
+    },
+    ".rslib": {
+      "files": 1,
+      "bytes": 30490
+    },
+    ".rspag": {
+      "files": 1,
+      "bytes": 164101
+    },
+    ".rst": {
+      "files": 41,
+      "bytes": 987234304
+    },
+    ".rtf": {
+      "files": 2,
+      "bytes": 103525
+    },
+    ".saf": {
+      "files": 1,
+      "bytes": 1166
+    },
+    ".sbl": {
+      "files": 5,
+      "bytes": 37246
+    },
+    ".sciprj": {
+      "files": 4,
+      "bytes": 17972
+    },
+    ".sciprj~": {
+      "files": 4,
+      "bytes": 17972
+    },
+    ".sconf": {
+      "files": 5,
+      "bytes": 169592
+    },
+    ".ser": {
+      "files": 3,
+      "bytes": 1788
+    },
+    ".setup": {
+      "files": 9,
+      "bytes": 1827
+    },
+    ".sh": {
+      "files": 303,
+      "bytes": 276474
+    },
+    ".sim": {
+      "files": 6,
+      "bytes": 1225486
+    },
+    ".sln": {
+      "files": 2,
+      "bytes": 2876
+    },
+    ".slx": {
+      "files": 26,
+      "bytes": 694888
+    },
+    ".slxc": {
+      "files": 6,
+      "bytes": 32604
+    },
+    ".snap": {
+      "files": 252,
+      "bytes": 57945
+    },
+    ".sql": {
+      "files": 15,
+      "bytes": 21595
+    },
+    ".stat": {
+      "files": 12,
+      "bytes": 613
+    },
+    ".stl": {
+      "files": 1,
+      "bytes": 302584
+    },
+    ".stp": {
+      "files": 2,
+      "bytes": 302823
+    },
+    ".style": {
+      "files": 35,
+      "bytes": 148001
+    },
+    ".swo": {
+      "files": 2,
+      "bytes": 24576
+    },
+    ".swp": {
+      "files": 28,
+      "bytes": 516096
+    },
+    ".t": {
+      "files": 140,
+      "bytes": 280
+    },
+    ".text": {
+      "files": 2,
+      "bytes": 0
+    },
+    ".theme": {
+      "files": 21,
+      "bytes": 660149
+    },
+    ".tmp": {
+      "files": 4,
+      "bytes": 157696
+    },
+    ".tmpl": {
+      "files": 34,
+      "bytes": 8245
+    },
+    ".tree": {
+      "files": 14,
+      "bytes": 371143
+    },
+    ".txt": {
+      "files": 1524,
+      "bytes": 40801076
+    },
+    ".u3d": {
+      "files": 1,
+      "bytes": 278376
+    },
+    ".url": {
+      "files": 19,
+      "bytes": 1562
+    },
+    ".user": {
+      "files": 2,
+      "bytes": 336
+    },
+    ".vcxproj": {
+      "files": 2,
+      "bytes": 16307
+    },
+    ".version": {
+      "files": 20,
+      "bytes": 20
+    },
+    ".wbdp": {
+      "files": 21,
+      "bytes": 4110442
+    },
+    ".wbjn": {
+      "files": 131,
+      "bytes": 205384
+    },
+    ".wbpj": {
+      "files": 19,
+      "bytes": 1286370
+    },
+    ".wbpz": {
+      "files": 21,
+      "bytes": 10762601
+    },
+    ".webm": {
+      "files": 3,
+      "bytes": 330706779
+    },
+    ".wmv": {
+      "files": 12,
+      "bytes": 661688894
+    },
+    ".wvs": {
+      "files": 5,
+      "bytes": 12410880
+    },
+    ".xls": {
+      "files": 127,
+      "bytes": 10400425
+    },
+    ".xls9x": {
+      "files": 1,
+      "bytes": 976896
+    },
+    ".xlsx": {
+      "files": 453,
+      "bytes": 17338837
+    },
+    ".xmi": {
+      "files": 9,
+      "bytes": 3153837
+    },
+    ".xml": {
+      "files": 424,
+      "bytes": 74419326
+    },
+    ".xsd": {
+      "files": 6,
+      "bytes": 16035
+    },
+    ".zip": {
+      "files": 692,
+      "bytes": 58054612213
+    }
+  },
+  "top_level": {
+    "BachelorArbeit": {
+      "files": 15269,
+      "bytes": 24094313421
+    },
+    "Betriebslehre": {
+      "files": 315,
+      "bytes": 5146229117
+    },
+    "Ckurs": {
+      "files": 108,
+      "bytes": 73335002
+    },
+    "English": {
+      "files": 3,
+      "bytes": 51282987
+    },
+    "Information": {
+      "files": 52595,
+      "bytes": 162084185177
+    },
+    "MBI-WS2019-Modulhandbuch.pdf": {
+      "files": 1,
+      "bytes": 480944
+    },
+    "Mechanical": {
+      "files": 13984,
+      "bytes": 356847292328
+    },
+    "books": {
+      "files": 1604,
+      "bytes": 10455218970
+    },
+    "curriculum_mbi_ws2019.pdf": {
+      "files": 1,
+      "bytes": 69679
+    }
+  }
+}

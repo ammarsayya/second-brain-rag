@@ -1,0 +1,23 @@
+{
+  "phase": "POSTVERIFIED_COMPLETE",
+  "total_planned": 2033,
+  "processed": 2033,
+  "successfully_moved": 2033,
+  "verified": 2033,
+  "skipped": 0,
+  "failed": 0,
+  "restored_after_failure": 0,
+  "remaining": 0,
+  "bytes_moved": 2750581224,
+  "current_batch": 4,
+  "last_successful_operation": {
+    "group_id": "g007640",
+    "relative_path": "Information\\Informatikx\\Programmieren\\inf\\Informatik\\Informatik 1\\Folien\\InfMB2_Folien.pdf",
+    "time": "2026-09-24T14:52:16.358442+00:00"
+  },
+  "start_time": "2026-09-24T14:47:33.112610+00:00",
+  "last_checkpoint_time": "2026-09-24T14:52:16.380710+00:00",
+  "historical_exact_groups_considered": 23512,
+  "preflight_groups_with_moves": 1051,
+  "preflight_groups_failed": 11
+}

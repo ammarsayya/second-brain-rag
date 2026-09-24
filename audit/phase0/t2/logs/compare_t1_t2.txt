@@ -1,0 +1,14 @@
+A files=73441 bytes=561049965168 | B files=85913 bytes=561502988849 | added=12472 removed=0 changed=3
+  + Betriebslehre\QM_1 Grundlagen.pptx
+  + Betriebslehre\QM_2 Instrumente.pptx
+  + Betriebslehre\QM_3 Managementsysteme (1).pptx
+  + Betriebslehre\QM_3 Managementsysteme.pptx
+  + Betriebslehre\QM_4 Umweltmanagement.pptx
+  + Betriebslehre\QM_5 Audits.pptx
+  + Betriebslehre\QM_6 Zusammenfassung.pptx
+  + Ckurs\0Ckurs.pdf
+  + Ckurs\1Ckurs.pdf
+  + Ckurs\2Ckurs.pdf
+  ~ Mechanical\konstruktonsgrundlagen\MAE1_Verständnisfragen_SoSe_2020_V1.2.pdf 3252868 1587909281 -> 3252868 1588571614
+  ~ Mechanical\physik\Formelsammlung Physik 2 Ha V02.14.pdf 121340 1640768401 -> 121340 1584976236
+  ~ Mechanical\physik\formelsammlung_phsyik2_ver6.pdf 194575 1640768385 -> 194575 1584976227

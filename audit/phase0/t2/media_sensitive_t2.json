@@ -1,0 +1,13 @@
+{
+ "video_files": 1749,
+ "video_bytes": 445368049161,
+ "video_unique_objects": 1019,
+ "video_unique_bytes": 204122197784,
+ "note": "unique = distinct full hash, distinct partial hash (probabilistic), or size unique in corpus (provably unique)",
+ "sensitive_name_signals": {
+  "grades": 105,
+  "contracts": 5,
+  "applications_certificates": 21,
+  "ids": 2
+ }
+}

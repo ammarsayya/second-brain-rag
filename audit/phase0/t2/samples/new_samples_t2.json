@@ -1,0 +1,44 @@
+{
+ "ckurs_mutex": {
+  "relpath": "Ckurs\\Mutex.pdf",
+  "page": 1,
+  "pages": 1,
+  "chars": 0,
+  "images": 1
+ },
+ "math1_build_p5": {
+  "relpath": "Mechanical\\Mathematik\\Mathe\\Math1\\Vorleungsfolien im Präsentationsmodus-20200504\\Vorlesung_14_Matrizen_Matrixoperationen_Praesentation.pdf",
+  "page": 41,
+  "pages": 332,
+  "chars": 281,
+  "images": 0
+ },
+ "festigkeit_folien": {
+  "relpath": "Mechanical\\konstruktonsgrundlagen\\MAE_3\\Festigkeit\\Folien Festigkeitslehre.pdf",
+  "page": 61,
+  "pages": 357,
+  "chars": 363,
+  "images": 1
+ },
+ "bwl_skript": {
+  "relpath": "Betriebslehre\\Managment\\Skript Betriebslehre.pdf",
+  "page": 31,
+  "pages": 346,
+  "chars": 215,
+  "images": 2
+ },
+ "english_market_leader": {
+  "relpath": "English\\Market leader upper intermediate (3rd ed.) SB.pdf",
+  "page": 21,
+  "pages": 176,
+  "chars": 2361,
+  "images": 3
+ },
+ "ckurs_scan": {
+  "relpath": "Ckurs\\Gescannt_20211104-1823.pdf",
+  "page": 1,
+  "pages": 1,
+  "chars": 0,
+  "images": 1
+ }
+}

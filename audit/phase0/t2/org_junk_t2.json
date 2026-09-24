@@ -1,0 +1,313 @@
+{
+ "mojibake_paths": 306,
+ "umlaut_paths": 10661,
+ "macosx_or_appledouble": 81,
+ "os_junk": 53,
+ "zero_byte": 241,
+ "tool_noise_paths": {
+  "\\slprj\\": 18,
+  "_files\\dp0": 576,
+  "_projectscratch": 201,
+  "\\bin\\": 2186,
+  "\\.metadata\\": 2561,
+  "\\.git\\": 134
+ },
+ "code_files": {
+  ".m": 1869,
+  ".ino": 85,
+  ".h": 239,
+  ".cpp": 15,
+  ".java": 7180,
+  ".class": 3930,
+  ".exml": 2807,
+  ".bluej": 314,
+  ".ctxt": 1508,
+  ".sh": 303,
+  ".js": 6,
+  ".css": 8,
+  ".c": 344,
+  ".py": 22,
+  ".make": 1
+ },
+ "media": {
+  ".mp4": [
+   1595,
+   428.18
+  ],
+  ".avi": [
+   107,
+   10.23
+  ],
+  ".mkv": [
+   13,
+   5.38
+  ],
+  ".m4v": [
+   15,
+   0.36
+  ],
+  ".mov": [
+   4,
+   0.23
+  ],
+  ".webm": [
+   3,
+   0.33
+  ],
+  ".wmv": [
+   12,
+   0.66
+  ],
+  ".mp3": [
+   22,
+   0.08
+  ],
+  ".wav": [
+   0,
+   0.0
+  ]
+ },
+ "level3_folders": 766,
+ "level3_top": [
+  [
+   "Information\\Informatikx\\1",
+   20116
+  ],
+  [
+   "Information\\C\\man-pages",
+   12240
+  ],
+  [
+   "Information\\Informatikx\\vorvorl",
+   5704
+  ],
+  [
+   "Information\\vorvorl\\AlOp",
+   3362
+  ],
+  [
+   "BachelorArbeit\\MatlabBachelorArbeit\\EndeArbeit",
+   2393
+  ],
+  [
+   "Mechanical\\messundsteuerungstechnik\\MSR2",
+   1597
+  ],
+  [
+   "BachelorArbeit\\Matlab\\Bachelorarbeit",
+   1504
+  ],
+  [
+   "Information\\Informatikx\\Programmieren",
+   1475
+  ],
+  [
+   "BachelorArbeit\\Matlab\\VorherigeApps",
+   1389
+  ],
+  [
+   "BachelorArbeit\\MatlabBachelorArbeit\\App_Innere",
+   1379
+  ],
+  [
+   "Mechanical\\konstruktonsgrundlagen\\MAE_3",
+   1328
+  ],
+  [
+   "BachelorArbeit\\Matlab\\Projekte",
+   1325
+  ],
+  [
+   "books\\Studium\\lernen",
+   1240
+  ],
+  [
+   "BachelorArbeit\\MatlabBachelorArbeit\\APP_Antriebs",
+   1207
+  ],
+  [
+   "Mechanical\\messundsteuerungstechnik\\Labor",
+   1197
+  ],
+  [
+   "Mechanical\\messundsteuerungstechnik\\Messt",
+   1025
+  ],
+  [
+   "Mechanical\\regelungstechnik\\Reg",
+   1010
+  ],
+  [
+   "Mechanical\\Mathematik\\Mathe",
+   923
+  ],
+  [
+   "Mechanical\\Bewegungstechnik\\Bewe",
+   910
+  ],
+  [
+   "BachelorArbeit\\MatlabBachelorArbeit\\Art",
+   872
+  ],
+  [
+   "BachelorArbeit\\Praxisphase\\Bericht",
+   778
+  ],
+  [
+   "Information\\C\\AlteDaten",
+   751
+  ],
+  [
+   "BachelorArbeit\\Projekt\\SayyadiAmmarSemesterProjekt",
+   743
+  ],
+  [
+   "BachelorArbeit\\Projekt\\fertigData",
+   682
+  ],
+  [
+   "Information\\Informatikx\\Softeng",
+   667
+  ],
+  [
+   "Information\\vorvorl\\SoftEnge",
+   666
+  ],
+  [
+   "Information\\Informatikx\\SoftEng2",
+   666
+  ],
+  [
+   "Mechanical\\Kolbenmaschinen\\Todsen",
+   637
+  ],
+  [
+   "BachelorArbeit\\ROBWork\\Programm",
+   606
+  ],
+  [
+   "Mechanical\\messundsteuerungstechnik\\Mes",
+   573
+  ],
+  [
+   "Mechanical\\messundsteuerungstechnik\\Messtechnik1",
+   508
+  ],
+  [
+   "Information\\MO\\MO2",
+   504
+  ],
+  [
+   "Information\\SoftEng\\SW_LiveExample",
+   469
+  ],
+  [
+   "Information\\Informatikx\\Java1",
+   469
+  ],
+  [
+   "Information\\vorvorl\\ObjOriP",
+   445
+  ],
+  [
+   "Mechanical\\FEM\\Fin",
+   441
+  ],
+  [
+   "Mechanical\\Mathematik\\NumMat",
+   438
+  ],
+  [
+   "BachelorArbeit\\Praxisphase\\ProgramPraxisPhase",
+   401
+  ],
+  [
+   "Mechanical\\regelungstechnik\\Reg1",
+   384
+  ],
+  [
+   "Information\\vorvorl\\GrdInf",
+   374
+  ],
+  [
+   "Information\\Vorlesung\\GrdInf",
+   374
+  ],
+  [
+   "Information\\MO\\inf",
+   367
+  ],
+  [
+   "Mechanical\\werkstoffkunde\\WK",
+   322
+  ],
+  [
+   "Mechanical\\Robotertechnik\\Rob_1",
+   304
+  ],
+  [
+   "BachelorArbeit\\MatlabBachelorArbeit\\OptimierungInnereKräfte",
+   295
+  ],
+  [
+   "Mechanical\\physik\\Physik",
+   288
+  ],
+  [
+   "Information\\vorvorl\\AngeInfo",
+   245
+  ],
+  [
+   "BachelorArbeit\\Projekt\\Lösung",
+   241
+  ],
+  [
+   "Mechanical\\FEM\\LabFiles",
+   230
+  ],
+  [
+   "Information\\MO\\MO",
+   226
+  ],
+  [
+   "Information\\vorvorl\\Algorithmen und Datenstrukturen",
+   225
+  ],
+  [
+   "Information\\Vorlesung\\ObjOriP",
+   223
+  ],
+  [
+   "Information\\Java_1\\ObjOriP",
+   223
+  ],
+  [
+   "Mechanical\\FEM\\Finit2",
+   203
+  ],
+  [
+   "Information\\vorvorl\\AlgDat",
+   197
+  ],
+  [
+   "Information\\Vorlesung\\AlgDat",
+   197
+  ],
+  [
+   "Information\\Java_1\\AlgDat",
+   197
+  ],
+  [
+   "BachelorArbeit\\Projekt\\Rob",
+   187
+  ],
+  [
+   "BachelorArbeit\\MatlabBachelorArbeit\\Ergebnisse",
+   186
+  ],
+  [
+   "BachelorArbeit\\Projekt\\DATA",
+   173
+  ]
+ ]
+}

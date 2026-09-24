@@ -1,0 +1,12 @@
+{
+  "t2_files": 85913,
+  "t2_bytes": 561502988849,
+  "t3_files": 83880,
+  "t3_bytes": 558752407625,
+  "intentional_moved_files": 2033,
+  "intentional_moved_bytes": 2750581224,
+  "added_paths_unexpected": 0,
+  "missing_paths_unexpected": 0,
+  "remaining_exact_redundant_paths_from_t2_full_hashes": 48723,
+  "method_note": "Remaining exact count reuses t2 full hashes for retained paths; moved-group canonical bytes were reverified."
+}

@@ -1,0 +1,477 @@
+SOURCE: Mechanical\regelungstechnik\Regelungstechnik\H2-Arbeiten mit linearen Modellen.pdf
+PAGE: 5/8
+MATH_SPANS: 202
+
+• komplexe Frequenzgangsfunktion 
+)
+(
+j
+)
+(
+j
+)
+(
+j
+t
+ω
+j
+)
+t
+ω
+j(
+*
+*
+e
+)
+ 
+F(j
+e
+)
+V(
+e
+ uˆ
+ yˆ
+e
+uˆ
+e
+yˆ
+(t)
+u
+(t)
+y
+)
+ 
+F(j
+ω
+ϕ
+ω
+ϕ
+ω
+ϕ
+⋅
+ϕ
++
+⋅
+⋅
+ω
+=
+⋅
+ω
+=
+⋅
+=
+⋅
+⋅
+=
+=
+ω
+ 
+(3.17)
+• Amplitudenfrequenzgang 
+{
+}
+{
+}
+V
+y
+u
+F j
+F j
+F j
+( )
+$( )
+$( )
+(
+)
+Re
+(
+)
+Im
+(
+)
+ω
+ω
+ω
+ω
+ω
+ω
+=
+=
+=
++
+2
+2
+ 
+(3.18)
+• Phasenfrequenzgang 
+{
+}
+{
+}
+{
+}
+ϕ ω
+ω
+ω
+ω
+( )
+arg
+(
+)
+arctan
+Im
+(
+)
+Re
+(
+)
+=
+=
+F j
+F j
+F j
+ 
+(3.19)
+Berechnung der Frequenzgangsfunktion für das allgemeine lineare DGL-Modell  
+a
+d y t
+dt
+a
+dy t
+dt
+a
+y t
+b
+u t
+b
+du t
+dt
+b
+d u t
+dt
+n
+n
+n
+m
+m
+m
+⋅
++
++
+⋅
++
+⋅
+=
+⋅
++
+⋅
++
++
+⋅
+( )
+( )
+( )
+( )
+( )
+( )
+L
+L
+1
+0
+0
+1
+ 
+(3.1)
+• mit 
+[
+]
+d u t
+dt
+u
+j
+e
+n
+n
+n
+j
+t
+*( )
+$
+=
+⋅
+⋅
+⋅⋅
+ω
+ω 
+[
+]
+d y t
+dt
+y
+j
+e
+n
+n
+n
+j
+t
+*
+(
+)
+( )
+$
+=
+⋅
+⋅
+⋅+
+ω
+ω
+ϕ 
+⇒ 
+[
+]
+[
+]
+[
+]
+[
+]
+m
+m
+1
+0
+t
+ω
+j
+0
+1
+n
+n
+)
+t
+j(ω
+jω
+b
+jω
+b
+b
+e
+uˆ
+a
+jω
+a
+jω
+a
+e
+yˆ
++
++
+⋅
++
+⋅
+⋅
+=
++
+⋅
++
++
+⋅
+⋅
+⋅
+⋅
+ϕ
++
+⋅
+L
+L
+ 
+• aufgelöst nach dem Verhältnis 
+ϕ
+⋅
+ϕ
++
+⋅
+⋅
+=
+⋅
+⋅
+j
+t
+ω
+j
+)
+t
+ω
+j(
+e
+uˆ
+yˆ
+e
+uˆ
+e
+yˆ
+ erhält man  
+[
+]
+[
+]
+[
+]
+[
+]
+)
+A(j
+)
+B(j
+j
+a
+j
+a
+a
+j
+b
+j
+b
+b
+e
+uˆ
+yˆ
+)
+F(j
+n
+n
+1
+0
+m
+m
+1
+0
+j
+ω
+ω
+=
+ω
++
++
+ω
++
+ω
++
++
+ω
++
+=
+⋅
+=
+ω
+ϕ
+L
+L
+ 
+(3.20)
+      mit p
+j
+= ω    
+A(p)
+B(p)
+p
+a
+p
+a
+a
+p
+b
+p
+b
+b
+F(p)
+n
+n
+1
+0
+m
+m
+1
+0
+=
++
++
++
++
++
++
+=
+L
+L
+ 
+(3.21)
+Ersetzt man im Nennerpolynom A(p) die Variable p durch λ, so lassen sich die Pole λi der 
+Frequenzgangsfunktion berechnen, die identisch sind mit den Eigenwerten λi der DGL. 
+Die Nullstellen der Frequenzgangsfunktion werden aus den Nullstellen von B(λ) bestimmt.  
+• Berechnungsbeispiel PT1-Glied:  
+ 
+DGL: 
+u(t)
+K
+y(t)
+dt
+dy(t)
+T1
+⋅
+=
++
+ 
+FGF:  
+ω
+⋅
++
+=
+ω
+j
+T
+1
+K
+)
+F(j
+1
+ 
+2
+2
+1
+T
+1
+K
+)
+F(j
+)
+V(
+ω
+⋅
++
+=
+ω
+==
+ω
+ 
+{
+}
+1
+T
+arctan
+K
+0
+arctan
+)
+F(j
+arg
+)
+(
+1 ω
+⋅
+−
+=
+ω
+=
+ω
+ϕ
+ 

@@ -1,0 +1,124 @@
+{
+ "unique_pdfs": 4660,
+ "opened": 4659,
+ "open_errors": 1,
+ "open_error_classes": {
+  "EmptyFileError: Cannot open empty file: filen": 1
+ },
+ "partial_errors": 13,
+ "needs_password": 13,
+ "encrypted_flag": 13,
+ "zero_page": 2,
+ "total_unique_pages": 361061,
+ "fallback_path_used": 0,
+ "probe_docs": 4644,
+ "docs_all_probe_pages_textless": 820,
+ "docs_>=80pct_probe_textless": 846,
+ "docs_any_probe_textless": 1229,
+ "est_textless_pages_EXTRAPOLATION": 27346,
+ "est_mathfont_pages_EXTRAPOLATION_upper_bound": 81785,
+ "docs_with_mathfont_on_any_probe_page": 2128,
+ "docs_with_annotations_on_probe_pages": 310,
+ "docs_landscape_first_page": 1442,
+ "docs_ge200p": 534,
+ "pages_in_ge200p": 273919,
+ "docs_le40p": 3520,
+ "pages_in_le40p": 29438,
+ "pages_p10_p25_p50_p75_p90_p99_max": [
+  1,
+  2,
+  7,
+  39,
+  250,
+  919,
+  2281
+ ],
+ "t2_unique_pdfs_censused_at_t0": 3339,
+ "t2_unique_pdfs_NOT_censused_at_t0": 1320,
+ "pages_NOT_censused_at_t0": 32643,
+ "t2_unique_pdfs_probed_at_t0(25p probe)": 1388,
+ "new_vs_t0_by_L2": {
+  "Mechanical\\Mathematik": 504,
+  "Mechanical\\konstruktonsgrundlagen": 332,
+  "Mechanical\\messundsteuerungstechnik": 130,
+  "Mechanical\\regelungstechnik": 107,
+  "Betriebslehre\\Managment": 98,
+  "Information\\Informatikx": 23,
+  "Mechanical\\Automatisierungslabor": 6,
+  "Mechanical\\Elektrotechnik": 4,
+  "Mechanical\\physik": 2,
+  "Mechanical\\Bewegungstechnik": 2,
+  "Information\\MO": 1,
+  "English\\3rd-Ed.-Market-Leader-Intermediate-11wih01.pdf": 1,
+  "English\\Market leader upper intermediate (3rd ed.) SB.pdf": 1,
+  "English\\market-leader-pre-int-3rd-ed1.pdf": 1,
+  "Ckurs\\0Ckurs.pdf": 1,
+  "Ckurs\\1Ckurs.pdf": 1,
+  "Ckurs\\2Ckurs.pdf": 1,
+  "Ckurs\\Bits.pdf": 1,
+  "Ckurs\\Bitsflags.pdf": 1,
+  "Ckurs\\Bitsmask.pdf": 1
+ },
+ "largest_new_vs_t0": [
+  [
+   514,
+   "Mechanical\\messundsteuerungstechnik\\Messtechnik1\\Projektunterlagen\\Projekt Drehrate\\User Manual 98.pdf"
+  ],
+  [
+   494,
+   "Mechanical\\Automatisierungslabor\\Wonderware Intouch-20200915\\Handbücher (Englisch)\\Alarms_and_Events_Guide.pdf"
+  ],
+  [
+   487,
+   "Mechanical\\Automatisierungslabor\\Software Einführung CoDeSys-20200915\\CoDeSys_V23_D.pdf"
+  ],
+  [
+   422,
+   "Mechanical\\Mathematik\\Mathe\\Math1\\Vorleungsfolien im Präsentationsmodus-20200504\\Vorlesung_1_Mengen_Klammern_Brueche_Praesentation.pdf"
+  ],
+  [
+   374,
+   "Mechanical\\messundsteuerungstechnik\\Messtechnik1\\Bildverarbeitung\\Handbuecher\\NI\\IMAQ Vision Concepts Manual.pdf"
+  ],
+  [
+   357,
+   "Mechanical\\konstruktonsgrundlagen\\MAE_3\\Festigkeit\\Folien Festigkeitslehre.pdf"
+  ],
+  [
+   346,
+   "Betriebslehre\\Managment\\Skript Betriebslehre.pdf"
+  ],
+  [
+   346,
+   "Betriebslehre\\Managment\\Bwl1\\Skript Betriebslehre.pdf"
+  ],
+  [
+   346,
+   "Betriebslehre\\Managment\\BWL\\Skript Betriebslehre.pdf"
+  ],
+  [
+   332,
+   "Mechanical\\Mathematik\\Mathe\\Math1\\Vorleungsfolien im Präsentationsmodus-20200504\\Vorlesung_14_Matrizen_Matrixoperationen_Praesentation.pdf"
+  ],
+  [
+   327,
+   "Mechanical\\Mathematik\\Mathe\\Math1\\Vorleungsfolien im Präsentationsmodus-20200504\\Vorlesung_2_Potenzen_Wurzeln_Betraege_Gleichungen_Praesentation.pdf"
+  ],
+  [
+   322,
+   "Mechanical\\konstruktonsgrundlagen\\MAE1_Sktipt_S20.pdf"
+  ],
+  [
+   295,
+   "Betriebslehre\\Managment\\Bwl1\\Skript BWL_ HsH WiSe20_21 dual.pdf"
+  ],
+  [
+   292,
+   "Mechanical\\Mathematik\\Mathe\\Math1\\Vorleungsfolien im Präsentationsmodus-20200504\\Vorlesung_11_Folgen_Grenzwert_Stetigkeit_Praesenatation.pdf"
+  ],
+  [
+   279,
+   "Mechanical\\messundsteuerungstechnik\\Mes\\Konslehre\\Konst.l.D\\Kon1_S20_Skript.pdf"
+  ]
+ ]
+}

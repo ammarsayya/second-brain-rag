@@ -1,0 +1,33 @@
+SOURCE: Mechanical\konstruktonsgrundlagen\MAE_3\Festigkeit\Folien Festigkeitslehre.pdf
+PAGE: 61/357
+
+TM2: Festigkeitslehre  –   Prof. Dr.-Ing. Bettina Binder 
+8/48 
+Einachsige Beanspruchung, 
+Gleichgewichtsbedingungen 
+ 
+ 
+ 
+ 
+Hierfür müssen die Spannungen zu Kräften reduziert werden. 
+ 
+ 
+ 
+ϕ 
+σϕ 
+τϕ 
+F 
+Aϕ 
+Schnittfläche Aϕ: 
+Aϕ  =  A / cos ϕ 
+F∙sin ϕ 
+F∙cos ϕ 
+Querschnittsfläche A 
+ϕ 
+Fσ = σϕ ∙ Aϕ 
+Fτ = τϕ ∙ Aϕ 
+F 
+Aϕ 
+F∙sin ϕ 
+F∙cos ϕ 
+Querschnittsfläche A 

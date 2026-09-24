@@ -1,0 +1,355 @@
+{
+ "exact_groups": 23512,
+ "exact_redundant_files": 50756,
+ "exact_redundant_bytes": 99027606279,
+ "candidate_groups_partial": 27,
+ "candidate_redundant_files": 49,
+ "candidate_redundant_bytes": 196834535900,
+ "exact_by_ext": {
+  ".mp4": {
+   "groups": 274,
+   "redundant_files": 627,
+   "redundant_bytes": 65148408490
+  },
+  ".pdf": {
+   "groups": 2227,
+   "redundant_files": 9016,
+   "redundant_bytes": 14741244745
+  },
+  ".avi": {
+   "groups": 21,
+   "redundant_files": 44,
+   "redundant_bytes": 4476222812
+  },
+  ".mkv": {
+   "groups": 4,
+   "redundant_files": 8,
+   "redundant_bytes": 2668292280
+  },
+  ".ppsx": {
+   "groups": 49,
+   "redundant_files": 61,
+   "redundant_bytes": 2456809636
+  },
+  ".zip": {
+   "groups": 133,
+   "redundant_files": 412,
+   "redundant_bytes": 1995764554
+  },
+  ".mat": {
+   "groups": 590,
+   "redundant_files": 1333,
+   "redundant_bytes": 1181312880
+  },
+  ".bmp": {
+   "groups": 234,
+   "redundant_files": 864,
+   "redundant_bytes": 1126285208
+  },
+  ".jpg": {
+   "groups": 1820,
+   "redundant_files": 3814,
+   "redundant_bytes": 1100518998
+  },
+  ".exe": {
+   "groups": 18,
+   "redundant_files": 69,
+   "redundant_bytes": 842790896
+  },
+  ".png": {
+   "groups": 1022,
+   "redundant_files": 1322,
+   "redundant_bytes": 497800290
+  },
+  ".fig": {
+   "groups": 60,
+   "redundant_files": 76,
+   "redundant_bytes": 492623206
+  },
+  ".wmv": {
+   "groups": 4,
+   "redundant_files": 5,
+   "redundant_bytes": 296465384
+  },
+  ".rst": {
+   "groups": 4,
+   "redundant_files": 7,
+   "redundant_bytes": 255524864
+  },
+  ".m4v": {
+   "groups": 5,
+   "redundant_files": 10,
+   "redundant_bytes": 242718418
+  },
+  ".index": {
+   "groups": 98,
+   "redundant_files": 218,
+   "redundant_bytes": 242174034
+  },
+  ".webm": {
+   "groups": 1,
+   "redundant_files": 2,
+   "redundant_bytes": 220471186
+  },
+  ".html": {
+   "groups": 12245,
+   "redundant_files": 12270,
+   "redundant_bytes": 189381291
+  },
+  ".33": {
+   "groups": 1,
+   "redundant_files": 17,
+   "redundant_bytes": 138022694
+  },
+  ".dat": {
+   "groups": 72,
+   "redundant_files": 187,
+   "redundant_bytes": 111984458
+  }
+ },
+ "unique_by_ext": {
+  ".pdf": {
+   "paths_full_hashed": 13689,
+   "unique_contents": 4671
+  },
+  ".docx": {
+   "paths_full_hashed": 221,
+   "unique_contents": 158
+  },
+  ".doc": {
+   "paths_full_hashed": 355,
+   "unique_contents": 141
+  },
+  ".pptx": {
+   "paths_full_hashed": 61,
+   "unique_contents": 35
+  },
+  ".ppt": {
+   "paths_full_hashed": 43,
+   "unique_contents": 9
+  },
+  ".ppsx": {
+   "paths_full_hashed": 114,
+   "unique_contents": 53
+  },
+  ".xlsx": {
+   "paths_full_hashed": 457,
+   "unique_contents": 358
+  },
+  ".html": {
+   "paths_full_hashed": 24516,
+   "unique_contents": 12246
+  },
+  ".zip": {
+   "paths_full_hashed": 587,
+   "unique_contents": 175
+  },
+  ".mp4": {
+   "paths_full_hashed": 907,
+   "unique_contents": 280
+  }
+ },
+ "mirror_pairs_maximal": 488,
+ "mirror_pairs_top": [
+  [
+   12245,
+   "Information\\C",
+   "Information\\Informatikx\\1\\Sys.prog2"
+  ],
+  [
+   12240,
+   "Information\\C\\man-pages",
+   "Information\\Informatikx\\1\\Sys.prog2"
+  ],
+  [
+   12240,
+   "Information\\C",
+   "Information\\Informatikx\\1\\Sys.prog2\\man-pages"
+  ],
+  [
+   3741,
+   "Information\\Informatikx\\vorvorl",
+   "Information\\vorvorl"
+  ],
+  [
+   3741,
+   "Information\\Informatikx\\1\\vorvorl",
+   "Information\\vorvorl"
+  ],
+  [
+   3741,
+   "Information\\Informatikx\\1\\vorvorl",
+   "Information\\Informatikx\\vorvorl"
+  ],
+  [
+   1188,
+   "BachelorArbeit\\MatlabBachelorArbeit\\APP_Antriebs",
+   "BachelorArbeit\\Matlab\\Bachelorarbeit\\Prog"
+  ],
+  [
+   684,
+   "BachelorArbeit\\Matlab\\Projekte\\PPN",
+   "BachelorArbeit\\Praxisphase\\Bericht\\Applikation\\PPN"
+  ],
+  [
+   684,
+   "BachelorArbeit\\Matlab\\Projekte\\PPN",
+   "BachelorArbeit\\Praxisphase\\Bericht\\Applikation"
+  ],
+  [
+   684,
+   "BachelorArbeit\\Matlab\\Projekte\\PPN",
+   "BachelorArbeit\\Praxisphase\\Bericht"
+  ],
+  [
+   633,
+   "BachelorArbeit\\Projekt\\SayyadiAmmarSemesterProjekt\\Ergebnisse",
+   "BachelorArbeit\\Projekt\\fertigData"
+  ],
+  [
+   583,
+   "Information\\Informatikx\\Softeng",
+   "Information\\vorvorl\\SoftEnge"
+  ],
+  [
+   583,
+   "Information\\Informatikx\\Softeng",
+   "Information\\Informatikx\\vorvorl\\SoftEnge"
+  ],
+  [
+   583,
+   "Information\\Informatikx\\SoftEng2",
+   "Information\\vorvorl\\SoftEnge"
+  ],
+  [
+   583,
+   "Information\\Informatikx\\SoftEng2",
+   "Information\\Informatikx\\vorvorl\\SoftEnge"
+  ],
+  [
+   583,
+   "Information\\Informatikx\\SoftEng2",
+   "Information\\Informatikx\\Softeng"
+  ],
+  [
+   583,
+   "Information\\Informatikx\\1\\vorvorl\\SoftEnge",
+   "Information\\Informatikx\\Softeng"
+  ],
+  [
+   583,
+   "Information\\Informatikx\\1\\vorvorl\\SoftEnge",
+   "Information\\Informatikx\\SoftEng2"
+  ],
+  [
+   583,
+   "Information\\Informatikx\\1\\vorvorl\\SoftEng",
+   "Information\\Informatikx\\Softeng"
+  ],
+  [
+   583,
+   "Information\\Informatikx\\1\\vorvorl\\SoftEng",
+   "Information\\Informatikx\\SoftEng2"
+  ],
+  [
+   583,
+   "Information\\Informatikx\\1\\vorvorl\\SoftEng",
+   "Information\\Informatikx\\1\\vorvorl\\SoftEnge"
+  ],
+  [
+   530,
+   "Information\\Informatikx\\Programmieren",
+   "Information\\MO"
+  ],
+  [
+   463,
+   "Mechanical\\messundsteuerungstechnik\\Messt\\Messtechnik",
+   "Mechanical\\messundsteuerungstechnik\\Messtechnik1"
+  ],
+  [
+   463,
+   "Mechanical\\messundsteuerungstechnik\\Messt",
+   "Mechanical\\messundsteuerungstechnik\\Messtechnik1"
+  ],
+  [
+   444,
+   "Information\\SoftEng\\SW_LiveExample\\SW_LiveExample",
+   "Information\\vorvorl\\SoftEnge\\SW_LiveExample"
+  ],
+  [
+   444,
+   "Information\\SoftEng\\SW_LiveExample",
+   "Information\\vorvorl\\SoftEnge\\SW_LiveExample\\SW_LiveExample"
+  ],
+  [
+   444,
+   "Information\\SoftEng\\SW_LiveExample",
+   "Information\\vorvorl\\SoftEnge\\SW_LiveExample"
+  ],
+  [
+   444,
+   "Information\\Informatikx\\vorvorl\\SoftEnge\\SW_LiveExample\\SW_LiveExample",
+   "Information\\vorvorl\\SoftEnge\\SW_LiveExample"
+  ],
+  [
+   444,
+   "Information\\Informatikx\\vorvorl\\SoftEnge\\SW_LiveExample\\SW_LiveExample",
+   "Information\\SoftEng\\SW_LiveExample"
+  ],
+  [
+   444,
+   "Information\\Informatikx\\vorvorl\\SoftEnge\\SW_LiveExample",
+   "Information\\vorvorl\\SoftEnge\\SW_LiveExample\\SW_LiveExample"
+  ],
+  [
+   444,
+   "Information\\Informatikx\\vorvorl\\SoftEnge\\SW_LiveExample",
+   "Information\\SoftEng\\SW_LiveExample\\SW_LiveExample"
+  ],
+  [
+   444,
+   "Information\\Informatikx\\vorvorl\\SoftEnge\\SW_LiveExample",
+   "Information\\SoftEng\\SW_LiveExample"
+  ],
+  [
+   444,
+   "Information\\Informatikx\\Softeng\\SW_LiveExample\\SW_LiveExample",
+   "Information\\vorvorl\\SoftEnge\\SW_LiveExample"
+  ],
+  [
+   444,
+   "Information\\Informatikx\\Softeng\\SW_LiveExample\\SW_LiveExample",
+   "Information\\SoftEng\\SW_LiveExample"
+  ],
+  [
+   444,
+   "Information\\Informatikx\\Softeng\\SW_LiveExample\\SW_LiveExample",
+   "Information\\Informatikx\\vorvorl\\SoftEnge\\SW_LiveExample"
+  ],
+  [
+   444,
+   "Information\\Informatikx\\Softeng\\SW_LiveExample",
+   "Information\\vorvorl\\SoftEnge\\SW_LiveExample\\SW_LiveExample"
+  ],
+  [
+   444,
+   "Information\\Informatikx\\Softeng\\SW_LiveExample",
+   "Information\\SoftEng\\SW_LiveExample\\SW_LiveExample"
+  ],
+  [
+   444,
+   "Information\\Informatikx\\Softeng\\SW_LiveExample",
+   "Information\\SoftEng\\SW_LiveExample"
+  ],
+  [
+   444,
+   "Information\\Informatikx\\Softeng\\SW_LiveExample",
+   "Information\\Informatikx\\vorvorl\\SoftEnge\\SW_LiveExample\\SW_LiveExample"
+  ],
+  [
+   444,
+   "Information\\Informatikx\\SoftEng2\\SW_LiveExample\\SW_LiveExample",
+   "Information\\vorvorl\\SoftEnge\\SW_LiveExample"
+  ]
+ ]
+}

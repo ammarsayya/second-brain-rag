@@ -1,0 +1,1989 @@
+{
+ "files": 85913,
+ "bytes": 561502988849,
+ "zero_byte": 241,
+ "dirs_with_files_beneath": 10606,
+ "max_depth": 14,
+ "by_ext": {
+  ".mp4": {
+   "files": 1595,
+   "bytes": 428177867517
+  },
+  ".zip": {
+   "files": 755,
+   "bytes": 58228709047
+  },
+  ".pdf": {
+   "files": 13695,
+   "bytes": 34335915556
+  },
+  ".avi": {
+   "files": 107,
+   "bytes": 10226400840
+  },
+  ".mkv": {
+   "files": 13,
+   "bytes": 5380453171
+  },
+  ".ppsx": {
+   "files": 114,
+   "bytes": 4771709187
+  },
+  ".fig": {
+   "files": 658,
+   "bytes": 2789249764
+  },
+  ".jpg": {
+   "files": 8009,
+   "bytes": 2467496426
+  },
+  ".mat": {
+   "files": 2807,
+   "bytes": 2416191972
+  },
+  ".bmp": {
+   "files": 1128,
+   "bytes": 1634246136
+  },
+  ".png": {
+   "files": 3942,
+   "bytes": 1402118288
+  },
+  ".rar": {
+   "files": 57,
+   "bytes": 1351900203
+  },
+  ".pptx": {
+   "files": 61,
+   "bytes": 1245836513
+  },
+  ".exe": {
+   "files": 90,
+   "bytes": 1240573754
+  },
+  ".rst": {
+   "files": 41,
+   "bytes": 987234304
+  },
+  ".wmv": {
+   "files": 12,
+   "bytes": 661688894
+  },
+  ".html": {
+   "files": 24516,
+   "bytes": 378716476
+  },
+  ".m4v": {
+   "files": 15,
+   "bytes": 364077627
+  },
+  ".mechdb": {
+   "files": 36,
+   "bytes": 343182016
+  },
+  ".webm": {
+   "files": 3,
+   "bytes": 330706779
+  },
+  ".index": {
+   "files": 353,
+   "bytes": 326945218
+  },
+  ".dat": {
+   "files": 293,
+   "bytes": 296946371
+  },
+  ".mov": {
+   "files": 4,
+   "bytes": 226854333
+  },
+  "<none>": {
+   "files": 1665,
+   "bytes": 212927103
+  },
+  ".pack": {
+   "files": 6,
+   "bytes": 172980515
+  },
+  ".33": {
+   "files": 18,
+   "bytes": 146141676
+  },
+  ".docx": {
+   "files": 221,
+   "bytes": 135287766
+  },
+  ".m4a": {
+   "files": 1,
+   "bytes": 122176251
+  },
+  ".agdb": {
+   "files": 36,
+   "bytes": 86298256
+  },
+  ".mp3": {
+   "files": 22,
+   "bytes": 78918352
+  },
+  ".xml": {
+   "files": 424,
+   "bytes": 74419326
+  },
+  ".gif": {
+   "files": 558,
+   "bytes": 63146143
+  },
+  ".esav": {
+   "files": 4,
+   "bytes": 61669376
+  },
+  ".mlappinstall": {
+   "files": 4,
+   "bytes": 53936496
+  },
+  ".doc": {
+   "files": 355,
+   "bytes": 52775560
+  },
+  ".ipch": {
+   "files": 7,
+   "bytes": 49676288
+  },
+  ".intfor01": {
+   "files": 2,
+   "bytes": 45830144
+  },
+  ".txt": {
+   "files": 1524,
+   "bytes": 40801076
+  },
+  ".ppt": {
+   "files": 43,
+   "bytes": 38410240
+  },
+  ".igs": {
+   "files": 1,
+   "bytes": 37764608
+  },
+  ".dspsymb": {
+   "files": 2,
+   "bytes": 36700160
+  },
+  ".onepkg": {
+   "files": 2,
+   "bytes": 31462096
+  },
+  ".jmdac": {
+   "files": 7,
+   "bytes": 31087602
+  },
+  ".jpeg": {
+   "files": 129,
+   "bytes": 30882227
+  },
+  ".db": {
+   "files": 45,
+   "bytes": 28409856
+  },
+  ".dft": {
+   "files": 13,
+   "bytes": 18340864
+  },
+  ".1": {
+   "files": 117,
+   "bytes": 18324090
+  },
+  ".java": {
+   "files": 7180,
+   "bytes": 17904732
+  },
+  ".xlsx": {
+   "files": 457,
+   "bytes": 17399875
+  },
+  ".pbk": {
+   "files": 2,
+   "bytes": 15812764
+  },
+  ".jar": {
+   "files": 38,
+   "bytes": 15447119
+  },
+  ".par": {
+   "files": 40,
+   "bytes": 12626944
+  },
+  ".wvs": {
+   "files": 5,
+   "bytes": 12410880
+  },
+  ".m": {
+   "files": 1869,
+   "bytes": 11688540
+  },
+  ".wbpz": {
+   "files": 21,
+   "bytes": 10762601
+  },
+  ".xls": {
+   "files": 137,
+   "bytes": 10673833
+  },
+  ".2": {
+   "files": 84,
+   "bytes": 8382209
+  },
+  ".pro": {
+   "files": 53,
+   "bytes": 8313396
+  },
+  ".20": {
+   "files": 21,
+   "bytes": 7834428
+  },
+  ".0": {
+   "files": 140,
+   "bytes": 7698432
+  },
+  ".class": {
+   "files": 3930,
+   "bytes": 7253822
+  },
+  ".msi": {
+   "files": 2,
+   "bytes": 6604800
+  },
+  ".mlapp": {
+   "files": 20,
+   "bytes": 6513704
+  },
+  ".exml": {
+   "files": 2807,
+   "bytes": 6260772
+  },
+  ".15": {
+   "files": 21,
+   "bytes": 6033699
+  },
+  ".3": {
+   "files": 52,
+   "bytes": 5025939
+  },
+  ".wbdp": {
+   "files": 21,
+   "bytes": 4110442
+  },
+  ".out": {
+   "files": 116,
+   "bytes": 3799139
+  },
+  ".eps": {
+   "files": 14,
+   "bytes": 3504307
+  },
+  ".log": {
+   "files": 38,
+   "bytes": 3185375
+  },
+  ".xmi": {
+   "files": 9,
+   "bytes": 3153837
+  },
+  ".engd": {
+   "files": 76,
+   "bytes": 2698468
+  },
+  ".apk": {
+   "files": 1,
+   "bytes": 2348969
+  },
+  ".idx": {
+   "files": 6,
+   "bytes": 1943248
+  },
+  ".pcapng": {
+   "files": 1,
+   "bytes": 1883912
+  },
+  ".4": {
+   "files": 25,
+   "bytes": 1872509
+  },
+  ".ctxt": {
+   "files": 1508,
+   "bytes": 1695013
+  },
+  ".wbpj": {
+   "files": 19,
+   "bytes": 1286370
+  },
+  ".5": {
+   "files": 19,
+   "bytes": 1233512
+  },
+  ".sim": {
+   "files": 6,
+   "bytes": 1225486
+  },
+  ".pps": {
+   "files": 3,
+   "bytes": 1196544
+  },
+  ".obj": {
+   "files": 2,
+   "bytes": 1032664
+  },
+  ".xls9x": {
+   "files": 1,
+   "bytes": 976896
+  },
+  ".h": {
+   "files": 239,
+   "bytes": 955003
+  },
+  ".pd": {
+   "files": 1,
+   "bytes": 907862
+  },
+  ".mexw64": {
+   "files": 14,
+   "bytes": 697344
+  },
+  ".slx": {
+   "files": 26,
+   "bytes": 694888
+  },
+  ".theme": {
+   "files": 21,
+   "bytes": 660149
+  },
+  ".gst": {
+   "files": 2,
+   "bytes": 583872
+  },
+  ".6": {
+   "files": 5,
+   "bytes": 571810
+  },
+  ".k": {
+   "files": 4,
+   "bytes": 563131
+  },
+  ".odt": {
+   "files": 7,
+   "bytes": 560958
+  },
+  ".swp": {
+   "files": 28,
+   "bytes": 516096
+  },
+  ".bluej": {
+   "files": 314,
+   "bytes": 514386
+  },
+  ".c": {
+   "files": 344,
+   "bytes": 506619
+  },
+  ".check": {
+   "files": 2,
+   "bytes": 496476
+  },
+  ".8": {
+   "files": 4,
+   "bytes": 494498
+  },
+  ".launch": {
+   "files": 528,
+   "bytes": 422798
+  },
+  ".mlx": {
+   "files": 4,
+   "bytes": 414920
+  },
+  ".ps": {
+   "files": 1,
+   "bytes": 375387
+  },
+  ".properties": {
+   "files": 19,
+   "bytes": 372675
+  },
+  ".tree": {
+   "files": 14,
+   "bytes": 371143
+  },
+  ".asv": {
+   "files": 25,
+   "bytes": 334979
+  },
+  ".9": {
+   "files": 4,
+   "bytes": 334794
+  },
+  ".intfor02": {
+   "files": 2,
+   "bytes": 319488
+  },
+  ".stp": {
+   "files": 2,
+   "bytes": 302823
+  },
+  ".stl": {
+   "files": 1,
+   "bytes": 302584
+  },
+  ".ino": {
+   "files": 85,
+   "bytes": 295694
+  },
+  ".o": {
+   "files": 24,
+   "bytes": 285864
+  },
+  ".u3d": {
+   "files": 1,
+   "bytes": 278376
+  },
+  ".sh": {
+   "files": 303,
+   "bytes": 276474
+  },
+  ".11": {
+   "files": 2,
+   "bytes": 258618
+  },
+  ".12": {
+   "files": 2,
+   "bytes": 216256
+  },
+  ".a": {
+   "files": 2,
+   "bytes": 214736
+  },
+  ".wbjn": {
+   "files": 131,
+   "bytes": 205384
+  },
+  ".cpp": {
+   "files": 15,
+   "bytes": 188683
+  },
+  ".err": {
+   "files": 53,
+   "bytes": 176537
+  },
+  ".sconf": {
+   "files": 5,
+   "bytes": 169592
+  },
+  ".rspag": {
+   "files": 1,
+   "bytes": 164101
+  },
+  ".tmp": {
+   "files": 4,
+   "bytes": 157696
+  },
+  ".cat": {
+   "files": 2,
+   "bytes": 154662
+  },
+  ".prefs": {
+   "files": 242,
+   "bytes": 148271
+  },
+  ".style": {
+   "files": 35,
+   "bytes": 148001
+  },
+  ".css": {
+   "files": 8,
+   "bytes": 143316
+  },
+  ".history": {
+   "files": 91,
+   "bytes": 135222
+  },
+  ".dotx": {
+   "files": 2,
+   "bytes": 125110
+  },
+  ".22": {
+   "files": 1,
+   "bytes": 119232
+  },
+  ".7": {
+   "files": 2,
+   "bytes": 117233
+  },
+  ".intfor": {
+   "files": 2,
+   "bytes": 112640
+  },
+  ".r2019b": {
+   "files": 4,
+   "bytes": 112492
+  },
+  ".23": {
+   "files": 1,
+   "bytes": 111701
+  },
+  ".rtf": {
+   "files": 2,
+   "bytes": 103525
+  },
+  ".csv": {
+   "files": 58,
+   "bytes": 98342
+  },
+  ".prj": {
+   "files": 4,
+   "bytes": 88152
+  },
+  ".cnd": {
+   "files": 20,
+   "bytes": 60497
+  },
+  ".snap": {
+   "files": 252,
+   "bytes": 57945
+  },
+  ".pcs": {
+   "files": 18,
+   "bytes": 54131
+  },
+  ".conf": {
+   "files": 7,
+   "bytes": 48678
+  },
+  ".pkt": {
+   "files": 1,
+   "bytes": 42669
+  },
+  ".pap": {
+   "files": 3,
+   "bytes": 38224
+  },
+  ".sbl": {
+   "files": 5,
+   "bytes": 37246
+  },
+  ".nlh": {
+   "files": 6,
+   "bytes": 34588
+  },
+  ".js": {
+   "files": 6,
+   "bytes": 34098
+  },
+  ".py": {
+   "files": 22,
+   "bytes": 32643
+  },
+  ".slxc": {
+   "files": 6,
+   "bytes": 32604
+  },
+  ".dsp": {
+   "files": 13,
+   "bytes": 30799
+  },
+  ".rslib": {
+   "files": 1,
+   "bytes": 30490
+  },
+  ".aapresults": {
+   "files": 13,
+   "bytes": 30096
+  },
+  ".f90": {
+   "files": 36,
+   "bytes": 29520
+  },
+  ".swo": {
+   "files": 2,
+   "bytes": 24576
+  },
+  ".sql": {
+   "files": 15,
+   "bytes": 21595
+  },
+  ".ods": {
+   "files": 2,
+   "bytes": 21086
+  },
+  ".mntr": {
+   "files": 23,
+   "bytes": 18521
+  },
+  ".ico": {
+   "files": 5,
+   "bytes": 18190
+  },
+  ".sciprj": {
+   "files": 4,
+   "bytes": 17972
+  },
+  ".sciprj~": {
+   "files": 4,
+   "bytes": 17972
+  },
+  ".vcxproj": {
+   "files": 2,
+   "bytes": 16307
+  },
+  ".xsd": {
+   "files": 6,
+   "bytes": 16035
+  },
+  ".lst": {
+   "files": 21,
+   "bytes": 15985
+  },
+  ".gen": {
+   "files": 10,
+   "bytes": 15527
+  },
+  ".bitmap": {
+   "files": 1,
+   "bytes": 14898
+  },
+  ".ipynb": {
+   "files": 1,
+   "bytes": 11010
+  },
+  ".dem": {
+   "files": 28,
+   "bytes": 10132
+  },
+  ".mod": {
+   "files": 1,
+   "bytes": 9567
+  },
+  ".resources": {
+   "files": 10,
+   "bytes": 9245
+  },
+  ".md": {
+   "files": 1,
+   "bytes": 9026
+  },
+  ".tmpl": {
+   "files": 34,
+   "bytes": 8245
+  },
+  ".bsy": {
+   "files": 1,
+   "bytes": 8078
+  },
+  ".lnk": {
+   "files": 6,
+   "bytes": 7769
+  },
+  ".bat": {
+   "files": 35,
+   "bytes": 6009
+  },
+  ".plt": {
+   "files": 8,
+   "bytes": 3076
+  },
+  ".sln": {
+   "files": 2,
+   "bytes": 2876
+  },
+  ".dfr": {
+   "files": 6,
+   "bytes": 2694
+  },
+  ".cfs": {
+   "files": 9,
+   "bytes": 2607
+  },
+  ".asm": {
+   "files": 4,
+   "bytes": 2402
+  },
+  ".filters": {
+   "files": 2,
+   "bytes": 2176
+  },
+  ".ext": {
+   "files": 4,
+   "bytes": 1944
+  },
+  ".definition": {
+   "files": 8,
+   "bytes": 1892
+  },
+  ".setup": {
+   "files": 9,
+   "bytes": 1827
+  },
+  ".ser": {
+   "files": 3,
+   "bytes": 1788
+  },
+  ".url": {
+   "files": 19,
+   "bytes": 1562
+  },
+  ".ds_store": {
+   "files": 8,
+   "bytes": 1246
+  },
+  ".htm": {
+   "files": 2,
+   "bytes": 1205
+  },
+  ".saf": {
+   "files": 1,
+   "bytes": 1166
+  },
+  ".ini": {
+   "files": 12,
+   "bytes": 1010
+  },
+  ".actres": {
+   "files": 3,
+   "bytes": 914
+  },
+  ".make": {
+   "files": 1,
+   "bytes": 807
+  },
+  ".stat": {
+   "files": 12,
+   "bytes": 613
+  },
+  ".hpp": {
+   "files": 1,
+   "bytes": 600
+  },
+  ".memo": {
+   "files": 1,
+   "bytes": 595
+  },
+  ".json": {
+   "files": 1,
+   "bytes": 562
+  },
+  ".user": {
+   "files": 2,
+   "bytes": 336
+  },
+  ".t": {
+   "files": 140,
+   "bytes": 280
+  },
+  ".inf": {
+   "files": 5,
+   "bytes": 205
+  },
+  ".dm": {
+   "files": 1,
+   "bytes": 132
+  },
+  ".mtl": {
+   "files": 1,
+   "bytes": 85
+  },
+  ".actunits": {
+   "files": 2,
+   "bytes": 20
+  },
+  ".version": {
+   "files": 20,
+   "bytes": 20
+  },
+  ".page": {
+   "files": 25,
+   "bytes": 0
+  },
+  ".lock": {
+   "files": 22,
+   "bytes": 0
+  },
+  ".dspmatk": {
+   "files": 2,
+   "bytes": 0
+  },
+  ".dspstack": {
+   "files": 2,
+   "bytes": 0
+  },
+  ".dsptri": {
+   "files": 2,
+   "bytes": 0
+  },
+  ".dsptriu": {
+   "files": 2,
+   "bytes": 0
+  },
+  ".full": {
+   "files": 1,
+   "bytes": 0
+  },
+  ".text": {
+   "files": 2,
+   "bytes": 0
+  }
+ },
+ "top_level": {
+  "Mechanical": {
+   "files": 15346,
+   "bytes": 358866918481
+  },
+  "Information": {
+   "files": 53266,
+   "bytes": 162815140248
+  },
+  "BachelorArbeit": {
+   "files": 15269,
+   "bytes": 24094313421
+  },
+  "books": {
+   "files": 1604,
+   "bytes": 10455218970
+  },
+  "Betriebslehre": {
+   "files": 315,
+   "bytes": 5146229117
+  },
+  "Ckurs": {
+   "files": 108,
+   "bytes": 73335002
+  },
+  "English": {
+   "files": 3,
+   "bytes": 51282987
+  },
+  "MBI-WS2019-Modulhandbuch.pdf": {
+   "files": 1,
+   "bytes": 480944
+  },
+  "curriculum_mbi_ws2019.pdf": {
+   "files": 1,
+   "bytes": 69679
+  }
+ },
+ "level2": {
+  "Mechanical\\Bewegungstechnik": {
+   "files": 941,
+   "bytes": 119132943447
+  },
+  "Information\\Informatikx": {
+   "files": 29375,
+   "bytes": 107663510313
+  },
+  "Mechanical\\Mathematik": {
+   "files": 1525,
+   "bytes": 61157044863
+  },
+  "Mechanical\\messundsteuerungstechnik": {
+   "files": 5538,
+   "bytes": 56675401039
+  },
+  "Mechanical\\Dynamik": {
+   "files": 139,
+   "bytes": 48537587038
+  },
+  "Information\\vorvorl": {
+   "files": 5704,
+   "bytes": 33121855573
+  },
+  "Mechanical\\konstruktonsgrundlagen": {
+   "files": 1548,
+   "bytes": 21332554444
+  },
+  "BachelorArbeit\\MatlabBachelorArbeit": {
+   "files": 6798,
+   "bytes": 13797850749
+  },
+  "Mechanical\\werkstoffkunde": {
+   "files": 322,
+   "bytes": 12721406350
+  },
+  "books\\Studium": {
+   "files": 1574,
+   "bytes": 10171124334
+  },
+  "Mechanical\\FEM": {
+   "files": 1193,
+   "bytes": 8519474243
+  },
+  "Mechanical\\regelungstechnik": {
+   "files": 1764,
+   "bytes": 7394868015
+  },
+  "Information\\SoftEng": {
+   "files": 800,
+   "bytes": 6767931715
+  },
+  "Information\\Vorlesung": {
+   "files": 1067,
+   "bytes": 6733499091
+  },
+  "Mechanical\\Elektrotechnik": {
+   "files": 180,
+   "bytes": 6311168524
+  },
+  "Mechanical\\Prozessleittechnik": {
+   "files": 176,
+   "bytes": 5812601860
+  },
+  "Information\\Java_1": {
+   "files": 469,
+   "bytes": 5364905878
+  },
+  "BachelorArbeit\\Matlab": {
+   "files": 4218,
+   "bytes": 5270484573
+  },
+  "Betriebslehre\\Managment": {
+   "files": 290,
+   "bytes": 4126331361
+  },
+  "Mechanical\\Automatisierungslabor": {
+   "files": 154,
+   "bytes": 3676830458
+  },
+  "Mechanical\\Modellbildung_technischer_Systeme": {
+   "files": 270,
+   "bytes": 3303377633
+  },
+  "BachelorArbeit\\Projekt": {
+   "files": 2242,
+   "bytes": 3251936260
+  },
+  "Mechanical\\physik": {
+   "files": 297,
+   "bytes": 2049300576
+  },
+  "Mechanical\\Robotertechnik": {
+   "files": 461,
+   "bytes": 1768136670
+  },
+  "Information\\C": {
+   "files": 13201,
+   "bytes": 1527849348
+  },
+  "BachelorArbeit\\Praxisphase": {
+   "files": 1276,
+   "bytes": 1201049950
+  },
+  "Information\\MO": {
+   "files": 1475,
+   "bytes": 1033455952
+  },
+  "Betriebslehre\\Betg": {
+   "files": 18,
+   "bytes": 972550551
+  },
+  "BachelorArbeit\\ROBWork": {
+   "files": 732,
+   "bytes": 353856253
+  },
+  "books\\PhyBo": {
+   "files": 30,
+   "bytes": 284094636
+  },
+  "BachelorArbeit\\BAP": {
+   "files": 3,
+   "bytes": 219135636
+  },
+  "Mechanical\\Kolbenmaschinen": {
+   "files": 637,
+   "bytes": 138269594
+  },
+  "Mechanical\\Simulationstechnik": {
+   "files": 111,
+   "bytes": 136480178
+  },
+  "Mechanical\\Foerdertechnik": {
+   "files": 29,
+   "bytes": 106069094
+  },
+  "Information\\Ang": {
+   "files": 134,
+   "bytes": 86938416
+  },
+  "Information\\BS1": {
+   "files": 71,
+   "bytes": 84778157
+  },
+  "Information\\DatBan_1": {
+   "files": 126,
+   "bytes": 71602264
+  },
+  "Information\\BS2": {
+   "files": 24,
+   "bytes": 50584198
+  },
+  "Information\\IT": {
+   "files": 61,
+   "bytes": 50249111
+  },
+  "Information\\2020 SS Computer, Docs, mbau Segner": {
+   "files": 23,
+   "bytes": 43316747
+  },
+  "Mechanical\\Statik": {
+   "files": 46,
+   "bytes": 42079866
+  },
+  "Information\\DatBan": {
+   "files": 67,
+   "bytes": 41365697
+  },
+  "Information\\BetSys_1": {
+   "files": 20,
+   "bytes": 39195533
+  },
+  "Information\\BetSys": {
+   "files": 17,
+   "bytes": 35007298
+  },
+  "Mechanical\\kinematik": {
+   "files": 4,
+   "bytes": 30571112
+  },
+  "Mechanical\\Maschinendynamik": {
+   "files": 11,
+   "bytes": 20753477
+  },
+  "Information\\Informatik": {
+   "files": 248,
+   "bytes": 20249475
+  },
+  "English\\Market leader upper intermediate (3rd ed.) SB.pdf": {
+   "files": 1,
+   "bytes": 18984852
+  },
+  "English\\market-leader-pre-int-3rd-ed1.pdf": {
+   "files": 1,
+   "bytes": 17477393
+  },
+  "Information\\SoftEn": {
+   "files": 12,
+   "bytes": 15572416
+  },
+  "English\\3rd-Ed.-Market-Leader-Intermediate-11wih01.pdf": {
+   "files": 1,
+   "bytes": 14820742
+  },
+  "Betriebslehre\\QM_3 Managementsysteme (1).pptx": {
+   "files": 1,
+   "bytes": 14484761
+  },
+  "Betriebslehre\\QM_3 Managementsysteme.pptx": {
+   "files": 1,
+   "bytes": 14484761
+  },
+  "Information\\Informatik_2": {
+   "files": 140,
+   "bytes": 13064730
+  },
+  "Ckurs\\1Ckurs.pdf": {
+   "files": 1,
+   "bytes": 12918384
+  },
+  "Information\\Sys": {
+   "files": 6,
+   "bytes": 11431651
+  },
+  "Information\\SoftEnV": {
+   "files": 11,
+   "bytes": 10761683
+  },
+  "Ckurs\\0Ckurs.pdf": {
+   "files": 1,
+   "bytes": 10429113
+  },
+  "Betriebslehre\\QM_2 Instrumente.pptx": {
+   "files": 1,
+   "bytes": 9687528
+  },
+  "Ckurs\\2Ckurs.pdf": {
+   "files": 1,
+   "bytes": 6457463
+  },
+  "Information\\Informatik 2 (Labor)": {
+   "files": 90,
+   "bytes": 5497496
+  },
+  "Information\\Info-Labor": {
+   "files": 56,
+   "bytes": 5362682
+  },
+  "Betriebslehre\\QM_1 Grundlagen.pptx": {
+   "files": 1,
+   "bytes": 4940375
+  },
+  "Betriebslehre\\QM_4 Umweltmanagement.pptx": {
+   "files": 1,
+   "bytes": 2547551
+  },
+  "Information\\Skript": {
+   "files": 2,
+   "bytes": 2520028
+  },
+  "Information\\Folien": {
+   "files": 2,
+   "bytes": 2010083
+  },
+  "Information\\Hausaufgaben": {
+   "files": 14,
+   "bytes": 1902544
+  },
+  "Information\\Java": {
+   "files": 27,
+   "bytes": 1581344
+  },
+  "Information\\Informatik_1_Skript_2.pdf": {
+   "files": 1,
+   "bytes": 1546369
+  },
+  "Information\\Informatik_1_Teil_1.pdf": {
+   "files": 1,
+   "bytes": 1293782
+  },
+  "Betriebslehre\\QM_5 Audits.pptx": {
+   "files": 1,
+   "bytes": 1021063
+  },
+  "Information\\Informatik_1_Teil_2.pdf": {
+   "files": 1,
+   "bytes": 988100
+  },
+  "Information\\Informatik_1_Skript_1.pdf": {
+   "files": 1,
+   "bytes": 973659
+  },
+  "Ckurs\\Threads0.pdf": {
+   "files": 1,
+   "bytes": 777338
+  },
+  "Information\\2016_Informatik1_Vorl_03.pdf": {
+   "files": 1,
+   "bytes": 640254
+  },
+  "Information\\2016_Informatik1_Vorl_11.pdf": {
+   "files": 1,
+   "bytes": 620658
+  },
+  "Information\\Musterklausuren": {
+   "files": 4,
+   "bytes": 600316
+  },
+  "Ckurs\\Mutex5.pdf": {
+   "files": 1,
+   "bytes": 594965
+  },
+  "Ckurs\\Sockets22.pdf": {
+   "files": 1,
+   "bytes": 561794
+  },
+  "Ckurs\\Restrict.pdf": {
+   "files": 1,
+   "bytes": 557099
+  },
+  "Ckurs\\Union.pdf": {
+   "files": 1,
+   "bytes": 550749
+  },
+  "Ckurs\\Pragma5.pdf": {
+   "files": 1,
+   "bytes": 526236
+  },
+  "Ckurs\\Variadic8.pdf": {
+   "files": 1,
+   "bytes": 521262
+  },
+  "Ckurs\\Preprocessor8.pdf": {
+   "files": 1,
+   "bytes": 519840
+  },
+  "Ckurs\\Gescannt_20211104-1823.pdf": {
+   "files": 1,
+   "bytes": 518250
+  },
+  "Ckurs\\Variadic1.pdf": {
+   "files": 1,
+   "bytes": 518217
+  },
+  "Ckurs\\Threadcond.pdf": {
+   "files": 1,
+   "bytes": 513120
+  },
+  "Ckurs\\Pragma6.pdf": {
+   "files": 1,
+   "bytes": 512102
+  },
+  "Information\\2016_Informatik1_Vorl_04.pdf": {
+   "files": 1,
+   "bytes": 499643
+  },
+  "Ckurs\\Sockets2.pdf": {
+   "files": 1,
+   "bytes": 498799
+  },
+  "Ckurs\\Variadic6.pdf": {
+   "files": 1,
+   "bytes": 495755
+  },
+  "Ckurs\\Pragma4.pdf": {
+   "files": 1,
+   "bytes": 493491
+  },
+  "Ckurs\\Preprocessor.pdf": {
+   "files": 1,
+   "bytes": 492518
+  },
+  "Ckurs\\Semaphore2.pdf": {
+   "files": 1,
+   "bytes": 488115
+  },
+  "Ckurs\\Thread_detatch.pdf": {
+   "files": 1,
+   "bytes": 487978
+  },
+  "Ckurs\\Threads4.pdf": {
+   "files": 1,
+   "bytes": 486519
+  },
+  "Ckurs\\Threads8.pdf": {
+   "files": 1,
+   "bytes": 481975
+  },
+  "MBI-WS2019-Modulhandbuch.pdf": {
+   "files": 1,
+   "bytes": 480944
+  },
+  "Ckurs\\Restrict1.pdf": {
+   "files": 1,
+   "bytes": 477945
+  },
+  "Ckurs\\Setjump3.pdf": {
+   "files": 1,
+   "bytes": 475824
+  },
+  "Ckurs\\Sockets0.pdf": {
+   "files": 1,
+   "bytes": 472891
+  },
+  "Ckurs\\Sockets24.pdf": {
+   "files": 1,
+   "bytes": 472867
+  },
+  "Ckurs\\Pragma.pdf": {
+   "files": 1,
+   "bytes": 472851
+  },
+  "Ckurs\\Pthreadequsl.pdf": {
+   "files": 1,
+   "bytes": 466079
+  },
+  "Ckurs\\Threads5.pdf": {
+   "files": 1,
+   "bytes": 464794
+  },
+  "Ckurs\\Semaphore1.pdf": {
+   "files": 1,
+   "bytes": 464643
+  },
+  "Ckurs\\Threads10.pdf": {
+   "files": 1,
+   "bytes": 463125
+  },
+  "Information\\2016_Informatik1_Vorl_12.pdf": {
+   "files": 1,
+   "bytes": 461019
+  },
+  "Ckurs\\Variadic0.pdf": {
+   "files": 1,
+   "bytes": 459996
+  },
+  "Ckurs\\Sockets25.pdf": {
+   "files": 1,
+   "bytes": 454597
+  },
+  "Ckurs\\Threads7.pdf": {
+   "files": 1,
+   "bytes": 448970
+  },
+  "Ckurs\\Preprocessor1.pdf": {
+   "files": 1,
+   "bytes": 444802
+  },
+  "Ckurs\\Mutex1.pdf": {
+   "files": 1,
+   "bytes": 444113
+  },
+  "Ckurs\\Preprocessor5.pdf": {
+   "files": 1,
+   "bytes": 443912
+  },
+  "Ckurs\\Variadic4.pdf": {
+   "files": 1,
+   "bytes": 443666
+  },
+  "Ckurs\\Variadic7.pdf": {
+   "files": 1,
+   "bytes": 443183
+  },
+  "Ckurs\\Sockets01.pdf": {
+   "files": 1,
+   "bytes": 443128
+  },
+  "Ckurs\\Pragma3.pdf": {
+   "files": 1,
+   "bytes": 442039
+  },
+  "Ckurs\\Preprocessor2.pdf": {
+   "files": 1,
+   "bytes": 442003
+  },
+  "Ckurs\\Sockets26.pdf": {
+   "files": 1,
+   "bytes": 441603
+  },
+  "Ckurs\\Botswana.pdf": {
+   "files": 1,
+   "bytes": 441286
+  },
+  "Ckurs\\Sockets15.pdf": {
+   "files": 1,
+   "bytes": 438792
+  },
+  "Ckurs\\Setjump.pdf": {
+   "files": 1,
+   "bytes": 438397
+  },
+  "Ckurs\\Sockets37.pdf": {
+   "files": 1,
+   "bytes": 432705
+  },
+  "Ckurs\\Sockets4.pdf": {
+   "files": 1,
+   "bytes": 432068
+  },
+  "Ckurs\\Sockets14.pdf": {
+   "files": 1,
+   "bytes": 428317
+  },
+  "Ckurs\\Mutex3.pdf": {
+   "files": 1,
+   "bytes": 420747
+  },
+  "Ckurs\\Sockets12.pdf": {
+   "files": 1,
+   "bytes": 420601
+  },
+  "Ckurs\\Sockets21.pdf": {
+   "files": 1,
+   "bytes": 418502
+  },
+  "Ckurs\\Sockets5.pdf": {
+   "files": 1,
+   "bytes": 415726
+  },
+  "Ckurs\\Mutex.pdf": {
+   "files": 1,
+   "bytes": 414731
+  },
+  "Ckurs\\Mutex4.pdf": {
+   "files": 1,
+   "bytes": 413813
+  },
+  "Ckurs\\Preprocessor9.pdf": {
+   "files": 1,
+   "bytes": 413684
+  },
+  "Ckurs\\Sockets7.pdf": {
+   "files": 1,
+   "bytes": 412683
+  },
+  "Ckurs\\Setjump1.pdf": {
+   "files": 1,
+   "bytes": 411770
+  },
+  "Ckurs\\Sockets18.pdf": {
+   "files": 1,
+   "bytes": 411557
+  },
+  "Information\\2016_Informatik1_Vorl_01.pdf": {
+   "files": 1,
+   "bytes": 409599
+  },
+  "Ckurs\\Pragma7.pdf": {
+   "files": 1,
+   "bytes": 409442
+  },
+  "Ckurs\\Threads1.pdf": {
+   "files": 1,
+   "bytes": 405847
+  },
+  "Ckurs\\Pragma9.pdf": {
+   "files": 1,
+   "bytes": 403362
+  },
+  "Ckurs\\Preprocessor3.pdf": {
+   "files": 1,
+   "bytes": 402503
+  },
+  "Ckurs\\Sockets30.pdf": {
+   "files": 1,
+   "bytes": 399246
+  },
+  "Ckurs\\Threads20.pdf": {
+   "files": 1,
+   "bytes": 397300
+  },
+  "Ckurs\\Sockets13.pdf": {
+   "files": 1,
+   "bytes": 396046
+  },
+  "Ckurs\\Thrrads9.pdf": {
+   "files": 1,
+   "bytes": 395523
+  },
+  "Ckurs\\Sockets34.pdf": {
+   "files": 1,
+   "bytes": 394690
+  },
+  "Ckurs\\Sockets28.pdf": {
+   "files": 1,
+   "bytes": 393350
+  },
+  "Information\\2016_Informatik1_Vorl_02.pdf": {
+   "files": 1,
+   "bytes": 385867
+  },
+  "Ckurs\\Sockets06.pdf": {
+   "files": 1,
+   "bytes": 382361
+  },
+  "Ckurs\\Sockets27.pdf": {
+   "files": 1,
+   "bytes": 382332
+  },
+  "Ckurs\\Bitsschiffting.pdf": {
+   "files": 1,
+   "bytes": 381394
+  },
+  "Ckurs\\Sockets8.pdf": {
+   "files": 1,
+   "bytes": 379954
+  },
+  "Ckurs\\Variadic5.pdf": {
+   "files": 1,
+   "bytes": 377013
+  },
+  "Ckurs\\Threads3.pdf": {
+   "files": 1,
+   "bytes": 374674
+  },
+  "Ckurs\\Threads11.pdf": {
+   "files": 1,
+   "bytes": 374456
+  },
+  "Ckurs\\Setjump2.pdf": {
+   "files": 1,
+   "bytes": 373055
+  },
+  "Ckurs\\Sockets31.pdf": {
+   "files": 1,
+   "bytes": 371744
+  },
+  "Ckurs\\Variadic9.pdf": {
+   "files": 1,
+   "bytes": 368730
+  },
+  "Ckurs\\Pragma1.pdf": {
+   "files": 1,
+   "bytes": 368543
+  },
+  "Ckurs\\Sockets33.pdf": {
+   "files": 1,
+   "bytes": 368524
+  },
+  "Ckurs\\Sockets12 (1).pdf": {
+   "files": 1,
+   "bytes": 367180
+  },
+  "Ckurs\\Bitsmask.pdf": {
+   "files": 1,
+   "bytes": 364455
+  },
+  "Ckurs\\Sockets32.pdf": {
+   "files": 1,
+   "bytes": 360338
+  },
+  "Ckurs\\Sockets29.pdf": {
+   "files": 1,
+   "bytes": 354585
+  },
+  "Ckurs\\Bitsmask1.pdf": {
+   "files": 1,
+   "bytes": 353151
+  },
+  "Ckurs\\Variadic2.pdf": {
+   "files": 1,
+   "bytes": 345733
+  },
+  "Ckurs\\Sockets07.pdf": {
+   "files": 1,
+   "bytes": 344774
+  },
+  "Ckurs\\Sockets16.pdf": {
+   "files": 1,
+   "bytes": 340759
+  },
+  "Ckurs\\Sockets1.pdf": {
+   "files": 1,
+   "bytes": 339991
+  },
+  "Ckurs\\Bitsflags.pdf": {
+   "files": 1,
+   "bytes": 339140
+  },
+  "Ckurs\\Sockets20.pdf": {
+   "files": 1,
+   "bytes": 333262
+  },
+  "Ckurs\\Sockets35.pdf": {
+   "files": 1,
+   "bytes": 332503
+  },
+  "Ckurs\\Bitte.pdf": {
+   "files": 1,
+   "bytes": 330111
+  },
+  "Ckurs\\Sockets6.pdf": {
+   "files": 1,
+   "bytes": 329722
+  },
+  "Ckurs\\Sockets11.pdf": {
+   "files": 1,
+   "bytes": 324818
+  },
+  "Ckurs\\Sockets19.pdf": {
+   "files": 1,
+   "bytes": 317808
+  },
+  "Ckurs\\Pragma8.pdf": {
+   "files": 1,
+   "bytes": 313881
+  },
+  "Ckurs\\Deadlock.pdf": {
+   "files": 1,
+   "bytes": 312633
+  },
+  "Ckurs\\Sockets05.pdf": {
+   "files": 1,
+   "bytes": 307731
+  },
+  "Ckurs\\Sockets00.pdf": {
+   "files": 1,
+   "bytes": 304469
+  },
+  "Ckurs\\Bits.pdf": {
+   "files": 1,
+   "bytes": 292502
+  },
+  "Ckurs\\Sockets17.pdf": {
+   "files": 1,
+   "bytes": 257416
+  },
+  "Ckurs\\Sockets03.pdf": {
+   "files": 1,
+   "bytes": 244353
+  },
+  "Ckurs\\Sockets04.pdf": {
+   "files": 1,
+   "bytes": 231603
+  },
+  "Information\\Hilfsblätter_ST.pdf": {
+   "files": 1,
+   "bytes": 215784
+  },
+  "Ckurs\\Sockets1 (1).pdf": {
+   "files": 1,
+   "bytes": 185707
+  },
+  "Betriebslehre\\QM_6 Zusammenfassung.pptx": {
+   "files": 1,
+   "bytes": 181166
+  },
+  "Ckurs\\Semaphore0.pdf": {
+   "files": 1,
+   "bytes": 156796
+  },
+  "Information\\Informatik_Aufgaben_1_Zahlensysteme.pdf": {
+   "files": 1,
+   "bytes": 89137
+  },
+  "curriculum_mbi_ws2019.pdf": {
+   "files": 1,
+   "bytes": 69679
+  },
+  "Information\\HA04_Informatik1.pdf": {
+   "files": 1,
+   "bytes": 69342
+  },
+  "Information\\Informatik_Aufgaben_2_Wahrheitstabellen.pdf": {
+   "files": 1,
+   "bytes": 61534
+  },
+  "Information\\Informatik_Aufgaben_3_duale_Arithmetik.pdf": {
+   "files": 1,
+   "bytes": 58068
+  },
+  "Information\\HA01_Informatik1.pdf": {
+   "files": 1,
+   "bytes": 56792
+  },
+  "Information\\HA03_Informatik1.pdf": {
+   "files": 1,
+   "bytes": 56075
+  },
+  "Information\\2016_Informatik1_Vorl_13.pdf": {
+   "files": 1,
+   "bytes": 52141
+  },
+  "Information\\HA05_Informatik1.pdf": {
+   "files": 1,
+   "bytes": 36753
+  },
+  "Information\\HA02_Informatik1.pdf": {
+   "files": 1,
+   "bytes": 25933
+  }
+ },
+ "largest_files": [
+  [
+   "Mechanical\\Dynamik\\Dyn_1\\Dyn\\Nv\\Online-Videos Mdy1, 630p, Teil 1.mp4",
+   20532301361
+  ],
+  [
+   "Mechanical\\Bewegungstechnik\\Bewe\\Bewe\\Dyn\\Nv\\Online-Videos Mdy1, 630p, Teil 1.mp4",
+   20532301361
+  ],
+  [
+   "Mechanical\\Bewegungstechnik\\Bewe\\Bewe\\Bew\\Nv\\Online-Videos Get1, 630p, Teil 2.mp4",
+   19122638992
+  ],
+  [
+   "Mechanical\\Bewegungstechnik\\Bewe\\Bewe\\Bew\\Nv\\Online-Videos Get1, 630p, Teil 1.mp4",
+   17257569698
+  ],
+  [
+   "Mechanical\\Dynamik\\Dyn_1\\Dyn\\Nv\\Online-Videos Mdy1, 630p, Teil 2.mp4",
+   16038441979
+  ],
+  [
+   "Mechanical\\Bewegungstechnik\\Bewe\\Bewe\\Dyn\\Nv\\Online-Videos Mdy1, 630p, Teil 2.mp4",
+   16038441979
+  ],
+  [
+   "Information\\vorvorl\\AngeInfo\\1.mp4",
+   7275879578
+  ],
+  [
+   "Information\\vorvorl\\AngeInf\\1.mp4",
+   7275879578
+  ],
+  [
+   "Information\\Informatikx\\vorvorl\\AngeInfo\\1.mp4",
+   7275879578
+  ],
+  [
+   "Information\\Informatikx\\vorvorl\\AngeInf\\1.mp4",
+   7275879578
+  ],
+  [
+   "Information\\Informatikx\\AngeInf\\1.mp4",
+   7275879578
+  ],
+  [
+   "Information\\Informatikx\\1\\vorvorl\\AngeInfo\\1.mp4",
+   7275879578
+  ],
+  [
+   "Information\\Informatikx\\1\\vorvorl\\AngeInf\\1.mp4",
+   7275879578
+  ],
+  [
+   "Information\\vorvorl\\SoftEnge\\Skript\\BBB - Austausch - Google Chrome 2021-03-24 07-59-47.mp4",
+   6678927747
+  ],
+  [
+   "Information\\SoftEng\\Skript\\BBB - Austausch - Google Chrome 2021-03-24 07-59-47.mp4",
+   6678927747
+  ],
+  [
+   "Information\\Informatikx\\vorvorl\\SoftEnge\\Skript\\BBB - Austausch - Google Chrome 2021-03-24 07-59-47.mp4",
+   6678927747
+  ],
+  [
+   "Information\\Informatikx\\SoftEng2\\Skript\\BBB - Austausch - Google Chrome 2021-03-24 07-59-47.mp4",
+   6678927747
+  ],
+  [
+   "Information\\Informatikx\\Softeng\\Skript\\BBB - Austausch - Google Chrome 2021-03-24 07-59-47.mp4",
+   6678927747
+  ],
+  [
+   "Information\\Informatikx\\1\\vorvorl\\SoftEnge\\Skript\\BBB - Austausch - Google Chrome 2021-03-24 07-59-47.mp4",
+   6678927747
+  ],
+  [
+   "Information\\Informatikx\\1\\vorvorl\\SoftEng\\Skript\\BBB - Austausch - Google Chrome 2021-03-24 07-59-47.mp4",
+   6678927747
+  ],
+  [
+   "Mechanical\\Dynamik\\Dyn_1\\Dyn\\Online-Videos Mdy1, Teil 2.mp4",
+   6370939819
+  ],
+  [
+   "Mechanical\\Bewegungstechnik\\Bewe\\Dyn\\Online-Videos Mdy1, Teil 2.mp4",
+   6370939819
+  ],
+  [
+   "Mechanical\\Bewegungstechnik\\Bewe\\Bewe\\Dyn\\Online-Videos Mdy1, Teil 2.mp4",
+   6370939819
+  ],
+  [
+   "Mechanical\\Dynamik\\Dyn_1\\Dyn\\Online-Videos Mdy1, Teil 1.mp4",
+   5252393076
+  ],
+  [
+   "Mechanical\\Bewegungstechnik\\Bewe\\Dyn\\Online-Videos Mdy1, Teil 1.mp4",
+   5252393076
+  ],
+  [
+   "Mechanical\\Bewegungstechnik\\Bewe\\Bewe\\Dyn\\Online-Videos Mdy1, Teil 1.mp4",
+   5252393076
+  ],
+  [
+   "Mechanical\\Bewegungstechnik\\Bewe\\Bewe\\Bew\\Online-Videos Get1, Teil 3.mp4",
+   3589759187
+  ],
+  [
+   "Mechanical\\Bewegungstechnik\\Bewe\\Bew\\Online-Videos Get1, Teil 3.mp4",
+   3589759187
+  ],
+  [
+   "Mechanical\\Bewegungstechnik\\Bewe\\Bewe\\Bew\\Online-Videos Get1, Teil 1.mp4",
+   3457733407
+  ],
+  [
+   "Mechanical\\Bewegungstechnik\\Bewe\\Bew\\Online-Videos Get1, Teil 1.mp4",
+   3457733407
+  ],
+  [
+   "Mechanical\\Bewegungstechnik\\Bewe\\Bewe\\Bew\\Online-Videos Get1, Teil 2.mp4",
+   3420137153
+  ],
+  [
+   "Mechanical\\Bewegungstechnik\\Bewe\\Bew\\Online-Videos Get1, Teil 2.mp4",
+   3420137153
+  ],
+  [
+   "Information\\vorvorl\\ObjOriP\\OOP.zip",
+   2442282170
+  ],
+  [
+   "Information\\vorvorl\\ObjOriP\\ObjOriP\\OOP.zip",
+   2442282170
+  ],
+  [
+   "Information\\Vorlesung\\ObjOriP\\OOP.zip",
+   2442282170
+  ],
+  [
+   "Information\\Java_1\\ObjOriP\\OOP.zip",
+   2442282170
+  ],
+  [
+   "Information\\Informatikx\\vorvorl\\ObjOriP\\OOP.zip",
+   2442282170
+  ],
+  [
+   "Information\\Informatikx\\vorvorl\\ObjOriP\\ObjOriP\\OOP.zip",
+   2442282170
+  ],
+  [
+   "Information\\Informatikx\\Java1\\ObjOriP\\OOP.zip",
+   2442282170
+  ],
+  [
+   "Information\\Informatikx\\1\\vorvorl\\ObjOriP\\OOP.zip",
+   2442282170
+  ]
+ ],
+ "largest_dirs_depth1to4": [
+  [
+   "Mechanical",
+   358866918481
+  ],
+  [
+   "Information",
+   162815140248
+  ],
+  [
+   "Mechanical\\Bewegungstechnik",
+   119132943447
+  ],
+  [
+   "Mechanical\\Bewegungstechnik\\Bewe",
+   118776393650
+  ],
+  [
+   "Information\\Informatikx",
+   107663510313
+  ],
+  [
+   "Mechanical\\Bewegungstechnik\\Bewe\\Bewe",
+   96382125608
+  ],
+  [
+   "Mechanical\\Mathematik",
+   61157044863
+  ],
+  [
+   "Mechanical\\messundsteuerungstechnik",
+   56675401039
+  ],
+  [
+   "Mechanical\\Mathematik\\Mathe",
+   50341818663
+  ],
+  [
+   "Mechanical\\Dynamik",
+   48537587038
+  ],
+  [
+   "Mechanical\\Dynamik\\Dyn_1",
+   48468566599
+  ],
+  [
+   "Mechanical\\Dynamik\\Dyn_1\\Dyn",
+   48385181927
+  ],
+  [
+   "Information\\Informatikx\\1",
+   46950031861
+  ],
+  [
+   "Information\\Informatikx\\1\\vorvorl",
+   39872331610
+  ],
+  [
+   "Mechanical\\Mathematik\\Mathe\\Math3",
+   36457704041
+  ],
+  [
+   "Information\\vorvorl",
+   33121855573
+  ],
+  [
+   "Information\\Informatikx\\vorvorl",
+   33121855573
+  ],
+  [
+   "Mechanical\\messundsteuerungstechnik\\Messt",
+   27871020650
+  ],
+  [
+   "BachelorArbeit",
+   24094313421
+  ],
+  [
+   "Mechanical\\konstruktonsgrundlagen",
+   21332554444
+  ],
+  [
+   "Mechanical\\konstruktonsgrundlagen\\MAE_3",
+   20418530808
+  ],
+  [
+   "Mechanical\\messundsteuerungstechnik\\Labor",
+   17877802305
+  ],
+  [
+   "BachelorArbeit\\MatlabBachelorArbeit",
+   13797850749
+  ],
+  [
+   "Mechanical\\messundsteuerungstechnik\\Messt\\Messt",
+   13386603126
+  ],
+  [
+   "Mechanical\\messundsteuerungstechnik\\Messt\\Meser",
+   13365739647
+  ],
+  [
+   "Mechanical\\werkstoffkunde",
+   12721406350
+  ],
+  [
+   "Mechanical\\werkstoffkunde\\WK",
+   12721406350
+  ],
+  [
+   "Mechanical\\Bewegungstechnik\\Bewe\\Dyn",
+   11634913132
+  ],
+  [
+   "Mechanical\\Mathematik\\NumMat",
+   10719622435
+  ],
+  [
+   "Mechanical\\Bewegungstechnik\\Bewe\\Bew",
+   10638732330
+  ],
+  [
+   "books",
+   10455218970
+  ],
+  [
+   "Information\\vorvorl\\ObjOriP",
+   10441489850
+  ],
+  [
+   "Information\\Informatikx\\vorvorl\\ObjOriP",
+   10441489850
+  ],
+  [
+   "books\\Studium",
+   10171124334
+  ],
+  [
+   "Mechanical\\FEM",
+   8519474243
+  ],
+  [
+   "Mechanical\\Mathematik\\Mathe\\Math1",
+   8108997772
+  ],
+  [
+   "Mechanical\\messundsteuerungstechnik\\Labor\\Labor1",
+   8002746550
+  ],
+  [
+   "Information\\vorvorl\\AngeInfo",
+   7684070640
+  ],
+  [
+   "Information\\Informatikx\\vorvorl\\AngeInfo",
+   7684070640
+  ],
+  [
+   "Mechanical\\regelungstechnik",
+   7394868015
+  ]
+ ]
+}

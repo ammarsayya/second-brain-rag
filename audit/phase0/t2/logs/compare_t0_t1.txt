@@ -1,0 +1,21 @@
+A files=39478 bytes=371092983180 | B files=73441 bytes=561049965168 | added=34638 removed=675 changed=0
+  + Betriebslehre\Managment\BWL\2\Skript Betriebslehre Grundlagen SoSe19_5f9c57ae7fc033555facb6a007b1a4af.pdf
+  + Betriebslehre\Managment\BWL\2\Skript Betriebslehre.pdf
+  + Betriebslehre\Managment\BWL\2\Vorlesung BWL_ SS20_1.ppsx
+  + Betriebslehre\Managment\BWL\2\Vorlesung BWL_ SS20_2a.ppsx
+  + Betriebslehre\Managment\BWL\2\Vorlesung BWL_ SS20_3a.ppsx
+  + Betriebslehre\Managment\BWL\2\Vorlesung BWL_ SS20_4a.ppsx
+  + Betriebslehre\Managment\BWL\2\Vorlesung BWL_ SS20_5a.ppsx
+  + Betriebslehre\Managment\BWL\2\Vorlesung BWL_ SS20_5b.ppsx
+  + Betriebslehre\Managment\BWL\2\Vorlesung BWL_ SS20_5c.ppsx
+  + Betriebslehre\Managment\BWL\2\Vorlesung BWL_ SS20_6a.ppsx
+  - Mechanical\messundsteuerungstechnik\Messtechnik\Aufgabensammlungen\MTE1 Klausuraufgaben V23-15.pdf
+  - Mechanical\messundsteuerungstechnik\Messtechnik\Aufgabensammlungen\SBT Aufgabensammlung.pdf
+  - Mechanical\messundsteuerungstechnik\Messtechnik\Bildverarbeitung\Handbuecher\AVT_Marlin_F080B_F080C.pdf
+  - Mechanical\messundsteuerungstechnik\Messtechnik\Bildverarbeitung\Handbuecher\AVT_Marlin_KAVT4_200408.pdf
+  - Mechanical\messundsteuerungstechnik\Messtechnik\Bildverarbeitung\Handbuecher\Anw_bez_Grundl_d_Optik..pdf
+  - Mechanical\messundsteuerungstechnik\Messtechnik\Bildverarbeitung\Handbuecher\C1614-M-Datenblatt.pdf
+  - Mechanical\messundsteuerungstechnik\Messtechnik\Bildverarbeitung\Handbuecher\C1614-M-Zeichnung.pdf
+  - Mechanical\messundsteuerungstechnik\Messtechnik\Bildverarbeitung\Handbuecher\Einfuehrung_Kameratechnik.pdf
+  - Mechanical\messundsteuerungstechnik\Messtechnik\Bildverarbeitung\Handbuecher\Manual_Marlin_V1_2.pdf
+  - Mechanical\messundsteuerungstechnik\Messtechnik\Bildverarbeitung\Handbuecher\NI\Getting Started with NI-IMAQ for IEEE 1394 Cameras.pdf

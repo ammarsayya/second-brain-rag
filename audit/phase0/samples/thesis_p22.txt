@@ -1,0 +1,201 @@
+SOURCE: BachelorArbeit\MatlabBachelorArbeit\Bacelorarbeit\BA\Bachelorarbeit.pdf
+PAGE: 22/73
+MATH_SPANS: 227
+
+ 
+S. 22 
+Ammar Sayyadi 
+HSH 26.04.2023 
+Bachelorarbeit 
+3.2 Innere Kräfte und Momente 
+ 
+Mit dem Prinzip der virtuellen Leistung können die Innere Kräfte und Momente jedes beliebigen 
+Körpers  𝑘 berechnet werden. Dafür wird bei dem Glied, in dem die inneren Kräfte bestimmt 
+werden sollen, eine virtuelle Geschwindigkeit 𝛿ɀ̇𝑘 angenommen. 
+ 
+ 
+ 𝛿ɀ̇𝑘=   [𝛿𝒗𝑘
+𝑇  𝛿𝝎𝑘
+𝑇] 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+41 
+Die virtuelle Leistung des Systems ergibt sich aus der Leistung der Teilkörper 𝑖 gleichgesetzt mit 
+der virtuellen Leistung des Körpers 𝑘. Wobei die virtuelle Leistung des Teilkörpers 𝑘 ist aus dem 
+Produkt der virtuellen Geschwindigkeit und den inneren Kräften und Momenten 
+𝑭
+(𝑘)
+𝑘ausgesetzt.  
+Die inneren Kräfte und Momente des Körpers 𝑘 lassen sich dadurch berechnen, dass in Gleichung 
+(27) nach den Geschwindigkeiten des Körpers 𝑘 ableiten. 
+𝑭
+(𝑘)
+𝑘= [𝐹𝑘
+𝑀𝑘] = ∑
+[(
+𝜕
+𝒗
+(𝑖) 𝑖
+𝜕
+ɀ̇
+(𝑘) 𝑘)
+𝑇
+(𝑚𝑖𝒂𝑖+ 𝝎̃̇𝑖𝒔𝑖+ 𝝎̃𝑖𝝎̃𝑖𝒔𝑖) + (
+𝜕
+𝝎
+(𝑖)
+𝑖
+𝜕
+ɀ̇
+(𝑘) 𝑘)
+𝑇
+(𝑰𝑖𝝎̇𝑖+ 𝝎̃𝑖(𝑰𝑖𝝎𝑖) +
+𝑛𝑘
+𝑖=𝑘
+𝒔̃𝑖𝒂𝑖)]  
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+42 
+Zur Ermittlung dieser Ableitungen, müssen die aus der virtuellen Geschwindigkeit resultierenden 
+Geschwindigkeiten aller Teilkörper ermittelt werden: 
+ 
+𝛿
+𝒗
+(𝑖)
+𝑖= 𝛿
+𝒗
+(𝑖)
+𝑘+ 𝛿
+𝝎̃
+(𝑖)
+𝑖
+𝒓
+(𝑖) 𝑖
+𝑘=
+𝑹
+𝑖
+𝑘(𝛿
+𝒗
+(𝑘)
+𝑘−
+𝒓̃
+(𝑘) 𝑖
+𝑘
+𝝎
+(𝑘)
+𝑘) 
+43 
+ 
+𝛿
+𝝎
+(𝑖)
+𝑖= 𝛿
+𝝎
+(𝑖)
+𝑘=
+𝑹
+𝑖
+𝑘𝛿(𝑘)𝝎𝑘 
+44 
+ 
+ 
+ 
+ 
+ 
+In dieser Betrachtung beeinflusst die virtuelle Geschwindigkeit nur Körper, die der kinematischen 
+Kette folgend über dem Körper 𝑘 liegen 𝑖 ≥ 𝑘  . daraus lässt sich schließen, dass innere Kräfte 
+bzw. Schnittkräfte jeweils nur an einen Schnittufer bestimmt werden und dabei nur ein Teil des 
+Systems betrachtet wird. Nach der virtuellen Geschwindigkeit partiell abgeleitet ergib 𝛿ɀ̇𝑘 sich: 
+𝜕
+𝒗
+(𝑖) 𝑖
+𝜕
+ɀ̇
+(𝑘) 𝑘= [
+𝑹
+𝑖
+𝑘
+𝒓̃
+(𝑘) 𝑖
+𝑘𝑹
+𝑖
+𝑘
+]  
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+45 
+𝜕
+𝝎
+(𝑖)
+𝑖
+𝜕
+ɀ̇
+(𝑘) 𝑘= [ 0
+𝑹
+𝑖
+𝑘] 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+46 
+Die inneren Kräfte und Momente in Körper 𝑘 berechnen sich in Matrixschreibweise: 
+ 
+ 
+ 
+ 
+𝑭
+(𝑘)
+𝑘= ∑[
+𝑹
+𝑖
+𝑘
+𝟎
+𝒓̃
+(𝑘) 𝑖
+𝑘𝑹
+𝑖
+𝑘
+𝑹
+𝑖
+𝑘
+] [
+𝟎  
+𝝎̃̇𝑖+ 𝝎̃𝑖𝝎̃𝑖
+𝒂𝑖
+𝝎̇𝑖
+∗+ 𝝎̃𝑖𝝎𝑖∗
+−𝒂̃𝑖
+𝟎]
+𝑛𝑘
+𝑖=𝑘
+𝒑𝑖 
+47 
+ 
+ 

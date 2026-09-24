@@ -1,0 +1,29 @@
+SOURCE: Information\vorvorl\AlgDat\Vor\1\Vorlesung_1_Stack.pdf
+PAGE: 4/32
+MATH_SPANS: 51
+
+Hochschule Hannover
+Prof. Dr.-Ing. Emre Çakar
+Algorithmen stehen im Mittpunkt der Informatik
+Was ist ein Algorithmus?
+•
+Ein Algorithmus ist eine eindeutige Beschreibung eines Verfahrens zur Lösung von Problemen.
+•
+Beispiel Sortieren:
+•
+Gegeben ist eine Folge von n Zahlen (𝑎1, 𝑎2, 𝑎3, 𝑎4 … 𝑎𝑛)
+•
+Wir  wollen diese Zahlen in aufsteigender Reihenfolge sortieren.
+Folgende Umordnung von Zahlen erwünscht: 
+(𝑏1, 𝑏2, 𝑏3, 𝑏4 … 𝑏𝑛) 𝑏1 ≤𝑏2 ≤𝑏3 ≤⋯≤𝑏𝑛
+•
+Sortieralgorithmus: Ein Verfahren, das zu jeder gegebenen Folge (𝑎1, 𝑎2, 𝑎3, 𝑎4 … 𝑎𝑛) die 
+entsprechende Umordnung (𝑏1, 𝑏2, 𝑏3, 𝑏4 … 𝑏𝑛) berechnet.
+•
+Eingabe: (40, 12, 36, 64, 1, 98, 3)
+Ausgabe: (1, 3, 12, 36, 40, 64, 98)
+•
+Wir kann ich das Problem lösen?
+Seite 4
+Kapitel 1
+Einführung
