@@ -1,0 +1,170 @@
+{
+  "$defs": {
+    "WorkItemState": {
+      "enum": [
+        "pending",
+        "leased",
+        "done",
+        "failed",
+        "skipped",
+        "stale"
+      ],
+      "title": "WorkItemState",
+      "type": "string"
+    }
+  },
+  "$id": "sbr/1.0.0/WorkItem.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "description": "One ``(subject_id, stage, stage_version)`` unit of pipeline work (docs/08 §2).\n\nA stage is \"done\" for a subject only at a specific ``stage_version``; bumping the version is a new row, so it\nre-enqueues exactly the affected subjects without disturbing history. A lease is identified by ``lease_token``:\nonly its holder may complete or fail the item, so a re-leased item (after an expired lease) can never be\ncompleted twice.",
+  "properties": {
+    "attempts": {
+      "default": 0,
+      "minimum": 0,
+      "title": "Attempts",
+      "type": "integer"
+    },
+    "created_at": {
+      "format": "date-time",
+      "title": "Created At",
+      "type": "string"
+    },
+    "job_id": {
+      "pattern": "^job_[0-7][0-9A-HJKMNP-TV-Z]{25}$",
+      "title": "Job Id",
+      "type": "string"
+    },
+    "last_error": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Last Error"
+    },
+    "lease_expires_ms": {
+      "anyOf": [
+        {
+          "minimum": 0,
+          "type": "integer"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Lease Expires Ms"
+    },
+    "lease_owner": {
+      "anyOf": [
+        {
+          "pattern": "^(system:[a-z0-9_.-]+|model:[^/\\s]+/[^@\\s]+@\\S+|user:owner)$",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Lease Owner"
+    },
+    "lease_token": {
+      "anyOf": [
+        {
+          "maxLength": 64,
+          "minLength": 1,
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Lease Token"
+    },
+    "max_attempts": {
+      "minimum": 1,
+      "title": "Max Attempts",
+      "type": "integer"
+    },
+    "not_before_ms": {
+      "default": 0,
+      "minimum": 0,
+      "title": "Not Before Ms",
+      "type": "integer"
+    },
+    "output_manifest_id": {
+      "anyOf": [
+        {
+          "pattern": "^man_[0-7][0-9A-HJKMNP-TV-Z]{25}$",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Output Manifest Id"
+    },
+    "priority": {
+      "default": 0,
+      "title": "Priority",
+      "type": "integer"
+    },
+    "stage": {
+      "maxLength": 64,
+      "pattern": "^[a-z][a-z0-9_]*$",
+      "title": "Stage",
+      "type": "string"
+    },
+    "stage_version": {
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:+-]{0,127}$",
+      "title": "Stage Version",
+      "type": "string"
+    },
+    "state": {
+      "$ref": "#/$defs/WorkItemState",
+      "default": "pending"
+    },
+    "subject_id": {
+      "maxLength": 256,
+      "minLength": 1,
+      "title": "Subject Id",
+      "type": "string"
+    },
+    "updated_at": {
+      "format": "date-time",
+      "title": "Updated At",
+      "type": "string"
+    },
+    "wave": {
+      "anyOf": [
+        {
+          "pattern": "^[a-z][a-z0-9_-]{0,31}$",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Wave"
+    }
+  },
+  "required": [
+    "job_id",
+    "subject_id",
+    "stage",
+    "stage_version",
+    "max_attempts",
+    "created_at",
+    "updated_at"
+  ],
+  "title": "WorkItem",
+  "type": "object",
+  "x-sbr-schema-version": "1.0.0"
+}

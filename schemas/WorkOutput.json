@@ -1,0 +1,38 @@
+{
+  "$id": "sbr/1.0.0/WorkOutput.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "description": "Artifact manifest of one completed :class:`WorkItem`, written atomically with its completion.",
+  "properties": {
+    "artifacts": {
+      "additionalProperties": {
+        "type": "string"
+      },
+      "title": "Artifacts",
+      "type": "object"
+    },
+    "created_at": {
+      "format": "date-time",
+      "title": "Created At",
+      "type": "string"
+    },
+    "job_id": {
+      "pattern": "^job_[0-7][0-9A-HJKMNP-TV-Z]{25}$",
+      "title": "Job Id",
+      "type": "string"
+    },
+    "manifest_id": {
+      "pattern": "^man_[0-7][0-9A-HJKMNP-TV-Z]{25}$",
+      "title": "Manifest Id",
+      "type": "string"
+    }
+  },
+  "required": [
+    "manifest_id",
+    "job_id",
+    "created_at"
+  ],
+  "title": "WorkOutput",
+  "type": "object",
+  "x-sbr-schema-version": "1.0.0"
+}

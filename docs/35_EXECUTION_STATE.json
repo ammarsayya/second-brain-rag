@@ -2,7 +2,7 @@
   "schema_version": "1.0",
   "project": "second-brain-rag",
   "last_updated": "2026-09-24",
-  "updated_by": "Claude Opus 5.5 (T-P0-08 owner approval recorded; P1 implementation)",
+  "updated_by": "Claude (T-P1-09 job queue implemented and verified)",
   "authoritative_docs": "docs/28_TASK_REGISTER.md (tasks), docs/24_DECISION_LOG.md (decisions), docs/25_OPEN_QUESTIONS.md, docs/34_RESEARCH_AND_SPIKE_REGISTER.md",
   "current_phase": "P1",
   "current_phase_status": "in_progress (plan approved 2026-09-24)",
@@ -55,8 +55,8 @@
   },
   "task_totals": {
     "total": 146,
-    "DONE": 17,
-    "NOT_STARTED": 125,
+    "DONE": 18,
+    "NOT_STARTED": 124,
     "IN_PROGRESS": 0,
     "BLOCKED": 1,
     "DEFERRED": 3
@@ -79,7 +79,7 @@
     "T-P1-06": "DONE",
     "T-P1-07": "DONE",
     "T-P1-08": "DONE",
-    "T-P1-09": "NOT_STARTED",
+    "T-P1-09": "DONE",
     "T-P1-10": "NOT_STARTED",
     "T-P1-11": "NOT_STARTED",
     "T-P1-12": "NOT_STARTED",
@@ -226,18 +226,20 @@
     "T-P1-05",
     "T-P1-06",
     "T-P1-07",
-    "T-P1-08"
+    "T-P1-08",
+    "T-P1-09"
   ],
   "in_progress_tasks": [],
   "blocked_tasks": [
     "T-P7-02"
   ],
   "next_eligible_tasks": [
-    "T-P1-09",
+    "T-P1-10",
     "T-P1-11",
     "T-P1-12",
     "T-P1-13",
     "T-P13-04",
+    "T-P2-01",
     "T-P4-01",
     "T-P7-03",
     "T-P9-02"
@@ -448,7 +450,7 @@
       "pdf_files": 8614,
       "unique_pdf_blobs": 3566,
       "unique_pdf_pages": 328418,
-      "note": "corrected per docs/37 §18 (was reported as 328,409)"
+      "note": "corrected per docs/37 \u00a718 (was reported as 328,409)"
     },
     "t1": {
       "files": 73441,
@@ -651,6 +653,26 @@
         "tests/test_obs.py"
       ],
       "verification": "3 CLI invocations produced 3 correct run rows (succeeded / failed ValueError / exit 2); logs parse as JSONL with a single run_id per run; secret names, grades and paths absent from the log file including tracebacks; rotation produced .1 files, all valid JSONL; run delete/update and unknown activity.run_id refused; tests 138 passed; tools/check.ps1 CHECK GREEN"
+    },
+    {
+      "task": "T-P1-09",
+      "date": "2026-09-24",
+      "status": "DONE",
+      "summary": "src/sbr/jobs package: JobQueue over the existing work_item/work_output tables (migration 0004, already committed). enqueue() is idempotent on the (subject_id, stage, stage_version) unique key, so a re-run or a restarted pipeline never creates a duplicate row; bumping stage_version inserts a new row and leaves other subjects' rows untouched (exactly-affected re-enqueue). lease() atomically claims pending-and-due items or leased items whose lease has expired (a crashed worker's items) ordered by priority then age; an expired lease that already exhausted max_attempts is retired straight to 'failed' instead of being re-leased, so a crashed worker can never keep a poison item cycling. extend()/complete()/fail() all require the current lease_token, so a re-leased item's original (crashed) holder can never complete or fail it a second time. complete() writes the work_output artifact manifest and the work_item state transition in one SQLite transaction (atomic completion). fail() applies exponential backoff (1s, 2s, 4s, ... capped at 15min) below max_attempts, else terminal 'failed'. jobs/dag.py: ready_stages() plus JobQueue.advance() enqueue exactly the downstream stages of a static stage DAG whose prerequisites are done at their current version (stage DAG enqueueing), idempotently. Schemas: WorkItem/WorkItemState/WorkOutput in schemas/operations.py (JobId/ManifestId in schemas/base.py), registered in db/registry.py as WORK_ITEM/WORK_OUTPUT TableSpecs, exported to schemas/WorkItem.json and schemas/WorkOutput.json.",
+      "files": [
+        "src/sbr/jobs/__init__.py",
+        "src/sbr/jobs/queue.py",
+        "src/sbr/jobs/dag.py",
+        "src/sbr/schemas/base.py (JobId, ManifestId)",
+        "src/sbr/schemas/operations.py (WorkItem, WorkItemState, WorkOutput)",
+        "src/sbr/schemas/__init__.py",
+        "src/sbr/db/registry.py (WORK_ITEM, WORK_OUTPUT)",
+        "schemas/WorkItem.json",
+        "schemas/WorkOutput.json",
+        "tests/jobs/test_queue.py",
+        "tests/test_schemas.py (samples)"
+      ],
+      "verification": "TS-QUEUE crash-resume test with an injectable millisecond clock (no real sleep, no subprocess): worker A leases an item and is never called again (simulated kill); a fresh JobQueue instance (worker B, as a restarted process would open) cannot claim it before the lease expires, claims it exactly once after, and worker A's stale lease_token can no longer complete it. Stage-version bump re-enqueues only the affected subject (the other subject's row is untouched). Backoff schedule and the max-attempts terminal transition verified; poison items confirmed never returned by lease() again, including via the expired-lease-reap path. Stage DAG advance() verified idempotent and correctly gated on prerequisite completion at the right version. 12/12 new tests passed; full suite 146 passed, 3 pre-existing Windows-only sourcefs/runtime-guard failures (this container is Linux, not Windows/WSL, so a `Regelungstechnik\\\\skript.pdf`-style os_path literal never resolves here; unrelated to this task, present before it). ruff and mypy clean on every file touched (both had pre-existing, unrelated debt in tools/validate_plan.py and tools/audit_crossrefs.py, and one pre-existing unused-ignore in tests/test_schemas.py:220 predating this session). tools/export_schemas.py --check clean. tools/validate_plan.py: PLAN CONSISTENT. tools/audit_crossrefs.py: CROSSREFS CLEAN."
     }
   ]
 }

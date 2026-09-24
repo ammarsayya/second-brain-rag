@@ -23,6 +23,8 @@ from sbr.schemas import (
     PathObservation,
     ScanRecord,
     SourceRootRecord,
+    WorkItem,
+    WorkOutput,
 )
 
 REPO_ROOT = Path(__file__).resolve().parents[3]
@@ -37,6 +39,8 @@ ARCHIVE_MEMBER = TableSpec("archive_member", ArchiveMember, ("container_blob", "
 BLOB_CLASSIFICATION = TableSpec("blob_classification", BlobClassification, ("blob_id", "rules_version"))
 BLOB_RELATION = TableSpec("blob_relation", BlobRelation, ("src_blob", "dst_blob", "type"))
 CHANGE_EVENT = TableSpec("change_event", ChangeEvent, ())
+WORK_ITEM = TableSpec("work_item", WorkItem, ("job_id",))
+WORK_OUTPUT = TableSpec("work_output", WorkOutput, ("manifest_id",))
 
 
 class RegistryDB:

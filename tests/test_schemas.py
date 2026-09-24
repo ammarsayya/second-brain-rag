@@ -30,6 +30,9 @@ from sbr.schemas import (
     RunStatus,
     ScanRecord,
     SourceRootRecord,
+    WorkItem,
+    WorkItemState,
+    WorkOutput,
 )
 from sbr.schemas.export import render_schemas
 from sbr.schemas.registry import ArchiveMemberStatus, ChangeType, RelationType, RootKind
@@ -121,6 +124,24 @@ def samples() -> list[BaseModel]:
             activity_id=ACT,
         ),
         ChangeEvent(scan_id=SCAN, type=ChangeType.MOVED, obs_id=OBS, blob_id=B1, activity_id=ACT),
+        WorkItem(
+            job_id=new_id("job"),
+            subject_id=B1,
+            stage="extract_text",
+            stage_version="0.1.0+cfg.abc123",
+            state=WorkItemState.LEASED,
+            priority=1,
+            wave="wave1",
+            attempts=1,
+            max_attempts=5,
+            not_before_ms=0,
+            lease_owner="system:worker-1",
+            lease_token="lt_deadbeef",  # noqa: S106 - not a credential, a lease fencing token
+            lease_expires_ms=1_700_000_000_000,
+            created_at=T0,
+            updated_at=T0,
+        ),
+        WorkOutput(manifest_id=new_id("man"), job_id=new_id("job"), artifacts={"docir": B2}, created_at=T0),
         RunRecord(
             run_id=new_id("run"),
             command="scan",
