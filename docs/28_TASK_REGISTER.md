@@ -10,7 +10,7 @@ Each task is written so that it can be independently verified. Spike tasks link 
 | Phase | Name | Tasks | DONE |
 |---|---|---|---|
 | P0 | Corpus Audit & Architecture Planning | 9 | 9 |
-| P1 | Foundations | 13 | 6 |
+| P1 | Foundations | 13 | 7 |
 | P2 | Source Registry, Manifest & Exact Dedup | 14 | 0 |
 | P3 | Gold Set & Extraction Spikes (decision gate) | 11 | 0 |
 | P4 | Extraction & Normalization | 16 | 0 |
@@ -24,7 +24,7 @@ Each task is written so that it can be independently verified. Spike tasks link 
 | P12 | External Research & Approval | 7 | 0 |
 | P13 | Scale-out, Hardening & Operations | 10 | 0 |
 | P14 | Project/Idea Integration (future) | 3 | 0 |
-| **Total** | | **146** | **15** |
+| **Total** | | **146** | **16** |
 
 ## P0 — Corpus Audit & Architecture Planning
 
@@ -229,7 +229,7 @@ Each task is written so that it can be independently verified. Spike tasks link 
 
 ### T-P1-07 — Provenance core (activities and derived_from)
 - **Phase:** P1
-- **Status:** NOT_STARTED
+- **Status:** DONE
 - **Priority:** critical
 - **Dependencies:** T-P1-06
 - **Human approval:** none
@@ -239,6 +239,7 @@ Each task is written so that it can be independently verified. Spike tasks link 
 - **Acceptance criteria:** Writes without activity fail; every derived row has a derived_from link.
 - **Validation method:** TS-PROV-1/2 tests.
 - **Expected artifacts:** src/sbr/provenance.py
+- **Completion note (2026-09-24):** Migration 0002_provenance: derived_from table (entity to source entity, role, optional Locator JSON, activity_id); triggers so that every insert or update of scan, blob, path_observation, archive_member, blob_classification, blob_relation, change_event and derived_from requires an existing RUNNING activity (enforced even for raw SQL); activities must be inserted as running and finish once; finished activities and identity columns are immutable; activities and links are never deleted. ProvenanceStore API: start_activity and finish_activity (params_hash per NFR-04), an activity() context manager (succeeded, failed or cancelled; notes keep only the exception class so no paths leak), link(), record_derived() (entity plus >=1 derived_from atomically; refuses empty or mismatched links), derived_from(), and the integrity queries pv1_violations(table, id) and unresolved_locators() for sbr doctor. transaction() nests via SAVEPOINTs. Knowledge-entity tables (P4/P5) register with pv1_violations when they arrive. Evidence: TS-PROV-1: writes to all 7 provenance-bearing tables plus derived_from refused for finished and unknown activities; TS-PROV-2: PV-1 violations (no link or unknown activity) and dangling locators reported; atomic rollback of entity plus links, including under an outer transaction; the 0001 to 0002 upgrade is covered by the generic N-1 migration test; tests 130 passed; tools/check.ps1 CHECK GREEN.
 
 ### T-P1-08 — Run ledger and structured logging
 - **Phase:** P1

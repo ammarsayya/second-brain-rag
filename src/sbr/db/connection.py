@@ -6,6 +6,7 @@ before anything is created (docs/22 §1).
 
 from __future__ import annotations
 
+import itertools
 import sqlite3
 from collections.abc import Iterable, Iterator
 from contextlib import contextmanager
@@ -36,7 +37,21 @@ def connect(path: Path, protected: Iterable[str] = ()) -> sqlite3.Connection:
 
 @contextmanager
 def transaction(conn: sqlite3.Connection) -> Iterator[sqlite3.Connection]:
-    """``BEGIN IMMEDIATE`` … ``COMMIT``; rolls back on any exception (single-writer discipline, ADR-004)."""
+    """``BEGIN IMMEDIATE`` … ``COMMIT``; rolls back on any exception (single-writer discipline, ADR-004).
+
+    Nested use inside an open transaction becomes a SAVEPOINT, so composite writes stay atomic.
+    """
+    if conn.in_transaction:
+        name = f"sp_{id(conn):x}_{_next_savepoint()}"
+        conn.execute(f"SAVEPOINT {name}")
+        try:
+            yield conn
+        except BaseException:
+            conn.execute(f"ROLLBACK TO {name}")
+            conn.execute(f"RELEASE {name}")
+            raise
+        conn.execute(f"RELEASE {name}")
+        return
     conn.execute("BEGIN IMMEDIATE")
     try:
         yield conn
@@ -44,3 +59,10 @@ def transaction(conn: sqlite3.Connection) -> Iterator[sqlite3.Connection]:
         conn.execute("ROLLBACK")
         raise
     conn.execute("COMMIT")
+
+
+_savepoints = itertools.count(1)
+
+
+def _next_savepoint() -> int:
+    return next(_savepoints)

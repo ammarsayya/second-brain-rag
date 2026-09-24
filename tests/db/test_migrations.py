@@ -90,10 +90,13 @@ def test_failed_migration_rolls_back(tmp_path: Path, mig_dir: Path) -> None:
 
 def test_foreign_key_violation_rolls_back(tmp_path: Path, mig_dir: Path) -> None:
     head = len(load_migrations(mig_dir))
+    act = new_id("act")
     (mig_dir / f"{head + 1:04d}_bad_fk.sql").write_text(
-        "PRAGMA foreign_keys = OFF;\n"
+        "PRAGMA foreign_keys = OFF;\n"  # ignored inside the migration transaction, by design
+        "INSERT INTO activity (activity_id, kind, producer, producer_version, agent, started_at, status) VALUES "
+        f"('{act}', 'k', 'p', 'v', 'system:t', 't', 'running');\n"
         "INSERT INTO scan (scan_id, root_id, started_at, status, code_version, activity_id) VALUES "
-        f"('{new_id('scan')}', 'missing', 'x', 'running', 'v', '{new_id('act')}');\n",
+        f"('{new_id('scan')}', 'missing-root', 'x', 'running', 'v', '{act}');\n",
         encoding="utf-8",
     )
     with open_db(tmp_path, mig_dir) as db:

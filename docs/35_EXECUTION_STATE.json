@@ -55,8 +55,8 @@
   },
   "task_totals": {
     "total": 146,
-    "DONE": 15,
-    "NOT_STARTED": 127,
+    "DONE": 16,
+    "NOT_STARTED": 126,
     "IN_PROGRESS": 0,
     "BLOCKED": 1,
     "DEFERRED": 3
@@ -77,7 +77,7 @@
     "T-P1-04": "DONE",
     "T-P1-05": "DONE",
     "T-P1-06": "DONE",
-    "T-P1-07": "NOT_STARTED",
+    "T-P1-07": "DONE",
     "T-P1-08": "NOT_STARTED",
     "T-P1-09": "NOT_STARTED",
     "T-P1-10": "NOT_STARTED",
@@ -224,15 +224,16 @@
     "T-P1-03",
     "T-P1-04",
     "T-P1-05",
-    "T-P1-06"
+    "T-P1-06",
+    "T-P1-07"
   ],
   "in_progress_tasks": [],
   "blocked_tasks": [
     "T-P7-02"
   ],
   "next_eligible_tasks": [
-    "T-P1-07",
     "T-P1-08",
+    "T-P1-09",
     "T-P1-12",
     "T-P1-13",
     "T-P13-04",
@@ -615,6 +616,21 @@
         "tests/db/test_registry_repository.py"
       ],
       "verification": "TS-MIG: fresh to head; every N-1 (1..head) to head with a synthetic next migration (data retained; backup exists and holds version N-1 with data); failing and FK-violating migrations roll back to N-1; downgrade to 0 and re-upgrade; tamper, CRLF and newer-DB checks. Repository round-trip, upsert, FK/CHECK/UNIQUE enforcement, transaction rollback. tests 122 passed; tools/check.ps1 CHECK GREEN"
+    },
+    {
+      "task": "T-P1-07",
+      "date": "2026-09-24",
+      "status": "DONE",
+      "summary": "Migration 0002_provenance: derived_from table (entity to source entity, role, optional Locator JSON, activity_id); triggers so that every insert or update of scan, blob, path_observation, archive_member, blob_classification, blob_relation, change_event and derived_from requires an existing RUNNING activity (enforced even for raw SQL); activities must be inserted as running and finish once; finished activities and identity columns are immutable; activities and links are never deleted. ProvenanceStore API: start_activity and finish_activity (params_hash per NFR-04), an activity() context manager (succeeded, failed or cancelled; notes keep only the exception class so no paths leak), link(), record_derived() (entity plus >=1 derived_from atomically; refuses empty or mismatched links), derived_from(), and the integrity queries pv1_violations(table, id) and unresolved_locators() for sbr doctor. transaction() nests via SAVEPOINTs. Knowledge-entity tables (P4/P5) register with pv1_violations when they arrive.",
+      "files": [
+        "migrations/registry/0002_provenance{",
+        ".down}.sql",
+        "src/sbr/provenance.py",
+        "src/sbr/db/connection.py (savepoints)",
+        "tests/test_provenance.py",
+        "tests/db/*"
+      ],
+      "verification": "TS-PROV-1: writes to all 7 provenance-bearing tables plus derived_from refused for finished and unknown activities; TS-PROV-2: PV-1 violations (no link or unknown activity) and dangling locators reported; atomic rollback of entity plus links, including under an outer transaction; the 0001 to 0002 upgrade is covered by the generic N-1 migration test; tests 130 passed; tools/check.ps1 CHECK GREEN"
     }
   ]
 }

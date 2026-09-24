@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import sqlite3
 from collections.abc import Callable, Iterator
-from datetime import UTC, datetime, timedelta
+from datetime import UTC, datetime
 from pathlib import Path
 
 import pytest
@@ -15,8 +15,8 @@ from sbr.db.connection import transaction
 from sbr.db.registry import RegistryDB
 from sbr.db.repository import Repository, TableSpec
 from sbr.ids import hash_bytes, new_id
+from sbr.provenance import ProvenanceStore
 from sbr.schemas import (
-    Activity,
     ActivityStatus,
     BlobRecord,
     BlobRelation,
@@ -39,20 +39,8 @@ def db(make_config: Callable[..., SbrConfig]) -> Iterator[RegistryDB]:
 
 
 def seed(db: RegistryDB) -> dict[str, str]:
-    act = new_id("act")
+    act = ProvenanceStore(db.conn).start_activity("scan", "test", "1", "system:test").activity_id
     scan = new_id("scan")
-    db.repo(reg.ACTIVITY).insert(
-        Activity(
-            activity_id=act,
-            kind="scan",
-            producer="test",
-            producer_version="1",
-            agent="system:test",
-            started_at=T0,
-            ended_at=T0 + timedelta(seconds=1),
-            status=ActivityStatus.SUCCEEDED,
-        )
-    )
     db.repo(reg.SOURCE_ROOT).insert(
         SourceRootRecord(root_id="fx", path="C:\\fixture", kind=RootKind.UNIVERSITY, read_only=True, added_at=T0)
     )
@@ -101,7 +89,7 @@ def test_round_trip_and_queries(db: RegistryDB) -> None:
     db.repo(reg.CHANGE_EVENT).insert(ev)
     assert db.repo(reg.CHANGE_EVENT).find({"scan_id": ids["scan"]}) == [ev]
     assert blobs.count() == 2
-    assert db.repo(reg.ACTIVITY).get(ids["act"]).status is ActivityStatus.SUCCEEDED  # type: ignore[union-attr]
+    assert db.repo(reg.ACTIVITY).get(ids["act"]).status is ActivityStatus.RUNNING  # type: ignore[union-attr]
 
 
 def test_upsert_updates_non_key_columns(db: RegistryDB) -> None:
@@ -122,10 +110,10 @@ def test_upsert_updates_non_key_columns(db: RegistryDB) -> None:
 
 
 def test_foreign_keys_enforced(db: RegistryDB) -> None:
-    seed(db)
+    ids = seed(db)  # a running activity, so only the missing scans can fail the insert
     with pytest.raises(sqlite3.IntegrityError, match="FOREIGN KEY"):
         db.repo(reg.BLOB).insert(BlobRecord(blob_id=hash_bytes(b"z"), size=1, first_seen_scan=new_id("scan"),
-                                            last_seen_scan=new_id("scan"), activity_id=new_id("act")))  # fmt: skip
+                                            last_seen_scan=new_id("scan"), activity_id=ids["act"]))  # fmt: skip
 
 
 def test_one_present_observation_per_path(db: RegistryDB) -> None:

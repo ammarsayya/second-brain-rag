@@ -1,0 +1,23 @@
+-- Reverse of 0002_provenance.sql.
+DROP TRIGGER change_event_upd_requires_activity;
+DROP TRIGGER change_event_ins_requires_activity;
+DROP TRIGGER blob_relation_upd_requires_activity;
+DROP TRIGGER blob_relation_ins_requires_activity;
+DROP TRIGGER blob_classification_upd_requires_activity;
+DROP TRIGGER blob_classification_ins_requires_activity;
+DROP TRIGGER archive_member_upd_requires_activity;
+DROP TRIGGER archive_member_ins_requires_activity;
+DROP TRIGGER path_observation_upd_requires_activity;
+DROP TRIGGER path_observation_ins_requires_activity;
+DROP TRIGGER blob_upd_requires_activity;
+DROP TRIGGER blob_ins_requires_activity;
+DROP TRIGGER scan_upd_requires_activity;
+DROP TRIGGER scan_ins_requires_activity;
+DROP TRIGGER derived_from_requires_activity;
+DROP TRIGGER derived_from_no_update;
+DROP TRIGGER derived_from_no_delete;
+DROP TRIGGER activity_must_start_running;
+DROP TRIGGER activity_identity_immutable;
+DROP TRIGGER activity_finished_immutable;
+DROP TRIGGER activity_no_delete;
+DROP TABLE derived_from;
