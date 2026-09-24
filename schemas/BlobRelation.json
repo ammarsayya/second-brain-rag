@@ -1,0 +1,74 @@
+{
+  "$defs": {
+    "RelationStatus": {
+      "enum": [
+        "candidate",
+        "confirmed",
+        "rejected"
+      ],
+      "title": "RelationStatus",
+      "type": "string"
+    },
+    "RelationType": {
+      "enum": [
+        "twin_candidate",
+        "twin_of",
+        "version_of",
+        "near_duplicate_of",
+        "contains_text_of",
+        "annotated_variant_of",
+        "solution_of"
+      ],
+      "title": "RelationType",
+      "type": "string"
+    }
+  },
+  "$id": "sbr/1.0.0/BlobRelation.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "properties": {
+    "activity_id": {
+      "pattern": "^act_[0-7][0-9A-HJKMNP-TV-Z]{25}$",
+      "title": "Activity Id",
+      "type": "string"
+    },
+    "confidence": {
+      "maximum": 1.0,
+      "minimum": 0.0,
+      "title": "Confidence",
+      "type": "number"
+    },
+    "dst_blob": {
+      "pattern": "^b3:[0-9a-f]{64}$",
+      "title": "Dst Blob",
+      "type": "string"
+    },
+    "evidence": {
+      "additionalProperties": true,
+      "title": "Evidence",
+      "type": "object"
+    },
+    "src_blob": {
+      "pattern": "^b3:[0-9a-f]{64}$",
+      "title": "Src Blob",
+      "type": "string"
+    },
+    "status": {
+      "$ref": "#/$defs/RelationStatus",
+      "default": "candidate"
+    },
+    "type": {
+      "$ref": "#/$defs/RelationType"
+    }
+  },
+  "required": [
+    "src_blob",
+    "dst_blob",
+    "type",
+    "confidence",
+    "activity_id"
+  ],
+  "title": "BlobRelation",
+  "type": "object",
+  "x-sbr-schema-version": "1.0.0"
+}

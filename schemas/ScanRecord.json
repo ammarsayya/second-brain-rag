@@ -1,0 +1,88 @@
+{
+  "$defs": {
+    "ScanStatus": {
+      "enum": [
+        "running",
+        "completed",
+        "failed",
+        "interrupted"
+      ],
+      "title": "ScanStatus",
+      "type": "string"
+    }
+  },
+  "$id": "sbr/1.0.0/ScanRecord.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "properties": {
+    "activity_id": {
+      "pattern": "^act_[0-7][0-9A-HJKMNP-TV-Z]{25}$",
+      "title": "Activity Id",
+      "type": "string"
+    },
+    "bytes_seen": {
+      "default": 0,
+      "minimum": 0,
+      "title": "Bytes Seen",
+      "type": "integer"
+    },
+    "code_version": {
+      "title": "Code Version",
+      "type": "string"
+    },
+    "errors": {
+      "default": 0,
+      "minimum": 0,
+      "title": "Errors",
+      "type": "integer"
+    },
+    "files_seen": {
+      "default": 0,
+      "minimum": 0,
+      "title": "Files Seen",
+      "type": "integer"
+    },
+    "finished_at": {
+      "anyOf": [
+        {
+          "format": "date-time",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Finished At"
+    },
+    "root_id": {
+      "pattern": "^[a-z][a-z0-9_-]{0,31}$",
+      "title": "Root Id",
+      "type": "string"
+    },
+    "scan_id": {
+      "pattern": "^scan_[0-7][0-9A-HJKMNP-TV-Z]{25}$",
+      "title": "Scan Id",
+      "type": "string"
+    },
+    "started_at": {
+      "format": "date-time",
+      "title": "Started At",
+      "type": "string"
+    },
+    "status": {
+      "$ref": "#/$defs/ScanStatus",
+      "default": "running"
+    }
+  },
+  "required": [
+    "scan_id",
+    "root_id",
+    "started_at",
+    "code_version",
+    "activity_id"
+  ],
+  "title": "ScanRecord",
+  "type": "object",
+  "x-sbr-schema-version": "1.0.0"
+}

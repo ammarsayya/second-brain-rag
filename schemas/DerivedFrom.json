@@ -1,0 +1,201 @@
+{
+  "$defs": {
+    "DerivationRole": {
+      "enum": [
+        "primary",
+        "context",
+        "twin",
+        "evidence"
+      ],
+      "title": "DerivationRole",
+      "type": "string"
+    },
+    "Locator": {
+      "additionalProperties": false,
+      "description": "Points evidence into exact source bytes (docs/05 §3). All positions are optional refinements of the blob.",
+      "properties": {
+        "bbox": {
+          "anyOf": [
+            {
+              "maxItems": 4,
+              "minItems": 4,
+              "prefixItems": [
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "number"
+                }
+              ],
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Bbox"
+        },
+        "blob_id": {
+          "pattern": "^b3:[0-9a-f]{64}$",
+          "title": "Blob Id",
+          "type": "string"
+        },
+        "block_id": {
+          "anyOf": [
+            {
+              "pattern": "^blk_[0-7][0-9A-HJKMNP-TV-Z]{25}$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Block Id"
+        },
+        "char_span": {
+          "anyOf": [
+            {
+              "maxItems": 2,
+              "minItems": 2,
+              "prefixItems": [
+                {
+                  "minimum": 0,
+                  "type": "integer"
+                },
+                {
+                  "minimum": 0,
+                  "type": "integer"
+                }
+              ],
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Char Span"
+        },
+        "equation_label": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Equation Label"
+        },
+        "figure_label": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Figure Label"
+        },
+        "page_index": {
+          "anyOf": [
+            {
+              "minimum": 0,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Page Index"
+        },
+        "page_label": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Page Label"
+        },
+        "representation": {
+          "pattern": "^[a-z0-9]{1,16}$",
+          "title": "Representation",
+          "type": "string"
+        },
+        "timestamp_s": {
+          "anyOf": [
+            {
+              "minimum": 0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Timestamp S"
+        }
+      },
+      "required": [
+        "blob_id",
+        "representation"
+      ],
+      "title": "Locator",
+      "type": "object"
+    }
+  },
+  "$id": "sbr/1.0.0/DerivedFrom.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "description": "Link from a derived entity to what it was derived from (PV-1).",
+  "properties": {
+    "entity_id": {
+      "pattern": "^(b3:[0-9a-f]{64}|[a-z]+_[0-7][0-9A-HJKMNP-TV-Z]{25})$",
+      "title": "Entity Id",
+      "type": "string"
+    },
+    "locator": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/Locator"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null
+    },
+    "role": {
+      "$ref": "#/$defs/DerivationRole",
+      "default": "primary"
+    },
+    "source_entity_id": {
+      "pattern": "^(b3:[0-9a-f]{64}|[a-z]+_[0-7][0-9A-HJKMNP-TV-Z]{25})$",
+      "title": "Source Entity Id",
+      "type": "string"
+    }
+  },
+  "required": [
+    "entity_id",
+    "source_entity_id"
+  ],
+  "title": "DerivedFrom",
+  "type": "object",
+  "x-sbr-schema-version": "1.0.0"
+}

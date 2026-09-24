@@ -1,0 +1,134 @@
+{
+  "$defs": {
+    "ActivityStatus": {
+      "enum": [
+        "running",
+        "succeeded",
+        "failed",
+        "cancelled"
+      ],
+      "title": "ActivityStatus",
+      "type": "string"
+    }
+  },
+  "$id": "sbr/1.0.0/Activity.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "description": "One run of a producer (scan, hash, extract, approve …).",
+  "properties": {
+    "activity_id": {
+      "pattern": "^act_[0-7][0-9A-HJKMNP-TV-Z]{25}$",
+      "title": "Activity Id",
+      "type": "string"
+    },
+    "agent": {
+      "pattern": "^(system:[a-z0-9_.-]+|model:[^/\\s]+/[^@\\s]+@\\S+|user:owner)$",
+      "title": "Agent",
+      "type": "string"
+    },
+    "ended_at": {
+      "anyOf": [
+        {
+          "format": "date-time",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Ended At"
+    },
+    "inputs": {
+      "items": {
+        "pattern": "^(b3:[0-9a-f]{64}|[a-z]+_[0-7][0-9A-HJKMNP-TV-Z]{25})$",
+        "type": "string"
+      },
+      "title": "Inputs",
+      "type": "array"
+    },
+    "kind": {
+      "maxLength": 64,
+      "pattern": "^[a-z][a-z0-9_]*$",
+      "title": "Kind",
+      "type": "string"
+    },
+    "notes": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Notes"
+    },
+    "outputs": {
+      "items": {
+        "pattern": "^(b3:[0-9a-f]{64}|[a-z]+_[0-7][0-9A-HJKMNP-TV-Z]{25})$",
+        "type": "string"
+      },
+      "title": "Outputs",
+      "type": "array"
+    },
+    "params_hash": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Params Hash"
+    },
+    "producer": {
+      "maxLength": 128,
+      "minLength": 1,
+      "title": "Producer",
+      "type": "string"
+    },
+    "producer_version": {
+      "maxLength": 64,
+      "minLength": 1,
+      "title": "Producer Version",
+      "type": "string"
+    },
+    "run_id": {
+      "anyOf": [
+        {
+          "pattern": "^run_[0-7][0-9A-HJKMNP-TV-Z]{25}$",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Run Id"
+    },
+    "started_at": {
+      "format": "date-time",
+      "title": "Started At",
+      "type": "string"
+    },
+    "status": {
+      "$ref": "#/$defs/ActivityStatus",
+      "default": "running"
+    }
+  },
+  "required": [
+    "activity_id",
+    "kind",
+    "producer",
+    "producer_version",
+    "agent",
+    "started_at"
+  ],
+  "title": "Activity",
+  "type": "object",
+  "x-sbr-schema-version": "1.0.0"
+}

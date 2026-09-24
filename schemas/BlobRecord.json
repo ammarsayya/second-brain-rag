@@ -1,0 +1,142 @@
+{
+  "$defs": {
+    "BlobStatus": {
+      "enum": [
+        "active",
+        "orphaned",
+        "excluded"
+      ],
+      "title": "BlobStatus",
+      "type": "string"
+    },
+    "HashMode": {
+      "enum": [
+        "full",
+        "full_lowprio_pending"
+      ],
+      "title": "HashMode",
+      "type": "string"
+    },
+    "KnowledgeClass": {
+      "enum": [
+        "document",
+        "office",
+        "spreadsheet",
+        "code",
+        "data",
+        "media",
+        "archive",
+        "image",
+        "tool_artifact",
+        "junk",
+        "executable",
+        "unknown"
+      ],
+      "title": "KnowledgeClass",
+      "type": "string"
+    },
+    "Sensitivity": {
+      "enum": [
+        "normal",
+        "personal",
+        "third_party_personal",
+        "restricted"
+      ],
+      "title": "Sensitivity",
+      "type": "string"
+    }
+  },
+  "$id": "sbr/1.0.0/BlobRecord.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "properties": {
+    "activity_id": {
+      "pattern": "^act_[0-7][0-9A-HJKMNP-TV-Z]{25}$",
+      "title": "Activity Id",
+      "type": "string"
+    },
+    "blob_id": {
+      "pattern": "^b3:[0-9a-f]{64}$",
+      "title": "Blob Id",
+      "type": "string"
+    },
+    "canonical_obs_id": {
+      "anyOf": [
+        {
+          "pattern": "^obs_[0-7][0-9A-HJKMNP-TV-Z]{25}$",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Canonical Obs Id"
+    },
+    "first_seen_scan": {
+      "pattern": "^scan_[0-7][0-9A-HJKMNP-TV-Z]{25}$",
+      "title": "First Seen Scan",
+      "type": "string"
+    },
+    "format": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Format"
+    },
+    "hash_mode": {
+      "$ref": "#/$defs/HashMode",
+      "default": "full"
+    },
+    "knowledge_class": {
+      "$ref": "#/$defs/KnowledgeClass",
+      "default": "unknown"
+    },
+    "last_seen_scan": {
+      "pattern": "^scan_[0-7][0-9A-HJKMNP-TV-Z]{25}$",
+      "title": "Last Seen Scan",
+      "type": "string"
+    },
+    "magic_type": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Magic Type"
+    },
+    "sensitivity": {
+      "$ref": "#/$defs/Sensitivity",
+      "default": "normal"
+    },
+    "size": {
+      "minimum": 0,
+      "title": "Size",
+      "type": "integer"
+    },
+    "status": {
+      "$ref": "#/$defs/BlobStatus",
+      "default": "active"
+    }
+  },
+  "required": [
+    "blob_id",
+    "size",
+    "first_seen_scan",
+    "last_seen_scan",
+    "activity_id"
+  ],
+  "title": "BlobRecord",
+  "type": "object",
+  "x-sbr-schema-version": "1.0.0"
+}

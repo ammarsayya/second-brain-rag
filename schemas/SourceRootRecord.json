@@ -1,0 +1,50 @@
+{
+  "$defs": {
+    "RootKind": {
+      "enum": [
+        "university",
+        "external_accepted",
+        "personal",
+        "quarantine"
+      ],
+      "title": "RootKind",
+      "type": "string"
+    }
+  },
+  "$id": "sbr/1.0.0/SourceRootRecord.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "properties": {
+    "added_at": {
+      "format": "date-time",
+      "title": "Added At",
+      "type": "string"
+    },
+    "kind": {
+      "$ref": "#/$defs/RootKind"
+    },
+    "path": {
+      "title": "Path",
+      "type": "string"
+    },
+    "read_only": {
+      "title": "Read Only",
+      "type": "boolean"
+    },
+    "root_id": {
+      "pattern": "^[a-z][a-z0-9_-]{0,31}$",
+      "title": "Root Id",
+      "type": "string"
+    }
+  },
+  "required": [
+    "root_id",
+    "path",
+    "kind",
+    "read_only",
+    "added_at"
+  ],
+  "title": "SourceRootRecord",
+  "type": "object",
+  "x-sbr-schema-version": "1.0.0"
+}

@@ -10,7 +10,7 @@ Each task is written so that it can be independently verified. Spike tasks link 
 | Phase | Name | Tasks | DONE |
 |---|---|---|---|
 | P0 | Corpus Audit & Architecture Planning | 9 | 9 |
-| P1 | Foundations | 13 | 4 |
+| P1 | Foundations | 13 | 5 |
 | P2 | Source Registry, Manifest & Exact Dedup | 14 | 0 |
 | P3 | Gold Set & Extraction Spikes (decision gate) | 11 | 0 |
 | P4 | Extraction & Normalization | 16 | 0 |
@@ -24,7 +24,7 @@ Each task is written so that it can be independently verified. Spike tasks link 
 | P12 | External Research & Approval | 7 | 0 |
 | P13 | Scale-out, Hardening & Operations | 10 | 0 |
 | P14 | Project/Idea Integration (future) | 3 | 0 |
-| **Total** | | **146** | **13** |
+| **Total** | | **146** | **14** |
 
 ## P0 — Corpus Audit & Architecture Planning
 
@@ -202,7 +202,7 @@ Each task is written so that it can be independently verified. Spike tasks link 
 
 ### T-P1-05 — Core schema package (pydantic models + JSON Schema export)
 - **Phase:** P1
-- **Status:** NOT_STARTED
+- **Status:** DONE
 - **Priority:** critical
 - **Dependencies:** T-P1-01
 - **Human approval:** none
@@ -211,6 +211,7 @@ Each task is written so that it can be independently verified. Spike tasks link 
 - **Acceptance criteria:** Models round-trip JSON; JSON Schemas exported to schemas/.
 - **Validation method:** Unit tests; schema snapshot tests.
 - **Expected artifacts:** src/sbr/schemas/*, schemas/*.json
+- **Completion note (2026-09-24):** Pydantic v2 strict, frozen, extra-forbid models for the provenance core (Activity with time and status invariants, Locator with bbox/char_span rules, DerivedFrom, ProvenanceClass with exactly the seven documented classes) and the docs/31 registry records (SourceRootRecord, ScanRecord, BlobRecord, PathObservation with NFC relpath plus exact relpath_raw, ArchiveMember, BlobClassification, BlobRelation, ChangeEvent). Every derived registry record carries activity_id (PV-1). Typed ids: b3:<hex> blobs and <prefix>_<ULID> objects. Timestamps must be UTC. JSON Schemas (draft 2020-12, version 1.0.0) exported to schemas/ by tools/export_schemas.py with a --check mode. DocIR stays in T-P4-01; Run and WorkItem models follow in T-P1-08 and T-P1-09. Evidence: tests/test_schemas.py 38 passed (JSON round-trip of every exported model, strict rejection cases, schema snapshot, export --check); full suite 101 passed; tools/check.ps1 CHECK GREEN.
 
 ### T-P1-06 — SQLite data layer and migrations
 - **Phase:** P1

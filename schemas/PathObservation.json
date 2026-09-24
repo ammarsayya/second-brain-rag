@@ -1,0 +1,125 @@
+{
+  "$defs": {
+    "ObservationState": {
+      "enum": [
+        "present",
+        "moved",
+        "deleted"
+      ],
+      "title": "ObservationState",
+      "type": "string"
+    }
+  },
+  "$id": "sbr/1.0.0/PathObservation.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "description": "One path seen in one root. ``relpath`` is NFC-normalized; ``relpath_raw`` is the exact OS string.",
+  "properties": {
+    "activity_id": {
+      "pattern": "^act_[0-7][0-9A-HJKMNP-TV-Z]{25}$",
+      "title": "Activity Id",
+      "type": "string"
+    },
+    "blob_id": {
+      "anyOf": [
+        {
+          "pattern": "^b3:[0-9a-f]{64}$",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Blob Id"
+    },
+    "display_name": {
+      "title": "Display Name",
+      "type": "string"
+    },
+    "first_seen_scan": {
+      "pattern": "^scan_[0-7][0-9A-HJKMNP-TV-Z]{25}$",
+      "title": "First Seen Scan",
+      "type": "string"
+    },
+    "folder_tokens": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Folder Tokens",
+      "type": "array"
+    },
+    "in_archive": {
+      "anyOf": [
+        {
+          "pattern": "^obs_[0-7][0-9A-HJKMNP-TV-Z]{25}$",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "In Archive"
+    },
+    "is_mirror_candidate": {
+      "default": false,
+      "title": "Is Mirror Candidate",
+      "type": "boolean"
+    },
+    "last_seen_scan": {
+      "pattern": "^scan_[0-7][0-9A-HJKMNP-TV-Z]{25}$",
+      "title": "Last Seen Scan",
+      "type": "string"
+    },
+    "mtime_ns": {
+      "minimum": 0,
+      "title": "Mtime Ns",
+      "type": "integer"
+    },
+    "obs_id": {
+      "pattern": "^obs_[0-7][0-9A-HJKMNP-TV-Z]{25}$",
+      "title": "Obs Id",
+      "type": "string"
+    },
+    "relpath": {
+      "minLength": 1,
+      "title": "Relpath",
+      "type": "string"
+    },
+    "relpath_raw": {
+      "minLength": 1,
+      "title": "Relpath Raw",
+      "type": "string"
+    },
+    "root_id": {
+      "pattern": "^[a-z][a-z0-9_-]{0,31}$",
+      "title": "Root Id",
+      "type": "string"
+    },
+    "size": {
+      "minimum": 0,
+      "title": "Size",
+      "type": "integer"
+    },
+    "state": {
+      "$ref": "#/$defs/ObservationState",
+      "default": "present"
+    }
+  },
+  "required": [
+    "obs_id",
+    "root_id",
+    "relpath",
+    "relpath_raw",
+    "display_name",
+    "size",
+    "mtime_ns",
+    "first_seen_scan",
+    "last_seen_scan",
+    "activity_id"
+  ],
+  "title": "PathObservation",
+  "type": "object",
+  "x-sbr-schema-version": "1.0.0"
+}

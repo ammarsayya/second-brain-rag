@@ -1,0 +1,81 @@
+{
+  "$defs": {
+    "ArchiveMemberStatus": {
+      "enum": [
+        "already_present",
+        "extracted_new",
+        "skipped_limit",
+        "excluded"
+      ],
+      "title": "ArchiveMemberStatus",
+      "type": "string"
+    }
+  },
+  "$id": "sbr/1.0.0/ArchiveMember.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "properties": {
+    "activity_id": {
+      "pattern": "^act_[0-7][0-9A-HJKMNP-TV-Z]{25}$",
+      "title": "Activity Id",
+      "type": "string"
+    },
+    "container_blob": {
+      "pattern": "^b3:[0-9a-f]{64}$",
+      "title": "Container Blob",
+      "type": "string"
+    },
+    "extracted_path": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Extracted Path"
+    },
+    "member_blob": {
+      "anyOf": [
+        {
+          "pattern": "^b3:[0-9a-f]{64}$",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Member Blob"
+    },
+    "member_name_display": {
+      "title": "Member Name Display",
+      "type": "string"
+    },
+    "member_path": {
+      "title": "Member Path",
+      "type": "string"
+    },
+    "member_size": {
+      "minimum": 0,
+      "title": "Member Size",
+      "type": "integer"
+    },
+    "status": {
+      "$ref": "#/$defs/ArchiveMemberStatus"
+    }
+  },
+  "required": [
+    "container_blob",
+    "member_path",
+    "member_name_display",
+    "member_size",
+    "status",
+    "activity_id"
+  ],
+  "title": "ArchiveMember",
+  "type": "object",
+  "x-sbr-schema-version": "1.0.0"
+}

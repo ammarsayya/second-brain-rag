@@ -55,8 +55,8 @@
   },
   "task_totals": {
     "total": 146,
-    "DONE": 13,
-    "NOT_STARTED": 129,
+    "DONE": 14,
+    "NOT_STARTED": 128,
     "IN_PROGRESS": 0,
     "BLOCKED": 1,
     "DEFERRED": 3
@@ -75,7 +75,7 @@
     "T-P1-02": "DONE",
     "T-P1-03": "DONE",
     "T-P1-04": "DONE",
-    "T-P1-05": "NOT_STARTED",
+    "T-P1-05": "DONE",
     "T-P1-06": "NOT_STARTED",
     "T-P1-07": "NOT_STARTED",
     "T-P1-08": "NOT_STARTED",
@@ -222,15 +222,19 @@
     "T-P1-01",
     "T-P1-02",
     "T-P1-03",
-    "T-P1-04"
+    "T-P1-04",
+    "T-P1-05"
   ],
   "in_progress_tasks": [],
   "blocked_tasks": [
     "T-P7-02"
   ],
   "next_eligible_tasks": [
-    "T-P1-05",
-    "T-P1-13"
+    "T-P1-06",
+    "T-P1-12",
+    "T-P1-13",
+    "T-P4-01",
+    "T-P7-03"
   ],
   "first_implementation_task_after_approval": "T-P1-01",
   "decisions": {
@@ -572,6 +576,23 @@
         "tests/test_ids.py"
       ],
       "verification": "official BLAKE3 vectors (len 0 and 1) match; hypothesis: stream == one-shot for arbitrary chunk sizes; 2 GiB synthetic stream hashed with peak Python allocation < 8 MiB; ULID sort and monotonicity tests; fingerprint similarity ordering; tests 63 passed; tools/check.ps1 CHECK GREEN"
+    },
+    {
+      "task": "T-P1-05",
+      "date": "2026-09-24",
+      "status": "DONE",
+      "summary": "Pydantic v2 strict, frozen, extra-forbid models for the provenance core (Activity with time and status invariants, Locator with bbox/char_span rules, DerivedFrom, ProvenanceClass with exactly the seven documented classes) and the docs/31 registry records (SourceRootRecord, ScanRecord, BlobRecord, PathObservation with NFC relpath plus exact relpath_raw, ArchiveMember, BlobClassification, BlobRelation, ChangeEvent). Every derived registry record carries activity_id (PV-1). Typed ids: b3:<hex> blobs and <prefix>_<ULID> objects. Timestamps must be UTC. JSON Schemas (draft 2020-12, version 1.0.0) exported to schemas/ by tools/export_schemas.py with a --check mode. DocIR stays in T-P4-01; Run and WorkItem models follow in T-P1-08 and T-P1-09.",
+      "files": [
+        "src/sbr/schemas/{__init__",
+        "base",
+        "provenance",
+        "registry",
+        "export}.py",
+        "schemas/*.json (11)",
+        "tools/export_schemas.py",
+        "tests/test_schemas.py"
+      ],
+      "verification": "tests/test_schemas.py 38 passed (JSON round-trip of every exported model, strict rejection cases, schema snapshot, export --check); full suite 101 passed; tools/check.ps1 CHECK GREEN"
     }
   ]
 }

@@ -1,0 +1,66 @@
+{
+  "$defs": {
+    "ChangeType": {
+      "description": "docs/08 §3 change semantics.",
+      "enum": [
+        "new",
+        "alias",
+        "moved",
+        "modified",
+        "deleted"
+      ],
+      "title": "ChangeType",
+      "type": "string"
+    }
+  },
+  "$id": "sbr/1.0.0/ChangeEvent.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "properties": {
+    "activity_id": {
+      "pattern": "^act_[0-7][0-9A-HJKMNP-TV-Z]{25}$",
+      "title": "Activity Id",
+      "type": "string"
+    },
+    "blob_id": {
+      "anyOf": [
+        {
+          "pattern": "^b3:[0-9a-f]{64}$",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Blob Id"
+    },
+    "details": {
+      "additionalProperties": true,
+      "title": "Details",
+      "type": "object"
+    },
+    "obs_id": {
+      "pattern": "^obs_[0-7][0-9A-HJKMNP-TV-Z]{25}$",
+      "title": "Obs Id",
+      "type": "string"
+    },
+    "scan_id": {
+      "pattern": "^scan_[0-7][0-9A-HJKMNP-TV-Z]{25}$",
+      "title": "Scan Id",
+      "type": "string"
+    },
+    "type": {
+      "$ref": "#/$defs/ChangeType"
+    }
+  },
+  "required": [
+    "scan_id",
+    "type",
+    "obs_id",
+    "activity_id"
+  ],
+  "title": "ChangeEvent",
+  "type": "object",
+  "x-sbr-schema-version": "1.0.0"
+}
