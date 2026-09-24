@@ -2,10 +2,10 @@
   "schema_version": "1.0",
   "project": "second-brain-rag",
   "last_updated": "2026-09-24",
-  "updated_by": "Codex (T-P2-02 implementation complete; IN_PROGRESS pending owner real-corpus 50-hash spot-check)",
+  "updated_by": "Claude (T-P2-02 DONE: real-corpus spot-check verified, 50/50 hashes matched, 37.7s)",
   "authoritative_docs": "docs/28_TASK_REGISTER.md (tasks), docs/24_DECISION_LOG.md (decisions), docs/25_OPEN_QUESTIONS.md, docs/34_RESEARCH_AND_SPIKE_REGISTER.md",
   "current_phase": "P2",
-  "current_phase_status": "in_progress (T-P2-01 DONE; T-P2-02 IN_PROGRESS pending real-corpus validation; 1/14 P2 tasks complete)",
+  "current_phase_status": "in_progress (T-P2-01, T-P2-02 DONE; 2/14 P2 tasks complete)",
   "phases": {
     "P0": {
       "tasks": 9
@@ -55,9 +55,9 @@
   },
   "task_totals": {
     "total": 146,
-    "DONE": 23,
-    "NOT_STARTED": 119,
-    "IN_PROGRESS": 1,
+    "DONE": 24,
+    "NOT_STARTED": 120,
+    "IN_PROGRESS": 0,
     "BLOCKED": 1,
     "DEFERRED": 3
   },
@@ -85,7 +85,7 @@
     "T-P1-12": "DONE",
     "T-P1-13": "DONE",
     "T-P2-01": "DONE",
-    "T-P2-02": "IN_PROGRESS",
+    "T-P2-02": "DONE",
     "T-P2-03": "NOT_STARTED",
     "T-P2-04": "NOT_STARTED",
     "T-P2-05": "NOT_STARTED",
@@ -232,16 +232,19 @@
     "T-P1-11",
     "T-P1-12",
     "T-P1-13",
-    "T-P2-01"
-  ],
-  "in_progress_tasks": [
+    "T-P2-01",
     "T-P2-02"
   ],
+  "in_progress_tasks": [],
   "blocked_tasks": [
     "T-P7-02"
   ],
   "next_eligible_tasks": [
     "T-P13-04",
+    "T-P2-03",
+    "T-P2-04",
+    "T-P2-06",
+    "T-P2-08",
     "T-P2-13",
     "T-P4-01",
     "T-P4-13",
