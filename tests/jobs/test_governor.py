@@ -45,17 +45,13 @@ def test_worker_pool_count_is_respected() -> None:
 
 
 def test_per_stage_concurrency_limit_is_independent_of_the_pool_wide_limit() -> None:
-    gov = ResourceGovernor(
-        GovernorConfig(max_workers=6, stage_concurrency={"vision": 1}), metrics=lambda: metrics()
-    )
+    gov = ResourceGovernor(GovernorConfig(max_workers=6, stage_concurrency={"vision": 1}), metrics=lambda: metrics())
     assert gov.check("vision", active_workers=1, active_in_stage=1) is PauseReason.STAGE_CONCURRENCY_FULL
     assert gov.check("extract_text", active_workers=1, active_in_stage=1) is None  # unlimited stage, pool has room
 
 
 def test_time_window_admits_inside_and_refuses_outside() -> None:
-    gov = ResourceGovernor(
-        GovernorConfig(time_windows=["22:00-06:00"]), metrics=lambda: metrics(now=MIDNIGHT_THIRTY)
-    )
+    gov = ResourceGovernor(GovernorConfig(time_windows=["22:00-06:00"]), metrics=lambda: metrics(now=MIDNIGHT_THIRTY))
     assert gov.check("extract_text", active_workers=0, active_in_stage=0) is None
 
     gov_daytime = ResourceGovernor(GovernorConfig(time_windows=["22:00-06:00"]), metrics=lambda: metrics(now=NOON))

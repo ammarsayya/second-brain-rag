@@ -308,7 +308,7 @@ Each task is written so that it can be independently verified. Spike tasks link 
 
 ### T-P1-13 — Synthetic test fixture corpus
 - **Phase:** P1
-- **Status:** NOT_STARTED
+- **Status:** DONE
 - **Priority:** high
 - **Dependencies:** T-P1-01
 - **Human approval:** none

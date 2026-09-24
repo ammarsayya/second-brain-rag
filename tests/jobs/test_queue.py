@@ -173,7 +173,7 @@ def test_fail_retries_with_backoff_then_becomes_terminal(db: RegistryDB) -> None
     assert terminal.state is WorkItemState.FAILED
 
     # A poison item never blocks the queue: it is never returned by lease() again.
-    clock.advance(10 ** 9)
+    clock.advance(10**9)
     assert q.lease("extract_text") == []
 
 

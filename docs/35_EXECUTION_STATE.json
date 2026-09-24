@@ -2,10 +2,10 @@
   "schema_version": "1.0",
   "project": "second-brain-rag",
   "last_updated": "2026-09-24",
-  "updated_by": "Claude (T-P1-12 curation ledger implemented and verified)",
+  "updated_by": "Claude (T-P1-13 synthetic fixture corpus implemented and verified; P1 complete)",
   "authoritative_docs": "docs/28_TASK_REGISTER.md (tasks), docs/24_DECISION_LOG.md (decisions), docs/25_OPEN_QUESTIONS.md, docs/34_RESEARCH_AND_SPIKE_REGISTER.md",
-  "current_phase": "P1",
-  "current_phase_status": "in_progress (plan approved 2026-09-24)",
+  "current_phase": "P2",
+  "current_phase_status": "not_started (P1 foundations complete, all 13 tasks DONE)",
   "phases": {
     "P0": {
       "tasks": 9
@@ -55,8 +55,8 @@
   },
   "task_totals": {
     "total": 146,
-    "DONE": 21,
-    "NOT_STARTED": 121,
+    "DONE": 22,
+    "NOT_STARTED": 120,
     "IN_PROGRESS": 0,
     "BLOCKED": 1,
     "DEFERRED": 3
@@ -83,7 +83,7 @@
     "T-P1-10": "DONE",
     "T-P1-11": "DONE",
     "T-P1-12": "DONE",
-    "T-P1-13": "NOT_STARTED",
+    "T-P1-13": "DONE",
     "T-P2-01": "NOT_STARTED",
     "T-P2-02": "NOT_STARTED",
     "T-P2-03": "NOT_STARTED",
@@ -230,14 +230,14 @@
     "T-P1-09",
     "T-P1-10",
     "T-P1-11",
-    "T-P1-12"
+    "T-P1-12",
+    "T-P1-13"
   ],
   "in_progress_tasks": [],
   "blocked_tasks": [
     "T-P7-02"
   ],
   "next_eligible_tasks": [
-    "T-P1-13",
     "T-P13-04",
     "T-P2-01",
     "T-P4-01",
@@ -717,6 +717,21 @@
         "uv.lock"
       ],
       "verification": "All 7 seeded curation/*.yaml files load cleanly with zero records via their dedicated loader functions. Each schema round-trips real content (bilingual taxonomy edges; mixed-case owner folder abbreviations in course_map, which schemas.base.Slug would have rejected -- a local, looser CurationId pattern is used instead; exclusion/sensitivity-override path vs blob scopes; concept rename actions). Rejection verified for: syntactically invalid YAML (line number present), a missing required field on one entry among several (names the failing entry index and its line), an unknown/extra field, a non-mapping top-level document, a missing file, and a bare-list file that is not a list. A plain read never rewrites the file (comments untouched). append_approval() verified to: create the file if absent; preserve an existing entry's comment when appending a second entry; refuse (and leave the file unchanged for) a duplicate approval_id; refuse a non-list approvals file. 17/17 new tests passed; full suite 183 passed, the same 3 pre-existing Windows-only sourcefs/runtime-guard failures as before (unrelated to this task). ruff and mypy clean on every file touched. detect-secrets scan of all new/changed files: no findings. tools/export_schemas.py --check clean (no sbr.schemas change this task -- curation records are a separate, hand-edited-file schema family, not registry/knowledge-DB records). tools/validate_plan.py: PLAN CONSISTENT."
+    },
+    {
+      "task": "T-P1-13",
+      "date": "2026-09-24",
+      "status": "DONE",
+      "summary": "tests/fixtures/generate.py: deterministic synthetic fixture corpus generator (docs/33 \u00a73), no copyrighted corpus content. generate(root) builds tests/fixtures/corpus/: skript.pdf (pdflatex-compiled, two real equations, with SOURCE_DATE_EPOCH + \\pdftrailerid{} for byte-reproducible output), uebung1.docx and folien.pptx (each with a genuine m:oMath/a14:m OMML equation tree, not plain text -- DOCX via a body-level m:oMathPara, PPTX via the mc:AlternateContent/a14:m DrawingML extension with a text fallback), scan_seite1.pdf (Pillow-rendered, image-only, no text layer -- a simulated scan), skript_annotiert.pdf (skript.pdf plus one real pypdf FreeText annotation object), archiv.zip (a legacy CP437-encoded, non-UTF-8-flagged entry name with an umlaut, via a custom ZipInfo subclass overriding _encodeFilenameFlags -- Python's zipfile only ever writes ASCII or UTF-8-flagged names by default, never true CP437, so this reproduces what pre-UTF-8 DOS-era zip tools actually wrote; plus an embedded exact duplicate of skript.pdf), Formelsammlung/skript_kopie.pdf (an exact-duplicate file, ADR-031), and an 'Ubung' (umlaut) path component throughout. Every embedded timestamp/id/metadata field (LaTeX's PDF /ID, docx/pptx core properties AND their own zip container's per-entry mtimes, which python-docx/pptx set to 'now' unless the container is re-zipped with fixed entries, the scanned PDF's /CreationDate, the annotated PDF's writer /ID) is pinned, so two runs -- even a real wall-clock second apart -- produce byte-identical output. 'Moved files' is deliberately not a second baked tree: a P2 test builds that scenario itself by relocating a generated file between two scans; the interesting part is the move, not the corpus. New dev-only dependencies (never imported by src/sbr): python-docx, python-pptx, pillow, pypdf, lxml-stubs -- narrow, uncontroversial fixture-authoring libraries, not docs/34-gated technology choices. New system tool: TeX Live (texlive-latex-base/-recommended, texlive-fonts-recommended) is needed only to *regenerate* the corpus, never to run the test suite, since the generated tree is committed to git (synthetic, so safe to commit per docs/33 \u00a73).",
+      "files": [
+        "tests/fixtures/__init__.py",
+        "tests/fixtures/generate.py",
+        "tests/fixtures/corpus/** (generated, committed)",
+        "tests/test_fixture_generator.py",
+        "pyproject.toml (python-docx/python-pptx/pillow/pypdf/lxml-stubs dev dependencies)",
+        "uv.lock"
+      ],
+      "verification": "Cross-run determinism verified with a real >1s wall-clock gap between two generations into separate directories: every file's BLAKE3 hash (sbr.ids.hash_bytes) matches. Re-running into the same directory is idempotent, and the committed tests/fixtures/corpus/ matches a fresh generation exactly (not stale). Content sanity verified for every advertised scenario: the LaTeX PDF's extracted text contains the real compiled equations; the DOCX and PPTX open validly via python-docx/python-pptx and their raw XML contains a real m:oMath / a14:m tree; the scanned PDF extracts zero text; the annotated PDF carries exactly one /Annots entry; the archive's umlaut-bearing entry name has no UTF-8 flag bit set (genuine CP437) and its embedded 'duplicate' member hashes identically to the real skript.pdf; the Formelsammlung copy hashes identically to the original; the umlaut path component exists; generate() replaces (never merges into) a pre-existing output directory. 12/12 new tests passed; full suite 195 passed, the same 3 pre-existing Windows-only sourcefs/runtime-guard failures as before (unrelated to this task). ruff (check and format) and mypy clean on every file touched (lxml-stubs added for lxml's types); the two pre-existing mypy unused-ignore findings (tests/test_schemas.py:220, tests/safety/test_sourcefs.py:54) and tools/validate_plan.py's pre-existing lint debt are untouched and confirmed to predate this session. detect-secrets scan of every new/changed file, including the generated binary fixtures: no findings. tools/export_schemas.py --check clean (no sbr.schemas change this task). tools/validate_plan.py: PLAN CONSISTENT. tools/audit_crossrefs.py: CROSSREFS CLEAN. This completes Phase 1 (all 13 P1 tasks DONE)."
     }
   ]
 }

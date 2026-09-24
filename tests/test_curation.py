@@ -103,9 +103,7 @@ def test_exclusion_and_sensitivity_override_scopes(tmp_path: Path) -> None:
 
 def test_concept_curation_rename_action(tmp_path: Path) -> None:
     p = tmp_path / "concept_curation.yaml"
-    p.write_text(
-        "entries:\n  - concept_id: old_name\n    action: rename\n    renamed_to: new_name\n", encoding="utf-8"
-    )
+    p.write_text("entries:\n  - concept_id: old_name\n    action: rename\n    renamed_to: new_name\n", encoding="utf-8")
     [entry] = load_concept_curation(p).records
     assert entry.action is ConceptCurationAction.RENAME
     assert entry.renamed_to == "new_name"
@@ -124,9 +122,7 @@ def test_syntactically_invalid_yaml_is_rejected_with_a_line_number(tmp_path: Pat
 def test_a_missing_required_field_is_rejected_naming_the_entry_and_line(tmp_path: Path) -> None:
     p = tmp_path / "taxonomy.yaml"
     p.write_text(
-        "concepts:\n"
-        "  - concept_id: ok_one\n    label_en: Ok\n    label_de: Ok\n"
-        "  - concept_id: missing_labels\n",
+        "concepts:\n  - concept_id: ok_one\n    label_en: Ok\n    label_de: Ok\n  - concept_id: missing_labels\n",
         encoding="utf-8",
     )
     with pytest.raises(CurationError, match="entry 1"):
@@ -164,8 +160,7 @@ def test_loading_does_not_require_stripping_comments(tmp_path: Path) -> None:
     """The loader itself is read-only; comments are untouched because the file is never rewritten by a read."""
     p = tmp_path / "taxonomy.yaml"
     original = (
-        "# a human note explaining this concept\n"
-        "concepts:\n  - concept_id: x\n    label_en: X\n    label_de: X\n"
+        "# a human note explaining this concept\nconcepts:\n  - concept_id: x\n    label_en: X\n    label_de: X\n"
     )
     p.write_text(original, encoding="utf-8")
     load_taxonomy(p)

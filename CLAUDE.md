@@ -27,7 +27,9 @@ gap analysis, and approval-gated external research. It is not "PDF â†’ chunks â†
 ## Current state (2026-09-24)
 
 - **Phase 0 is DONE.** The owner approved the plan on 2026-09-24 (T-P0-08, Q-B05). Q-B01 is closed. Q-B02, Q-B03 and Q-B04 stay open for the phases they gate.
-  **Phase 1 (foundations) is in progress.** See `docs/35_EXECUTION_STATE.json` for task status.
+  **Phase 1 (foundations) is DONE** (all 13 tasks; SourceFS, ids/hashing, core schemas, SQLite registry, provenance, run
+  ledger, job queue, resource governor, CLI skeleton, curation ledger, synthetic fixture corpus). **Phase 2 (source
+  registry, manifest & exact dedup) is next.** See `docs/35_EXECUTION_STATE.json` for task status.
 - **Corpus baselines:** t2 = pre-quarantine historical baseline (85,913 files / 561.5 GB; docs/37). **t3 = post-quarantine implementation-source baseline**
   (83,880 files / 558.75 GB; 2,033 exact copies quarantined; docs/38, `audit/phase0/t3/`). `docs/03` is the historical t0/t1 record.
 - `D:\studium_duplicated` is quarantine/rollback evidence. It is **not a source root**, is never ingested and never written.

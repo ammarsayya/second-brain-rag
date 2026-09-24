@@ -25,6 +25,12 @@ dev = [
     "mypy>=1.13",
     "pre-commit>=4.0",
     "detect-secrets>=1.5",
+    # Synthetic test fixture generation only (T-P1-13, docs/33 §3): never imported by src/sbr itself.
+    "python-docx>=1.1",
+    "python-pptx>=1.0",
+    "pillow>=10.4",
+    "pypdf>=5.0",
+    "lxml-stubs>=0.5",
 ]
 
 [build-system]
