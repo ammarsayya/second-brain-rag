@@ -63,12 +63,11 @@ def real_metrics(disk_path: str | Path = ".") -> SystemMetrics:
 def _ram_used_gb() -> float:
     """Best-effort resident set size of this process, in GB. No third-party dependency (NFR-06 has no spike for one)."""
     try:
-        import resource
-
-        # ru_maxrss is kibibytes on Linux, bytes on macOS/BSD; kibibytes is the common case for this project's targets.
-        return resource.getrusage(resource.RUSAGE_SELF).ru_maxrss / (1024 * 1024)
+        import resource  # 'resource' is POSIX-only; absent (ImportError) on Windows, this project's target platform.
     except ImportError:
         return 0.0  # no 'resource' module (e.g. Windows): unknown, so never gate on it
+    # ru_maxrss is kibibytes on Linux, bytes on macOS/BSD; kibibytes is the common case for this project's targets.
+    return resource.getrusage(resource.RUSAGE_SELF).ru_maxrss / (1024 * 1024)  # type: ignore[attr-defined,no-any-return]
 
 
 def set_process_priority(priority: ProcessPriority) -> bool:
