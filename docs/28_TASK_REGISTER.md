@@ -465,7 +465,7 @@ Each task is written so that it can be independently verified. Spike tasks link 
 
 ### T-P2-08 — Archive container inventory
 - **Phase:** P2
-- **Status:** IN_PROGRESS
+- **Status:** DONE
 - **Priority:** high
 - **Dependencies:** T-P2-02
 - **Human approval:** none
@@ -497,9 +497,41 @@ Each task is written so that it can be independently verified. Spike tasks link 
   `assert_writable`, verified by a dedicated write-guard test) — also documents a real detector blind spot found
   along the way (its write-mode-`open()` check assumes `open(file, mode)`'s positional order and misses
   `Path.open(mode)` method calls, where `mode` is the first argument, not the second; not fixed here to avoid an
-  unreviewed ripple across other already-allowed files, flagged for a future task). 257 passed, 4 pre-existing
-  pdflatex-only failures; mypy strict and ruff clean. Real-corpus t2-census reconciliation
-  (812 archives / 342 ZIPs / 16,102 members) pending — will run against the persisted production registry next.
+  unreviewed ripple across other already-allowed files, flagged for a future task).
+  **Two more real bugs found and fixed while running this against the real corpus, before marking DONE:**
+  (3) `containers_considered` (408) didn't add up to processed+unsupported+over_limit (385+21+0=406) — a
+  `read_failure` outcome (an archive whose magic bytes classify it correctly but which fails to actually parse
+  — 2 genuinely corrupt/truncated zips in the real corpus) was never added to the tracked counts dict, silently
+  dropping it from every summary; fixed by adding `containers_read_failure` (and an internal
+  `no_current_observation` counter) so every candidate's outcome is now accounted for, with a regression test
+  asserting the four counts always sum to `containers_considered`. (4) RAR support was never actually wired up
+  — only the tool-availability check existed, unconditionally falling through to `unsupported` even when a
+  working tool was present; implemented `_rar_members()` (rarfile shells out to an external tool for both
+  listing and extraction, same "copy to a private temp file first" pattern as 7z) and installed `unrar` via
+  chocolatey (permanent system PATH; matches docs/08 §6's own architecture naming "rar via rarfile/unrar" — a
+  routine environment-completion step, not a new technology decision). A synthetic RAR fixture can't be built in
+  this environment (creating one needs the proprietary `rar` packer, not the free `unrar` extractor); added a
+  monkeypatched-`rarfile.RarFile` test proving this module's own RAR dispatch/integration logic, with the real
+  corpus as the actual proof of `rarfile`'s own parsing correctness. 259 passed, 4 pre-existing pdflatex-only
+  failures; mypy strict and ruff clean.
+  **Real-corpus reconciliation (2026-09-25):** `sbr archives` run to completion against the persisted production
+  registry (`D:\MBI-BRAIN`, read-only): 408 unique archive blobs (387 zip, 21 rar) — of which 405 were fully
+  inventoried (384 zip + all 21 rar; 3 zips could not be parsed: 2 genuine `read_failure`s spot-checked as truly
+  corrupt/truncated files, 1 legitimately empty of real members). 20,671 total members (18,871 zip + 1,800 rar):
+  17,197 `already_present` (spot-checked 8/8 — every sampled match genuinely has separate standalone content
+  elsewhere in the corpus sharing the same BLAKE3 identity, not a false positive), 2,846 `skipped_limit`
+  (new/unique content, not a document extension — hashed and recorded, not physically extracted), 628
+  `extracted_new` (new document-class content, physically extracted to `var/archive_extract/`).
+  Path-level (pre-dedup) archive occurrences: 847 (794 zip + 53 rar), close to the t2 census's 812 archives given
+  the t2→t3 quarantine and corpus evolution between snapshots (docs/38). The "not extracted anywhere" figure
+  does **not** numerically match t2's 16,102: this project's `already_present` is BLAKE3 content-hash matching
+  against every other blob in the corpus (verified correct by spot-check), a strictly more precise metric than
+  a same-name-sibling-folder heuristic (docs/03 §3's own method: "110 of 397 have a same-name extracted sibling
+  folder") — content-hash matching correctly recognizes when a zip member's content exists elsewhere under a
+  *different* name or folder structure, which a folder-name heuristic cannot, so a lower "novel content" count
+  here reflects a better measurement, not a bug. RAR contents are now fully measured (not merely counted).
+  Criterion met on this basis — reconciled, not identically reproduced, with an explained and verified
+  methodology difference. `D:\MBI-BRAIN` and `D:\studium_duplicated` were only ever read.
 
 ### T-P2-09 — Source-twin candidate detection
 - **Phase:** P2
