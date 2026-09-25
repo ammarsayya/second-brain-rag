@@ -269,21 +269,56 @@ not delegated to `codex:rescue`.** This applies to all subsequent tasks until/un
   built unilaterally. Hit once in practice (required a manual one-off SQL cleanup after each precision fix,
   same pattern needed if this module changes again).
 
-## Next eligible tasks (per `docs/35_EXECUTION_STATE.json`, updated after T-P2-09)
+### T-P2-10 — Genre classification v1 and exam-solution pairing — **DONE**
+- Implemented directly. `src/sbr/registry/genre.py`: rule-based genre from filename tokens (Klausur, Lösung/
+  Musterlösung/Kurzlösung/TutLos/Lsg, Übung/Aufgabenblatt, Skript, Labor, Bericht, Bachelorarbeit/
+  Masterarbeit/Diplomarbeit, ISBN), plus solution_of pairing of solution files to exam/exercise targets by
+  stem + sibling/parent-child folder proximity.
+- **Eight real bugs found and fixed by running the production pipeline against `D:\MBI-BRAIN` and manually
+  reviewing the actual output** (not by code inspection): (1) `\b` doesn't bound against `_`, breaking the
+  corpus's dominant underscore-joined naming style — fixed by normalizing `_`/`-`/`.` to spaces before
+  matching. (2) Solution pairing's folder-proximity rule found zero pairs for the common `Klausuren/` next to
+  `Loesungen/` sibling-folder layout — added sibling support. (3) A folder-only fallback tier caused ~20%
+  false positives and was removed — genre is filename-token match only now. (4) "Lsg" abbreviation was
+  missing from solution keywords. (5) A bare 13-digit ISBN-as-filename (no "ISBN" label) wasn't recognized.
+  (6) `validate_genre.py --draft` sampled from all blobs instead of only classified ones. (7) Tool-artifact/
+  code files coincidentally named after genre keywords were excluded via a knowledge-class filter. (8) "ohne
+  Lösung" (exam explicitly *without* its solution) matched the bare solution keyword — fixed with a negation
+  regex scoped to the solution rule only.
+- **Real-corpus production run**: `sbr genre` against `D:\MBI-BRAIN`: 17,759 knowledge-bearing blobs
+  considered, 2,035 classified, 212 solution_of pairs proposed.
+- **Formal 150-file precision eval** (the task's own two-step acceptance criterion): drafted via
+  `tools/validate_genre.py --draft` (seed 20260925, sampled from the classified population only), each row
+  independently labeled by reviewing the real relpath, scored via `--score`: **precision = 148/150 = 0.9867**,
+  clearing the ≥0.9 bar. The 2 false positives are narrow, non-recurring known limitations: a mojibake-
+  corrupted filename (`L├Âsung` for `Lösung` — in T-P2-13's scope, not this task) and one file using an
+  unseparated "Musterlsg" abbreviation that the word-boundary-anchored `lsg` keyword correctly declines to
+  match (a boundary-free substring match was rejected as too broad — it would false-positive on unrelated
+  tokens containing "lsg").
+- Commits: `feat(P2): genre classification and exam-solution pairing (T-P2-10)`,
+  `fix(P2): remove folder-only genre fallback, fix ISBN/Lsg gaps (T-P2-10)`,
+  `fix(P2): sample only classified blobs for genre precision eval (T-P2-10)`,
+  `fix(P2): exclude non-knowledge-bearing classes from genre (T-P2-10)`,
+  `fix(P2): recognize 'ohne Loesung' negation in genre classification (T-P2-10)`,
+  `docs(P2): mark T-P2-10 DONE — real-corpus precision eval 0.9867 (T-P2-10)`.
 
-`T-P13-04`, `T-P2-07`, `T-P2-10`, `T-P2-11`, `T-P2-12`, `T-P2-13`, `T-P2-14`, `T-P4-01`, `T-P4-13`, `T-P7-03`,
+## Next eligible tasks (per `docs/35_EXECUTION_STATE.json`, updated after T-P2-10)
+
+`T-P13-04`, `T-P2-07`, `T-P2-11`, `T-P2-12`, `T-P2-13`, `T-P2-14`, `T-P3-01`, `T-P4-01`, `T-P4-13`, `T-P7-03`,
 `T-P9-02`.
 
-Per docs/30's sequence, **T-P2-10 (genre classification v1 and exam-solution pairing)** is next.
-
-Per `docs/30_IMPLEMENTATION_SEQUENCE.md`'s recommended linear order, the P2 sequence after T-P2-02 is:
-T-P2-03 (change detection) → T-P2-04 (classification) → T-P2-05 (exclusions/sensitivity, owner review) →
-T-P2-06 (exact dedup) → T-P2-08 (archives) → T-P2-09 (twins) → T-P2-10 (genre) →
+Per `docs/30_IMPLEMENTATION_SEQUENCE.md`'s recommended linear order, the P2 sequence after T-P2-10 is:
 T-P2-11 (course map, owner review) → T-P2-13 (name repair) → T-P2-14 (manifest report) →
-T-P2-07 (mirror report) → T-P2-12 (audit refresh, after Q-B01).
+T-P2-07 (mirror report) → T-P2-12 (audit refresh, after Q-B01). **T-P2-11 (course and abbreviation mapping)
+is next.**
 
-Tasks marked "Human approval: review" (T-P2-05, T-P2-11, T-P2-12, T-P2-07) are implemented normally — the
-owner reviews the *output* (a report/list), it is not a pre-start gate like "Human approval: required" tasks.
+Tasks marked "Human approval: review" (T-P2-05 done, T-P2-11, T-P2-12, T-P2-07) are implemented normally —
+the owner reviews the *output* (a report/list), it is not a pre-start gate like "Human approval: required"
+tasks.
+
+T-P3-01 (Phase 3's first task) is now also eligible — T-P2-10 was its last blocking P2 dependency — but the
+docs/30 sequence keeps P2 work first; do not jump to P3 while eligible P2 tasks with satisfied dependencies
+remain, per the standing instruction not to jump to downstream phases prematurely.
 
 ## Safety confirmations (ongoing, re-verify every session)
 
@@ -297,14 +332,21 @@ owner reviews the *output* (a report/list), it is not a pre-start gate like "Hum
 
 ## Exact next action
 
-1. Check Codex's T-P2-02 background job status/result (`codex-companion.mjs status/result <job-id>`).
-2. Review the diff against the same bar as T-P2-01 (architecture fit, safety, tests, mypy/ruff/pytest re-run
-   independently).
-3. Fix or send back any issues found; do not accept completion claims at face value.
-4. Once solid: run `tools/validate_hash.py` against `D:\MBI-BRAIN` myself (read-only, ~50-hash spot check).
-5. Update `docs/28`/`docs/35` to DONE (or IN_PROGRESS with a precise pending note if the real-corpus step is
-   deferred), commit, run `validate_plan.py` / `audit_crossrefs.py`.
-6. Move to T-P2-03 (change detection) — next in the docs/30 sequence, deps (T-P2-02) will be satisfied.
-7. Continue the same READ → DELEGATE → REVIEW → TEST → VERIFY → UPDATE STATE → VALIDATE → COMMIT → NEXT loop
-   through P2 and beyond until a genuine blocker (owner decision, credentials, destructive action, or
-   local-Windows-only work with nothing else independently eligible).
+1. Implement T-P2-11 (course and abbreviation mapping) directly (no more Codex delegation, per standing
+   instruction): seed `curation/course_map.yaml` from the module handbook + observed folder abbreviations
+   (Reg1, RGT, MSR2, GrdInf, BS1, KONleh, ...); map documents to courses with a confidence score.
+2. Acceptance criterion: all level-3 folders mapped or explicitly marked unknown. This is a "Human approval:
+   review" task — implement and produce the mapping/report normally; the owner reviews ambiguous mappings
+   afterward, it is not a pre-start gate.
+3. Write tests, run `tools/check.ps1` equivalent (pytest + mypy strict + ruff check + ruff format --check),
+   confirm only the 4 known pdflatex failures remain.
+4. Run against the real production registry (`config/sbr.toml` against `D:\MBI-BRAIN`) and manually
+   sanity-check the mapping output before claiming completion — this session's established discipline of
+   independently re-verifying against real data has caught a real bug in every P2 task implemented directly so
+   far.
+5. Update `docs/28`/`docs/35` (DONE or IN_PROGRESS with a precise pending note), commit, run
+   `validate_plan.py` / `audit_crossrefs.py`.
+6. Continue the same IMPLEMENT → TEST → VERIFY (real corpus) → UPDATE STATE → VALIDATE → COMMIT → NEXT loop
+   through the rest of P2 (T-P2-13, T-P2-14, T-P2-07, T-P2-12) toward 14/14 DONE, then reassess Phase 3's
+   first eligible task (T-P3-01), until a genuine blocker (owner decision, credentials, destructive action, or
+   an acceptance criterion genuinely impossible to satisfy).
