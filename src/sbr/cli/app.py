@@ -24,6 +24,7 @@ from sbr.registry.changes import detect_changes
 from sbr.registry.classify import DEFAULT_RULES_PATH, classify_pending
 from sbr.registry.hash import DEFAULT_BATCH_SIZE, hash_pending
 from sbr.registry.scan import scan_sources
+from sbr.registry.sensitivity import classify_sensitivity
 from sbr.schemas import WorkItemState
 
 app = typer.Typer(
@@ -39,6 +40,8 @@ ConfigOption = typer.Option(
     None, "--config", help="Path to the TOML config file (default: $SBR_CONFIG or config/sbr.toml)."
 )
 ClassificationRulesOption = typer.Option(DEFAULT_RULES_PATH, "--rules", help="Classification rules TOML file.")
+ExclusionsOption = typer.Option(None, "--exclusions", help="Owner exclusion-curation YAML file.")
+SensitivityOverridesOption = typer.Option(None, "--overrides", help="Owner sensitivity-override YAML file.")
 
 
 @app.callback()
@@ -214,6 +217,32 @@ def classify_cmd(
         }
 
     _run("classify", config, body)
+
+
+@app.command("sensitivity")
+def sensitivity_cmd(
+    exclusions: Path | None = ExclusionsOption,
+    overrides: Path | None = SensitivityOverridesOption,
+    config: Path | None = ConfigOption,
+) -> None:
+    """Apply metadata-only default exclusions and sensitivity rules."""
+
+    def body(rt: Runtime) -> dict[str, object]:
+        result = classify_sensitivity(
+            rt.config,
+            rt.db,
+            exclusions_path=exclusions,
+            overrides_path=overrides,
+        )
+        return {
+            "activity_id": result.activity_id,
+            "considered": result.considered,
+            "updated": result.updated,
+            "excluded": result.excluded,
+            "sensitivity_counts": result.sensitivity_counts,
+        }
+
+    _run("sensitivity", config, body)
 
 
 @app.command("changes")

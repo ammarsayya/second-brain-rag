@@ -404,7 +404,7 @@ Each task is written so that it can be independently verified. Spike tasks link 
 
 ### T-P2-05 — Exclusions and sensitivity classification
 - **Phase:** P2
-- **Status:** NOT_STARTED
+- **Status:** IN_PROGRESS
 - **Priority:** critical
 - **Dependencies:** T-P2-04, T-P1-12
 - **Human approval:** review
@@ -414,6 +414,12 @@ Each task is written so that it can be independently verified. Spike tasks link 
 - **Acceptance criteria:** Known sensitive examples (Labornoten, Ergebnislisten, Vertrag) classified; owner reviews the list of flagged files.
 - **Validation method:** Owner review of report.
 - **Expected artifacts:** src/sbr/registry/sensitivity.py, reports/sensitivity.md
+- **Implementation note (2026-09-25):** Fixture/unit acceptance is met: metadata-only default exclusions,
+  path/name sensitivity rules (including `Labornoten`, `Ergebnislisten`, `Vertrag`, and the `Knoten` negative case),
+  owner exclusions/overrides, the `sbr sensitivity` command, and privacy-safe report behavior are tested. The default
+  report exposes only fixed-rule counts for `restricted` blobs and lists `third_party_personal` relpaths; restricted
+  relpaths require the explicit `--show-restricted-paths` warning gate. T-P2-05 remains **IN_PROGRESS** pending the
+  owner's real-corpus review using `tools/validate_sensitivity.py` against the registry for `D:\MBI-BRAIN`.
 
 ### T-P2-06 — Exact duplicate groups and canonical selection
 - **Phase:** P2
