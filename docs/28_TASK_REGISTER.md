@@ -535,7 +535,7 @@ Each task is written so that it can be independently verified. Spike tasks link 
 
 ### T-P2-09 — Source-twin candidate detection
 - **Phase:** P2
-- **Status:** IN_PROGRESS
+- **Status:** DONE
 - **Priority:** high
 - **Dependencies:** T-P2-04
 - **Human approval:** none
@@ -554,8 +554,29 @@ Each task is written so that it can be independently verified. Spike tasks link 
   dissimilar-stem same-folder pairs; idempotent re-run; CLI; the human-review report tool
   (`tools/validate_twins.py`, same non-pass/fail design as `validate_classify.py`). Caught and fixed, before
   running any test, a repeat of the same `activity.outputs` entity-id-pattern bug found in T-P2-08 (was
-  building a combined `"blob1|blob2"` string instead of two separate blob ids). 265 passed, 4 pre-existing
-  pdflatex-only failures; mypy strict and ruff clean. Real-corpus run (30-sample precision report) pending.
+  building a combined `"blob1|blob2"` string instead of two separate blob ids).
+  **Two more real precision bugs found reviewing the real-corpus output, before reporting:** (1) an Office
+  lock file (`~$chelorarbeit.docx`, created while the real file is open) scored 0.857 against
+  `Bachelorarbeit.pdf` via genuine string similarity — excluded lock files outright, they are never legitimate
+  content. (2) Several proposals were clearly *different* documents sharing a template — a different lecture
+  chapter (`..._Kap2_3...` vs `..._Kap2_2...`, scored 0.958) or a different exam/lecture session entirely
+  (`10 Ingenieurmathematik III 2010-03-29` vs `06 Ingenieurmathematik III 2008-08-27`, scored 0.912) — because
+  `difflib.SequenceMatcher.ratio()` rewards shared template text regardless of where the two strings actually
+  differ. Fixed with an explicit numeric-token guard: when both stems carry digit runs and those token sets
+  differ, the pair is rejected outright regardless of text similarity (a bare copy-numbering like
+  `Bachelorarbeit1` still passes, since the PDF side has no digits to contradict it). Two regression tests
+  added reproducing the exact real-corpus false positives. 268 passed, 4 pre-existing pdflatex-only failures;
+  mypy strict and ruff clean.
+  **Real-corpus run** (2026-09-25): `sbr twins` against the persisted production registry — 4,665 PDF blobs,
+  396 office blobs considered, 54 candidate pairs proposed. The real thesis pair
+  (`BachelorArbeit\MatlabBachelorArbeit\Bacelorarbeit\Bachelorarbeit.pdf` <->  `...\Bachelorarbeit.docx`) found
+  at confidence 1.0, satisfying "Thesis PDF<->DOCX found." `tools/validate_twins.py -n 30` generated a
+  30-sample precision report, manually reviewed: confidence now correlates well with correctness — every
+  entry at confidence >=0.85 is a genuinely correct pair on inspection; the low-confidence tail (0.6-0.8)
+  contains a few legitimately ambiguous cases (e.g. two differently-suffixed PDFs both matching one shared
+  `Terminplan` template docx; a `FEM1-Bericht.pdf` weakly matching an unrelated `Bericht.docx` in a same-named
+  numbered folder) — exactly the kind of borderline call this stage is designed to surface for human
+  confirmation (T-P5-04), not resolve itself. Criterion met.
 
 ### T-P2-10 — Genre classification v1 and exam-solution pairing
 - **Phase:** P2
