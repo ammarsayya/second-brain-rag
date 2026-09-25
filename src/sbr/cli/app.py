@@ -24,6 +24,7 @@ from sbr.registry.archives import inventory_archives
 from sbr.registry.changes import detect_changes
 from sbr.registry.classify import DEFAULT_RULES_PATH, classify_pending
 from sbr.registry.dedup import select_canonical_paths
+from sbr.registry.genre import classify_genres
 from sbr.registry.hash import DEFAULT_BATCH_SIZE, hash_pending
 from sbr.registry.scan import scan_sources
 from sbr.registry.sensitivity import classify_sensitivity
@@ -332,6 +333,22 @@ def twins_cmd(config: Path | None = ConfigOption) -> None:
         }
 
     _run("twins", config, body)
+
+
+@app.command("genre")
+def genre_cmd(config: Path | None = ConfigOption) -> None:
+    """Classify genre from path/name tokens and propose exam/exercise-solution pairings."""
+
+    def body(rt: Runtime) -> dict[str, object]:
+        result = classify_genres(rt.config, rt.db)
+        return {
+            "activity_id": result.activity_id,
+            "considered": result.considered,
+            "classified": result.classified,
+            "solution_pairs_proposed": result.solution_pairs_proposed,
+        }
+
+    _run("genre", config, body)
 
 
 @config_app.command("show")

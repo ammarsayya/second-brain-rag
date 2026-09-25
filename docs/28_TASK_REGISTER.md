@@ -580,7 +580,7 @@ Each task is written so that it can be independently verified. Spike tasks link 
 
 ### T-P2-10 — Genre classification v1 and exam-solution pairing
 - **Phase:** P2
-- **Status:** NOT_STARTED
+- **Status:** IN_PROGRESS
 - **Priority:** high
 - **Dependencies:** T-P2-04
 - **Human approval:** none
@@ -589,6 +589,21 @@ Each task is written so that it can be independently verified. Spike tasks link 
 - **Acceptance criteria:** Precision >= 0.9 on 150 labeled files (labels drafted by AI, checked by owner).
 - **Validation method:** Labeled sample eval.
 - **Expected artifacts:** src/sbr/registry/genre.py
+- **Verification (2026-09-25):** Fixture/unit acceptance met (9 tests): every named genre keyword (Klausur,
+  Lösung/Musterlösung/Kurzlösung/TutLos, Übung/Aufgabenblatt, Skript, Labor, Bericht, Bachelorarbeit/
+  Masterarbeit/Diplomarbeit, ISBN) recognized; semester-token extraction; idempotent re-run; CLI.
+  **Two real bugs found and fixed before any test was written, while manually sanity-checking against real
+  filenames**: (1) `\b` alone creates no boundary against `_` (a regex word character), so this corpus's
+  dominant `Klausur_SS2019.pdf` underscore-joined naming style fell through genre keyword matching, semester
+  extraction, and ISBN extraction entirely — fixed by normalizing `_`/`-`/`.` to spaces before all regex
+  matching. (2) The folder-proximity rule for solution pairing (copied from T-P2-09's twin detection, where a
+  PDF and its office export usually share one folder) found *zero* pairs for the most common real layout —
+  exam and solution files routinely live in **sibling** folders that mirror each other by name (`Klausuren/`
+  next to `Loesungen/`), not nested parent/child — fixed by adding sibling-folder support to the distance
+  rule and the folder-candidate search. 277 passed, 4 pre-existing pdflatex-only failures; mypy strict and
+  ruff clean. `tools/validate_genre.py` (a two-step draft/score workflow: `--draft` samples N blobs for
+  independent labeling, `--score` computes precision against the filled-in labels — keeping the acceptance
+  criterion's two steps auditably separate) built; the 150-file real-corpus precision eval is pending.
 
 ### T-P2-11 — Course and abbreviation mapping
 - **Phase:** P2
