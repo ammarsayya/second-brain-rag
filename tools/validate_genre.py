@@ -48,6 +48,13 @@ def _arguments() -> argparse.Namespace:
 
 
 def _draft(args: argparse.Namespace) -> dict[str, Any]:
+    """Sample from blobs the classifier actually assigned a genre to.
+
+    Precision (correct / predicted-positive) is only informative over the predicted-positive set: with a
+    sparse classifier (this corpus: ~2,080 of 34,814 blobs get a genre), sampling uniformly from every blob
+    would spend most of a 150-row budget on uninformative "no prediction" rows instead of genuinely
+    stress-testing precision.
+    """
     config = load_config(args.config)
     with RegistryDB.open(config) as db:
         observations = db.repo(reg.PATH_OBSERVATION).find({"state": ObservationState.PRESENT})
@@ -57,7 +64,11 @@ def _draft(args: argparse.Namespace) -> dict[str, Any]:
                 relpath_by_blob[obs.blob_id] = obs.relpath
         classifications = {c.blob_id: c for c in db.repo(reg.BLOB_CLASSIFICATION).find()}
 
-    candidates = sorted(relpath_by_blob)
+    candidates = sorted(
+        blob_id
+        for blob_id, classification in classifications.items()
+        if classification.genre is not None and blob_id in relpath_by_blob
+    )
     selected = random.Random(args.seed).sample(candidates, min(args.count, len(candidates)))
     rows = [
         {
