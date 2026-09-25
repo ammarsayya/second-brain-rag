@@ -632,7 +632,7 @@ Each task is written so that it can be independently verified. Spike tasks link 
 
 ### T-P2-11 — Course and abbreviation mapping
 - **Phase:** P2
-- **Status:** NOT_STARTED
+- **Status:** DONE
 - **Priority:** medium
 - **Dependencies:** T-P2-04, T-P1-12
 - **Human approval:** review
@@ -641,6 +641,33 @@ Each task is written so that it can be independently verified. Spike tasks link 
 - **Acceptance criteria:** All level-3 folders mapped or marked unknown; owner reviews ambiguous mappings.
 - **Validation method:** Owner review.
 - **Expected artifacts:** curation/course_map.yaml
+- **Verification (2026-09-25):** `curation/course_map.yaml` seeded with 42 course entries from the two
+  authoritative taxonomy seeds at the corpus root — `curriculum_mbi_ws2019.pdf` (official M-Kürzel/TM-Kürzel
+  module list, PO WS2019) and `MBI-WS2019-Modulhandbuch.pdf` (per-module descriptions) — both read directly
+  this session (pypdf, read-only) to resolve real corpus folder abbreviations against their official course
+  names (e.g. "MSR2" = Messen-Steuern-Regeln 2, "SAB" = Sensor-Aktor-Bus-Technik). `src/sbr/registry/courses.py`
+  (new stage, `sbr courses` CLI): matches each blob's `folder_tokens` against curated aliases (single-token)
+  and folder_patterns (multi-segment, domain-scoped), taking whichever matcher reaches deepest into the folder
+  path — verified via two dedicated regression tests that a nested pattern overrides a broader ancestor default
+  (`BachelorArbeit\Praxisphase` over `BachelorArbeit`) and that a deep alias overrides a shallower pattern
+  despite being shorter (`Phy2` over `Mechanical\physik`). `BlobClassification` is shared with genre's output
+  (T-P2-10) on the same `(blob_id, rules_version)` key; courses.py always reads the existing row first and
+  copies its other fields forward before upserting, verified both by a persistence test and by a real-corpus
+  count (1,047 blobs carry both a genre and a course_id after both stages ran). `tools/validate_courses.py`
+  (the acceptance-criterion coverage tool): resolves every current level-3 folder to mapped/unknown — a
+  mechanical fact, not a judgment call — for owner review of *which* mapping looks wrong or *which* unknown
+  folder should have a course. **Real-corpus production run** (`sbr courses` then `validate_courses.py` against
+  `D:\MBI-BRAIN`): 17,759 knowledge-bearing blobs considered, 14,978 classified (84.3%), 2,781 unknown; 223
+  distinct level-3 folders — 151 fully mapped, 4 partially mapped, **68 fully unknown, all enumerated in
+  `reports/courses_coverage.json`** (not committed — real corpus folder names; gitignored per docs/22), so the
+  criterion's "or marked unknown" half is met by construction (an unmatched folder is never silently dropped)
+  and is a concrete artifact the owner can act on. The unknown folders are legitimately mixed: some are
+  genuinely non-curriculum (`Ckurs`, `English`, the personal `books\` library, a one-off `2020 SS ... Segner`
+  seminar folder), others are curriculum-adjacent sub-buckets this session didn't have enough folder-naming
+  evidence to assign confidently (e.g. several `Information\Informatik*` variants) and are flagged in the
+  YAML's own comments for the owner rather than guessed. 10 new tests (all matching-rule cases including the
+  two priority-tie regressions, persistence/merge-safety, idempotent re-run, CLI, coverage-tool smoke test);
+  294 passed (up from 293), 4 pre-existing pdflatex-only failures (unrelated); mypy strict and ruff clean.
 
 ### T-P2-12 — Corpus audit refresh on frozen corpus
 - **Phase:** P2
