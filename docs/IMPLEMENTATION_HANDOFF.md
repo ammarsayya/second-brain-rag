@@ -197,14 +197,54 @@ this file is a human-readable summary plus session-to-session continuity notes, 
 The owner's Codex token budget ran out. **From here, all remaining implementation is done directly by Claude,
 not delegated to `codex:rescue`.** This applies to all subsequent tasks until/unless the owner says otherwise.
 
-## Next eligible tasks (per `docs/35_EXECUTION_STATE.json`, updated after T-P2-06)
+### T-P2-08 — Archive container inventory — **DONE**
+- **Implemented directly by Claude** (Codex delegation stopped per owner instruction — token budget exhausted).
+  `src/sbr/registry/archives.py`: streams zip (stdlib `zipfile`)/7z (`py7zr`)/tar (stdlib `tarfile`)/rar
+  (`rarfile`, external tool) member entries, hashes each (same BLAKE3 identity as S2), matches against existing
+  blobs (`already_present`), extracts new document-class members to `var/archive_extract/<container>/`.
+  Safety: zip-bomb guard (5GiB total / 300:1 ratio caps, checked before any member is opened), path-traversal
+  guard (`..`/absolute/drive-letter member paths excluded, never opened), no execution ever. v1 doesn't recurse
+  into archives-within-archives (documented limitation).
+- New deps: `py7zr` (pure Python) and `rarfile` (needs an external `unrar`-compatible tool — installed via
+  `choco install unrar`, permanent system PATH; this directly implements docs/08 §6's own named architecture,
+  not a new technology decision). `rarfile`'s missing type stubs handled via a scoped
+  `[[tool.mypy.overrides]]` entry.
+- **Found and fixed four real bugs during this task's own review, before and while running against the real
+  corpus** (details in the docs/28 verification note — worth a careful read if touching this module):
+  1. `activity.outputs` fed raw member paths (not just blob ids) for excluded/unopened members, failing the
+     Activity schema's entity-id pattern.
+  2. The CP437 "repair" function was corrupting already-correctly-decoded names — Python's `zipfile` already
+     decodes CP437 correctly per spec (verified empirically: a name written as CP437 round-trips exactly); blindly
+     re-encoding/re-decoding an already-correct name doesn't detect mojibake, it destroys it into different,
+     still-printable-but-wrong characters. Fixed to only attempt repair when a specific mojibake telltale is
+     present (docs/08 §7's own `Fl├ñche`→`Fläche` example), never as a blind guess.
+  3. `containers_considered` (408) didn't sum with processed+unsupported+over_limit (406) against the real
+     corpus — a `read_failure` outcome (genuinely corrupt archives) was never tracked, silently dropped from
+     every summary. Fixed with a `containers_read_failure` field and a regression test asserting the counts
+     always reconcile.
+  4. RAR was never actually implemented — only the tool-availability check existed, always falling through to
+     `unsupported`. Implemented `_rar_members()` once the tool was installed.
+  Also found (not fixed, out of scope, flagged for a follow-up): `tests/safety/test_static_mutators.py`'s
+  write-mode-`open()` detector assumes `open(file, mode)`'s positional order and misses `Path.open(mode)`
+  method calls (mode as the *first* arg) — a real blind spot, documented in the allow-list entry rather than
+  silently exploited or fixed with an unreviewed ripple across other files.
+- **Real-corpus reconciliation** (read-only, against the persisted production registry): 408 unique archive
+  blobs (387 zip, 21 rar), 405 fully inventoried, 20,671 total members (17,197 already_present — spot-checked
+  8/8 genuinely correct — 2,846 skipped_limit, 628 extracted_new). Path-level pre-dedup count (847) is close to
+  the t2 census's 812; the member-level "novel content" figure doesn't numerically match t2's 16,102, explained
+  and verified as a methodology difference (BLAKE3 content-hash matching, strictly more precise than t2's
+  same-name-sibling-folder heuristic) rather than a bug.
+- Commits: `feat(P2): archive container inventory - zip/7z/tar/rar (T-P2-08)`,
+  `fix(P2): implement real RAR support, track read_failure (T-P2-08)`,
+  `docs(P2): T-P2-08 DONE - real-corpus archive reconciliation verified`.
+- `next_eligible_tasks` recomputed: adds T-P2-12 (all three dependencies now DONE).
 
-`T-P13-04`, `T-P2-07`, `T-P2-08`, `T-P2-09`, `T-P2-10`, `T-P2-11`, `T-P2-13`, `T-P2-14`, `T-P4-01`, `T-P4-13`,
+## Next eligible tasks (per `docs/35_EXECUTION_STATE.json`, updated after T-P2-08)
+
+`T-P13-04`, `T-P2-07`, `T-P2-09`, `T-P2-10`, `T-P2-11`, `T-P2-12`, `T-P2-13`, `T-P2-14`, `T-P4-01`, `T-P4-13`,
 `T-P7-03`, `T-P9-02`.
 
-Per docs/30's explicit rule ("pick the *first* task in the recommended-order list whose deps are all DONE" —
-not just any dependency-eligible task), **T-P2-08 (archive container inventory)** is next, even though T-P2-07
-is also newly eligible — docs/30 lists T-P2-08 before T-P2-07 in its recommended sequence.
+Per docs/30's sequence, **T-P2-09 (source-twin candidate detection)** is next.
 
 Per `docs/30_IMPLEMENTATION_SEQUENCE.md`'s recommended linear order, the P2 sequence after T-P2-02 is:
 T-P2-03 (change detection) → T-P2-04 (classification) → T-P2-05 (exclusions/sensitivity, owner review) →
