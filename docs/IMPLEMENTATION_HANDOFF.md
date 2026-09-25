@@ -83,26 +83,41 @@ this file is a human-readable summary plus session-to-session continuity notes, 
 - `docs/28`/`docs/35` updated to `DONE`. `next_eligible_tasks` recomputed: adds T-P2-03, T-P2-04, T-P2-06,
   T-P2-08.
 
-### T-P2-03 — Change detection (new/modified/moved/deleted) — **IN PROGRESS**
-- Delegated to Codex with a full pre-worked design (given to avoid a design round-trip, since this task closes
-  two real gaps in already-shipped S1/S2 code): (1) vanished-path detection doesn't exist yet in `scan.py` —
-  paths that disappear from the source tree are never marked MOVED/DELETED; (2) the "previous blob_id" needed
-  to detect Modified + emit a `version_of` `BlobRelation` gets overwritten by `hash.py` before anything can
-  read it — recommended fix is to preserve it in the completed `WorkItem`'s artifacts dict rather than losing
-  it. Full event-detection design given for New/Alias/Modified/Moved/Deleted per docs/08 §3's table.
-  Acceptance: fixture scenarios (move, rename, modify, delete, re-add) via a new `tests/test_changes.py`
-  (TS-CHANGE), and the invariant that no row is ever deleted from any table. No real-corpus acceptance
-  criterion for this task (fixture-only), so Codex was authorized to mark it DONE directly if its own full test
-  run passes, unlike T-P2-01/02.
-- **Not yet reviewed** — check back for completion, then: review diff (this one needs particular scrutiny given
-  its depth — verify the blob_id preservation approach, the moved-vs-deleted logic, the re-added-path handling,
-  and that literally zero rows are ever deleted), re-run tests independently, update state if Codex's own
-  DONE claim doesn't hold up, commit, continue.
+### T-P2-03 — Change detection (new/modified/moved/deleted) — **DONE**
+- Implemented by Codex from a pre-worked design (given up front to avoid a design round-trip, since this task
+  required changing already-shipped T-P2-01/T-P2-02 code). Closed two real gaps:
+  1. **Vanished-path detection** didn't exist — `scan.py` only ever touched paths it currently finds. Added
+     `detect_changes()` in `src/sbr/registry/changes.py`, run after a scan's hash jobs fully drain, which finds
+     every `PathObservation` not touched by the current scan and resolves it to MOVED (same blob reappears at a
+     new path in the same scan) or DELETED, orphaning the blob when it loses its last PRESENT observation, and
+     reactivating a blob from ORPHANED back to ACTIVE if content reappears later.
+  2. **Previous blob_id was lost** before it could be compared (hash.py overwrote it). Fixed: `scan.py` no
+     longer nulls `blob_id` on a detected change (keeps the stale value until hash.py replaces it); `hash.py`
+     now records the previous value + `scan_id` durably in the completed `WorkOutput.artifacts` dict.
+     `hash.py`'s new-blob `first_seen_scan` is now the hashing scan (blob birth), not the path's historical
+     first-seen scan — needed for correct NEW-vs-ALIAS classification on in-place edits.
+  3. Hash-job `stage_version` is now scan-scoped (`hash_job_version()`) so "are this scan's hash jobs done" is
+     queryable without a `scan_id` column on `work_item`.
+- No row is ever deleted from any table anywhere in this design — state transitions only. Every
+  `tests/test_changes.py` scenario asserts row counts across `path_observation`/`blob`/`change_event`/
+  `blob_relation` never shrink.
+- The Codex background job itself reported a nonzero final exit status after finishing (cause not determined —
+  possibly an artifact of its sandboxed environment's own tooling), and it also left one stray gitignored file
+  (`var/pytest_acl_plugin.py`, a sandbox ACL workaround script) which was deleted before commit. **Because of
+  the nonzero exit, none of the work was taken on faith** — full independent re-verification was done before
+  commit: `pytest -q` (222 passed, only the 4 known pdflatex failures), `mypy src/sbr` (clean), `ruff check`/
+  `ruff format --check` (clean), a full read-through of `changes.py`'s move/delete/modify/reactivation logic
+  and the `scan.py`/`hash.py` diffs, `validate_plan.py` (PLAN CONSISTENT), `audit_crossrefs.py` (CROSSREFS
+  CLEAN). All confirmed correct independently of Codex's own claims.
+- Commit: `feat(P2): change detection - new/alias/modified/moved/deleted (T-P2-03)`.
+- No real-corpus acceptance criterion for this task (fixture-scenario-only per docs/28) — marked DONE directly,
+  unlike T-P2-01/T-P2-02 which needed a separate real-corpus run.
 
-## Next eligible tasks (per `docs/35_EXECUTION_STATE.json`, updated after T-P2-02)
+## Next eligible tasks (per `docs/35_EXECUTION_STATE.json`, updated after T-P2-03)
 
-`T-P13-04`, `T-P2-03` (in progress), `T-P2-04`, `T-P2-06`, `T-P2-08`, `T-P2-13`, `T-P4-01`, `T-P4-13`,
-`T-P7-03`, `T-P9-02`.
+`T-P13-04`, `T-P2-04`, `T-P2-06`, `T-P2-08`, `T-P2-13`, `T-P4-01`, `T-P4-13`, `T-P7-03`, `T-P9-02`.
+
+Per docs/30's sequence, T-P2-04 (file classification v1) is next.
 
 Per `docs/30_IMPLEMENTATION_SEQUENCE.md`'s recommended linear order, the P2 sequence after T-P2-02 is:
 T-P2-03 (change detection) → T-P2-04 (classification) → T-P2-05 (exclusions/sensitivity, owner review) →
