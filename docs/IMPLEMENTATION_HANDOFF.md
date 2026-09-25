@@ -302,23 +302,56 @@ not delegated to `codex:rescue`.** This applies to all subsequent tasks until/un
   `fix(P2): recognize 'ohne Loesung' negation in genre classification (T-P2-10)`,
   `docs(P2): mark T-P2-10 DONE — real-corpus precision eval 0.9867 (T-P2-10)`.
 
-## Next eligible tasks (per `docs/35_EXECUTION_STATE.json`, updated after T-P2-10)
+### T-P2-11 — Course and abbreviation mapping — **DONE**
+- Implemented directly. `curation/course_map.yaml` seeded with 42 course entries by reading the two
+  authoritative taxonomy seeds at the corpus root this session (pypdf, read-only): `curriculum_mbi_ws2019.pdf`
+  (official M-Kürzel/TM-Kürzel module list, PO WS2019) and `MBI-WS2019-Modulhandbuch.pdf` (per-module
+  descriptions, used to resolve real folder abbreviations, e.g. "MSR2" = Messen-Steuern-Regeln 2, "SAB" =
+  Sensor-Aktor-Bus-Technik). `src/sbr/registry/courses.py` (new stage, `sbr courses` CLI): matches a blob's
+  `folder_tokens` against curated aliases/folder_patterns, picking whichever matcher reaches deepest into the
+  folder path (a specific nested pattern beats a broader ancestor default; a deep alias beats a shallower,
+  longer pattern) — both priority rules covered by dedicated regression tests.
+- **Schema-sharing subtlety found and fixed before it could silently corrupt data**: `BlobClassification` is
+  shared with genre's output (T-P2-10) on the same `(blob_id, rules_version)` primary key, and the repository's
+  `upsert` fully replaces every non-key column on conflict — a naive course-only upsert would have blanked out
+  every blob's already-classified genre/semester/isbn. Fixed by always reading the existing row first and
+  copying its other fields forward unchanged before upserting; verified both by a dedicated persistence test
+  and, on the real registry, that 1,047 blobs carry both a genre and a course_id after both stages ran.
+- `tools/validate_courses.py`: the acceptance-criterion coverage report — resolves every current level-3
+  folder to mapped/unknown (a mechanical fact) for the owner to review *which* mapping looks wrong or *which*
+  unknown folder should have a course.
+- **Real-corpus production run**: `sbr courses` then `validate_courses.py` against `D:\MBI-BRAIN`: 17,759
+  knowledge-bearing blobs considered, 14,978 classified (84.3%), 2,781 unknown; 223 distinct level-3 folders —
+  151 fully mapped, 4 partially, 68 fully unknown, all enumerated in `reports/courses_coverage.json` (not
+  committed — real corpus folder names, gitignored per docs/22) for owner review. The unknown folders are a
+  legitimate mix of genuinely non-curriculum folders (Ckurs, English, the personal books/ library) and
+  curriculum-adjacent folders this session didn't have enough naming evidence to assign confidently — flagged
+  in the YAML's own comments rather than guessed.
+- Commits: `feat(P2): course and abbreviation mapping (T-P2-11)`,
+  `docs(P2): mark T-P2-11 DONE — course map seeded, 84.3% real-corpus coverage (T-P2-11)`.
+- **Owner follow-up still open** (this task's own "Human approval: review" tier, not a completion blocker):
+  review `reports/courses_coverage.json`'s 68 fully-unknown and 4 partially-mapped folders, and spot-check a
+  sample of the 151 fully-mapped folders' resolved `course_id`s against `curation/course_map.yaml`'s own
+  per-entry comments (several aliases are the owner's best guess from the handbook, not a verified official
+  abbreviation, and are explicitly flagged as such).
 
-`T-P13-04`, `T-P2-07`, `T-P2-11`, `T-P2-12`, `T-P2-13`, `T-P2-14`, `T-P3-01`, `T-P4-01`, `T-P4-13`, `T-P7-03`,
+## Next eligible tasks (per `docs/35_EXECUTION_STATE.json`, updated after T-P2-11)
+
+`T-P13-04`, `T-P2-07`, `T-P2-12`, `T-P2-13`, `T-P2-14`, `T-P3-01`, `T-P4-01`, `T-P4-13`, `T-P5-06`, `T-P7-03`,
 `T-P9-02`.
 
-Per `docs/30_IMPLEMENTATION_SEQUENCE.md`'s recommended linear order, the P2 sequence after T-P2-10 is:
-T-P2-11 (course map, owner review) → T-P2-13 (name repair) → T-P2-14 (manifest report) →
-T-P2-07 (mirror report) → T-P2-12 (audit refresh, after Q-B01). **T-P2-11 (course and abbreviation mapping)
-is next.**
+Per `docs/30_IMPLEMENTATION_SEQUENCE.md`'s recommended linear order, the P2 sequence after T-P2-11 is:
+T-P2-13 (name repair) → T-P2-14 (manifest report) → T-P2-07 (mirror report) → T-P2-12 (audit refresh, after
+Q-B01). **T-P2-13 (display-name mojibake repair) is next** — it also directly resolves the mojibake false
+positive (`L├Âsung` for `Lösung`) documented as a known limitation in T-P2-10's verification note.
 
-Tasks marked "Human approval: review" (T-P2-05 done, T-P2-11, T-P2-12, T-P2-07) are implemented normally —
+Tasks marked "Human approval: review" (T-P2-05, T-P2-11 done, T-P2-12, T-P2-07) are implemented normally —
 the owner reviews the *output* (a report/list), it is not a pre-start gate like "Human approval: required"
 tasks.
 
-T-P3-01 (Phase 3's first task) is now also eligible — T-P2-10 was its last blocking P2 dependency — but the
-docs/30 sequence keeps P2 work first; do not jump to P3 while eligible P2 tasks with satisfied dependencies
-remain, per the standing instruction not to jump to downstream phases prematurely.
+T-P3-01 and T-P5-06 (Phase 3/5 tasks) are now also eligible — T-P2-10/T-P2-11 were their last blocking P2
+dependencies — but the docs/30 sequence keeps P2 work first; do not jump to a downstream phase while eligible
+P2 tasks with satisfied dependencies remain, per the standing instruction not to jump ahead prematurely.
 
 ## Safety confirmations (ongoing, re-verify every session)
 
@@ -332,21 +365,30 @@ remain, per the standing instruction not to jump to downstream phases prematurel
 
 ## Exact next action
 
-1. Implement T-P2-11 (course and abbreviation mapping) directly (no more Codex delegation, per standing
-   instruction): seed `curation/course_map.yaml` from the module handbook + observed folder abbreviations
-   (Reg1, RGT, MSR2, GrdInf, BS1, KONleh, ...); map documents to courses with a confidence score.
-2. Acceptance criterion: all level-3 folders mapped or explicitly marked unknown. This is a "Human approval:
-   review" task — implement and produce the mapping/report normally; the owner reviews ambiguous mappings
-   afterward, it is not a pre-start gate.
-3. Write tests, run `tools/check.ps1` equivalent (pytest + mypy strict + ruff check + ruff format --check),
+1. Implement T-P2-13 (display-name mojibake repair) directly: `src/sbr/registry/names.py` — detect CP437/
+   Latin-1 mojibake in `PathObservation.display_name`/relpath segments, store a repaired display name
+   alongside the untouched original path (HC-01: the observed path itself is never rewritten, only a derived
+   display field). `src/sbr/registry/archives.py`'s existing `_cp437_repair()` (T-P2-08) already has a
+   telltale-gated detector (`Ã`, `â€`, `Â`, `├`, `â`) for exactly this corruption pattern on archive member
+   names — reuse/generalize it rather than re-deriving detection from scratch, and reuse its lesson: an earlier
+   version of that helper fired unconditionally and corrupted already-correct names, so gate repair attempts on
+   real telltales, never blindly re-encode/decode every name.
+2. Acceptance criterion: "228 known cases repaired correctly on sample" — find the 228 figure's source (likely
+   docs/03's corpus audit mojibake census; grep docs/03 and docs/37 for it) before building the validation
+   sample, so the sample is measured against the same known-case set the criterion means, not an invented one.
+3. This directly resolves T-P2-10's documented mojibake false positive (`L├Âsung` for `Lösung` misclassified
+   "exam" instead of "solution") — after implementing, it's worth re-running genre classification against the
+   real corpus using repaired display names (or noting explicitly why that's deferred) rather than leaving the
+   known limitation unresolved once the tool to fix it exists.
+4. Write tests, run `tools/check.ps1` equivalent (pytest + mypy strict + ruff check + ruff format --check),
    confirm only the 4 known pdflatex failures remain.
-4. Run against the real production registry (`config/sbr.toml` against `D:\MBI-BRAIN`) and manually
-   sanity-check the mapping output before claiming completion — this session's established discipline of
+5. Run against the real production registry (`config/sbr.toml` against `D:\MBI-BRAIN`) and manually
+   sanity-check repaired names before claiming completion — this session's established discipline of
    independently re-verifying against real data has caught a real bug in every P2 task implemented directly so
    far.
-5. Update `docs/28`/`docs/35` (DONE or IN_PROGRESS with a precise pending note), commit, run
+6. Update `docs/28`/`docs/35` (DONE or IN_PROGRESS with a precise pending note), commit, run
    `validate_plan.py` / `audit_crossrefs.py`.
-6. Continue the same IMPLEMENT → TEST → VERIFY (real corpus) → UPDATE STATE → VALIDATE → COMMIT → NEXT loop
-   through the rest of P2 (T-P2-13, T-P2-14, T-P2-07, T-P2-12) toward 14/14 DONE, then reassess Phase 3's
-   first eligible task (T-P3-01), until a genuine blocker (owner decision, credentials, destructive action, or
-   an acceptance criterion genuinely impossible to satisfy).
+7. Continue the same IMPLEMENT → TEST → VERIFY (real corpus) → UPDATE STATE → VALIDATE → COMMIT → NEXT loop
+   through the rest of P2 (T-P2-14, T-P2-07, T-P2-12) toward 14/14 DONE, then reassess Phase 3/5's first
+   eligible tasks (T-P3-01, T-P5-06), until a genuine blocker (owner decision, credentials, destructive action,
+   or an acceptance criterion genuinely impossible to satisfy).
