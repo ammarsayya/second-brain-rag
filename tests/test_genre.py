@@ -173,6 +173,33 @@ def test_stage_persists_genre_and_solution_pairs(make_config: Callable[..., SbrC
         assert relation.confidence > 0
 
 
+def test_tool_artifact_and_code_files_are_never_assigned_a_genre(
+    make_config: Callable[..., SbrConfig], tmp_path: Path
+) -> None:
+    """Regression: found on the real corpus's 150-file precision sample - a compiled Java class file
+    'Klausur.class', a source file 'Klausur.java', and a BlueJ tool artifact 'Klausur.ctxt' all matched the
+    'exam' keyword by filename alone despite not being exam documents in any meaningful sense. Genre now only
+    applies to knowledge-bearing knowledge classes, matching this task's own stated rationale."""
+    from sbr.registry.genre import classify_genres
+
+    config = make_config()
+    root = Path(config.roots.sources[0].path)
+    (root / "Klausur.class").write_bytes(b"\xca\xfe\xba\xbe" + b"\x00" * 20)  # real Java class-file magic bytes
+    (root / "Klausur.java").write_bytes(b"class Klausur {}")
+    (root / "Klausur.pdf").write_bytes(b"%PDF-1.7\nreal exam document")
+
+    with _open(config) as db:
+        _run_pipeline(config, db)
+        result = classify_genres(config, db)
+        classifications = {c.blob_id: c for c in db.repo(reg.BLOB_CLASSIFICATION).find()}
+        by_path = {obs.relpath: classifications.get(obs.blob_id) for obs in db.repo(reg.PATH_OBSERVATION).find()}
+
+        assert result.classified == 1
+        assert by_path["Klausur.pdf"] is not None and by_path["Klausur.pdf"].genre == "exam"
+        assert by_path.get("Klausur.class") is None
+        assert by_path.get("Klausur.java") is None
+
+
 def test_re_run_is_idempotent(make_config: Callable[..., SbrConfig], tmp_path: Path) -> None:
     from sbr.registry.genre import classify_genres
 

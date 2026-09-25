@@ -45,7 +45,7 @@ from sbr.db.connection import transaction
 from sbr.db.registry import RegistryDB
 from sbr.provenance import ProvenanceStore
 from sbr.schemas import BlobClassification, PathObservation
-from sbr.schemas.registry import BlobRelation, ObservationState, RelationStatus, RelationType
+from sbr.schemas.registry import BlobRelation, KnowledgeClass, ObservationState, RelationStatus, RelationType
 
 GENRE_PRODUCER: Final = "sbr.registry.genre"
 GENRE_STAGE: Final = "genre"
@@ -77,6 +77,15 @@ _GENRE_RULES: Final[tuple[tuple[str, re.Pattern[str]], ...]] = (
     ("script", re.compile(r"\b(skript(e)?|sk)\b", re.IGNORECASE)),
 )
 _SOLUTION_TARGET_GENRES: Final = frozenset({"exam", "exercise"})
+_INELIGIBLE_KNOWLEDGE_CLASSES: Final = frozenset(
+    {
+        KnowledgeClass.TOOL_ARTIFACT,
+        KnowledgeClass.CODE,
+        KnowledgeClass.EXECUTABLE,
+        KnowledgeClass.JUNK,
+        KnowledgeClass.THIRD_PARTY_REFERENCE,
+    }
+)
 
 _DELIMITER: Final = re.compile(r"[_\-.]")
 _ISBN_PATTERN: Final = re.compile(r"\bisbn\b[:\s]*((?:97[89]\s?)?[\dXx](?:\s?[\dXx]){8,12})", re.IGNORECASE)
@@ -270,11 +279,22 @@ def classify_genres(
     owner: str = "system:genre-classifier",
     clock: Callable[[], datetime] = _utcnow,
 ) -> GenreRunResult:
-    """Classify genre for every currently-known blob and propose solution_of pairings."""
+    """Classify genre for every currently-known, knowledge-bearing blob and propose solution_of pairings.
+
+    Only applied to knowledge-bearing knowledge classes (docs/08 §7's own framing, and this task's own stated
+    rationale: "route only knowledge-bearing files"). Found in review on the real corpus's 150-file precision
+    sample: a compiled Java class file coincidentally named "Klausur.class", a source file "Klausur.java", and
+    a BlueJ tool artifact "Klausur.ctxt" all matched the "exam" keyword by filename alone despite not being
+    exam documents in any meaningful sense — tool_artifact/code/executable/junk/third_party_reference blobs are
+    excluded from genre eligibility entirely, regardless of what their filename happens to contain.
+    """
+    blobs = {b.blob_id: b for b in db.repo(reg.BLOB).find()}
     current_by_blob: dict[str, PathObservation] = {}
     for obs in db.repo(reg.PATH_OBSERVATION).find({"state": ObservationState.PRESENT}):
-        if obs.blob_id is not None and obs.blob_id not in current_by_blob:
-            current_by_blob[obs.blob_id] = obs
+        if obs.blob_id is not None and obs.blob_id not in current_by_blob and obs.blob_id in blobs:
+            blob = blobs[obs.blob_id]
+            if blob.knowledge_class not in _INELIGIBLE_KNOWLEDGE_CLASSES:
+                current_by_blob[obs.blob_id] = obs
 
     decisions: dict[str, GenreDecision] = {
         blob_id: classify_genre(obs.relpath) for blob_id, obs in current_by_blob.items()
