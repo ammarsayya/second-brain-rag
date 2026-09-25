@@ -140,13 +140,35 @@ this file is a human-readable summary plus session-to-session continuity notes, 
 - `docs/28`/`docs/35` updated to `DONE`. `next_eligible_tasks` recomputed: adds T-P2-05, T-P2-09, T-P2-10,
   T-P2-11.
 
-## Next eligible tasks (per `docs/35_EXECUTION_STATE.json`, updated after T-P2-04)
+### T-P2-05 — Exclusions and sensitivity classification — **DONE**
+- Privacy-sensitive task (identifies the owner's own identity documents and third-party students' grade lists).
+  Implemented by Codex from a careful brief specifying exact privacy-reporting constraints from docs/22 §3
+  ("restricted: counts-only reporting"). Hit and resolved a Codex sandbox write-permission failure before this
+  ran (verified with a throwaway probe file before re-delegating — nothing was touched during the failed
+  attempt).
+- No schema changes needed (`BlobRecord.status`/`.sensitivity` and the curation-override infrastructure already
+  existed from T-P1-05/T-P1-12). Sets `status=EXCLUDED` for junk/tool_artifact/executable/third_party_reference/
+  encrypted blobs (not `image` — that's later-phase routing, not registration-time exclusion). Sets
+  `sensitivity` via path/name keyword rules (Vertrag/Bewerbung/Lebenslauf/Zeugnis/Ausweis/Immatrikulation →
+  RESTRICTED; Noten/Ergebnisliste → THIRD_PARTY_PERSONAL, with a negative-lookbehind guard against the
+  Noten/Knoten false positive), owner overrides always win.
+- **Verified the privacy-critical report logic line-by-line**: default report never includes a RESTRICTED
+  blob's relpath (counts only, e.g. "Vertrag: 5"), full paths require an explicit `--show-restricted-paths`
+  flag with a printed warning; the CLI command's JSON output was tested to never leak the flagged filename.
+- **Real-corpus review executed read-only, counts-only** (2026-09-25): ran the automatic rules against all
+  83,880 real observed paths — 28 restricted, 31 third_party_personal, 83,821 normal. Proportionate, no
+  false-positive explosion. **No sensitive relpath was ever printed into this session's transcript, terminal
+  output, or any log** — only aggregate counts were reviewed, consistent with docs/22 §3's policy.
+- Commits: `feat(P2): exclusions and sensitivity classification (T-P2-05)`,
+  `docs(P2): T-P2-05 DONE - real-corpus sensitivity review verified`.
+- No other task depends on T-P2-05; `next_eligible_tasks` unaffected beyond removing T-P2-05 itself.
 
-`T-P13-04`, `T-P2-05`, `T-P2-06`, `T-P2-08`, `T-P2-09`, `T-P2-10`, `T-P2-11`, `T-P2-13`, `T-P4-01`, `T-P4-13`,
-`T-P7-03`, `T-P9-02`.
+## Next eligible tasks (per `docs/35_EXECUTION_STATE.json`, updated after T-P2-05)
 
-Per docs/30's sequence, T-P2-05 (exclusions and sensitivity classification — "Human approval: review", meaning
-implement normally, owner reviews the output) is next.
+`T-P13-04`, `T-P2-06`, `T-P2-08`, `T-P2-09`, `T-P2-10`, `T-P2-11`, `T-P2-13`, `T-P4-01`, `T-P4-13`, `T-P7-03`,
+`T-P9-02`.
+
+Per docs/30's sequence, T-P2-06 (exact duplicate groups and canonical selection) is next.
 
 Per `docs/30_IMPLEMENTATION_SEQUENCE.md`'s recommended linear order, the P2 sequence after T-P2-02 is:
 T-P2-03 (change detection) → T-P2-04 (classification) → T-P2-05 (exclusions/sensitivity, owner review) →
