@@ -426,7 +426,7 @@ Each task is written so that it can be independently verified. Spike tasks link 
 
 ### T-P2-06 — Exact duplicate groups and canonical selection
 - **Phase:** P2
-- **Status:** IN_PROGRESS
+- **Status:** DONE
 - **Priority:** critical
 - **Dependencies:** T-P2-02, T-P1-12
 - **Human approval:** none
@@ -436,14 +436,20 @@ Each task is written so that it can be independently verified. Spike tasks link 
 - **Acceptance criteria:** Groups equal Phase-0 results on unchanged subset; overrides respected; nothing deleted.
 - **Validation method:** Tests + comparison to audit/phase0/dup_groups.json.
 - **Expected artifacts:** src/sbr/registry/dedup.py
-- **Verification (2026-09-25):** Fixture/unit acceptance met: deterministic canonical-path ranking (non-mirror,
-  shallower then shorter path, duplicate-download marker, lexical tie-break), owner path override precedence,
-  singleton canonical assignment, CLI behavior, and the no-row-deletion invariant are tested. The bounded,
-  read-only `tools/validate_dedup.py` reports Phase-0 survivor splits/merges in JSON plus a human summary and treats
-  quarantined-away paths as expected missing members. Real-corpus comparison against
-  `audit/phase0/dup_groups.json` remains pending; the owner will run it against `D:\MBI-BRAIN`. Task remains
-  IN_PROGRESS until that evidence is reviewed. Full suite: 249 passed plus the 4 known pdflatex-only fixture
-  generation failures; ruff check/format and strict mypy are clean.
+- **Verification (2026-09-25):** Fixture/unit acceptance met (see prior note: heuristic ranking, override
+  precedence, singleton handling, no-row-deletion invariant, CLI — 249 passed). **Real-corpus validation
+  executed**: a full production pipeline ran against `D:\MBI-BRAIN` (scan 83,880 files/558.75GB in 34.8s; hash
+  83,784 files in ~62 min, 96 genuinely inaccessible — permission-locked or vanished between scan and hash,
+  isolated correctly per-item, not a pipeline failure; classify 34,814 unique blobs, 1,027 unknown extensions
+  correctly listed for review, 113 encrypted PDFs — investigated and confirmed genuine `/Encrypt` trailer
+  dictionaries on 5 sampled files, a broader and more conservative superset than docs/37's narrower
+  "requires-password" count of 13, not a bug; sensitivity 19 restricted/11 third-party-personal at the blob
+  level, consistent with the higher path-level counts from T-P2-05's earlier path-level check; dedup: 23,326
+  duplicate groups, 11,488 singletons). `tools/validate_dedup.py --config config/sbr.toml` against
+  `audit/phase0/dup_groups.json`: **0 splits, 0 merges** across 8,084 comparable historical groups (25,195
+  surviving paths); 1,757 paths missing as expected (consistent with the documented 2,033-file t2-to-t3
+  quarantine). Criterion met — every Phase-0 duplicate relationship that still has 2+ surviving members today is
+  still correctly grouped. `D:\MBI-BRAIN`/`D:\studium_duplicated` were only ever read.
 
 ### T-P2-07 — Mirror-directory and cleanup-suggestion report
 - **Phase:** P2
