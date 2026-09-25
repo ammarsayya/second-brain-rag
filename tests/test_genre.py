@@ -109,6 +109,18 @@ def test_lsg_abbreviation_is_recognized_as_solution() -> None:
     assert classify_genre(r"Course\08_Uebung_Lsg (1).pdf").genre == "solution"
 
 
+def test_ohne_loesung_negation_is_not_classified_as_solution() -> None:
+    """Regression: real-corpus finding. 'Klausur ... ohne Loesung.pdf' (an exam WITHOUT its solution, German
+    'ohne' = 'without') matched the bare 'Loesung' keyword and was classified 'solution' instead of 'exam'. The
+    negation must suppress only the solution rule, so the file still falls through to match 'exam'."""
+    decision = classify_genre(r"BachelorArbeit\Projekt\Rob\Kla\Klausur Robotik WS2018 ohne Loesung.pdf")
+    assert decision.genre == "exam"
+
+
+def test_ohne_loesung_negation_does_not_suppress_real_solutions() -> None:
+    assert classify_genre(r"Reg1\Loesungen\Musterloesung.pdf").genre == "solution"
+
+
 def test_isbn_extraction_normalizes_hyphenated_and_underscored_forms() -> None:
     assert extract_isbn(r"books\Numerik_ISBN_978-3-540-72233-9.pdf") == "9783540722339"
     assert extract_isbn(r"books\Klausur.pdf") is None

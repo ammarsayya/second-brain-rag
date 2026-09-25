@@ -77,6 +77,10 @@ _GENRE_RULES: Final[tuple[tuple[str, re.Pattern[str]], ...]] = (
     ("script", re.compile(r"\b(skript(e)?|sk)\b", re.IGNORECASE)),
 )
 _SOLUTION_TARGET_GENRES: Final = frozenset({"exam", "exercise"})
+# "ohne Loesung"/"ohne Lsg" ("without a solution") negates the solution match it's attached to — found in
+# review on the real corpus: "Klausur Robotik WS2018 ohne Loesung.pdf" is an exam WITHOUT its solution, but
+# matched the bare solution keyword and was misclassified as genre="solution" instead of "exam".
+_NEGATED_SOLUTION: Final = re.compile(r"\bohne\s+(muster|kurz)?l(ö|oe)sung(en)?\b|\bohne\s+lsg\b", re.IGNORECASE)
 _INELIGIBLE_KNOWLEDGE_CLASSES: Final = frozenset(
     {
         KnowledgeClass.TOOL_ARTIFACT,
@@ -174,7 +178,10 @@ def classify_genre(relpath: str) -> GenreDecision:
     if isbn is not None:
         return GenreDecision(genre="textbook", confidence=0.95, isbn=isbn, semester=semester)
     name = _normalize_delimiters(PureWindowsPath(relpath).name)
+    negated_solution = _NEGATED_SOLUTION.search(name) is not None
     for genre, pattern in _GENRE_RULES:
+        if genre == "solution" and negated_solution:
+            continue
         if pattern.search(name) is not None:
             return GenreDecision(genre=genre, confidence=0.9, isbn=None, semester=semester)
     return GenreDecision(genre=None, confidence=None, isbn=None, semester=semester)
