@@ -26,6 +26,13 @@ ALLOW: dict[str, str] = {
     "safety.py": "the runtime guard wraps mutators; it never calls them itself on its own behalf",
     "db/connection.py": "creates var/db and backup directories after assert_outside(protected roots)",
     "obs/logging.py": "creates var/logs after assert_outside(protected roots)",
+    "registry/archives.py": (
+        "creates var/archive_extract/<container>/ (mkdir, and Path.open('wb') writes this detector's positional-"
+        "arg open() check does not see, since Path.open(mode) takes mode as its first arg, not open(file, mode)'s "
+        "second) only after assert_writable(extract_root, config); verified end-to-end by "
+        "tests/test_archives.py::test_extraction_never_writes_to_the_source_tree under SourceWriteGuard. Never "
+        "writes into a source root or the quarantine path; source content is only ever read via SourceFS."
+    ),
 }
 
 

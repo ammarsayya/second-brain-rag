@@ -20,6 +20,7 @@ from sbr import __version__
 from sbr.cli.runtime import Runtime, command_runtime
 from sbr.config import ConfigError
 from sbr.db import registry as reg
+from sbr.registry.archives import inventory_archives
 from sbr.registry.changes import detect_changes
 from sbr.registry.classify import DEFAULT_RULES_PATH, classify_pending
 from sbr.registry.dedup import select_canonical_paths
@@ -291,6 +292,28 @@ def dedup_cmd(
         }
 
     _run("dedup", config, body)
+
+
+@app.command("archives")
+def archives_cmd(config: Path | None = ConfigOption) -> None:
+    """Inventory zip/7z/tar members of every classified archive blob."""
+
+    def body(rt: Runtime) -> dict[str, object]:
+        result = inventory_archives(rt.config, rt.db)
+        return {
+            "activity_id": result.activity_id,
+            "containers_considered": result.containers_considered,
+            "containers_processed": result.containers_processed,
+            "containers_unsupported": result.containers_unsupported,
+            "containers_over_limit": result.containers_over_limit,
+            "members_total": result.members_total,
+            "members_already_present": result.members_already_present,
+            "members_extracted_new": result.members_extracted_new,
+            "members_skipped_limit": result.members_skipped_limit,
+            "members_excluded": result.members_excluded,
+        }
+
+    _run("archives", config, body)
 
 
 @config_app.command("show")

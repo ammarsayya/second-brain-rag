@@ -465,7 +465,7 @@ Each task is written so that it can be independently verified. Spike tasks link 
 
 ### T-P2-08 — Archive container inventory
 - **Phase:** P2
-- **Status:** NOT_STARTED
+- **Status:** IN_PROGRESS
 - **Priority:** high
 - **Dependencies:** T-P2-02
 - **Human approval:** none
@@ -475,6 +475,31 @@ Each task is written so that it can be independently verified. Spike tasks link 
 - **Acceptance criteria:** Real-corpus result reconciles with the t2 census (812 archives; 342 ZIPs / 16,102 members not extracted anywhere; RAR contents measured); Fixture archives handled incl. zip-bomb and traversal cases; real-corpus report: members total/new/already present.
 - **Validation method:** TS-ARCH tests.
 - **Expected artifacts:** src/sbr/registry/archives.py
+- **Verification (2026-09-25):** Fixture/unit acceptance met (8 tests, TS-ARCH): the real committed T-P1-13
+  `archiv.zip` fixture (a CP437-named member, an already-present duplicate of `skript.pdf`, and a new
+  document member) is inventoried correctly end-to-end; zip-bomb ratio guard (20MiB of zero bytes compressing
+  to a genuine >300:1 ratio — `zipfile.writestr` recomputes declared size from real data, so metadata cannot
+  simply be lied about, confirmed empirically) skips every member without ever opening/hashing them;
+  path-traversal member excluded without being opened; non-document new members are hashed and recorded but
+  not physically extracted; idempotent re-run skips an already-inventoried container; TS-SAFE-3 (zero source
+  mutations under `SourceWriteGuard`); CLI. **Reviewed and fixed two real bugs found during this task's own
+  review before commit**: (1) `activity.outputs` was being fed raw member paths for excluded/unhashed members,
+  failing the Activity schema's entity-id pattern — fixed to only include actual blob ids; (2) the CP437
+  "repair" function was blindly re-encoding *already-correctly-decoded* names (Python's `zipfile` already
+  decodes CP437 correctly per spec when no UTF-8 flag is set, verified empirically) and corrupting them into
+  different, unrelated, still-printable-but-wrong characters — fixed to only attempt repair when a specific
+  mojibake telltale (e.g. docs/08 §7's own `Fl├ñche`→`Fläche` example) is present, never as a blind guess.
+  New dependencies `py7zr` (pure-Python, no external binary) and `rarfile` (needs an external `unrar`-compatible
+  tool this machine does not have — RAR containers gracefully report `unsupported_archive` rather than crashing
+  or silently skipping) added via `uv add`; `rarfile`'s missing type stubs handled via a scoped
+  `[[tool.mypy.overrides]]` entry, not a blanket relaxation. `registry/archives.py` added to
+  `tests/safety/test_static_mutators.py`'s reviewed allow-list (creates `var/archive_extract/` only, after
+  `assert_writable`, verified by a dedicated write-guard test) — also documents a real detector blind spot found
+  along the way (its write-mode-`open()` check assumes `open(file, mode)`'s positional order and misses
+  `Path.open(mode)` method calls, where `mode` is the first argument, not the second; not fixed here to avoid an
+  unreviewed ripple across other already-allowed files, flagged for a future task). 257 passed, 4 pre-existing
+  pdflatex-only failures; mypy strict and ruff clean. Real-corpus t2-census reconciliation
+  (812 archives / 342 ZIPs / 16,102 members) pending — will run against the persisted production registry next.
 
 ### T-P2-09 — Source-twin candidate detection
 - **Phase:** P2
