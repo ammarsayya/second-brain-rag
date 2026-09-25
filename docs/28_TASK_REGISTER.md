@@ -535,7 +535,7 @@ Each task is written so that it can be independently verified. Spike tasks link 
 
 ### T-P2-09 — Source-twin candidate detection
 - **Phase:** P2
-- **Status:** NOT_STARTED
+- **Status:** IN_PROGRESS
 - **Priority:** high
 - **Dependencies:** T-P2-04
 - **Human approval:** none
@@ -545,6 +545,17 @@ Each task is written so that it can be independently verified. Spike tasks link 
 - **Acceptance criteria:** Thesis PDF<->DOCX found; precision on 30 sampled candidates reported.
 - **Validation method:** Manual check.
 - **Expected artifacts:** src/sbr/registry/twins.py
+- **Verification (2026-09-25):** Fixture/unit acceptance met (6 tests): a synthetic replica of the real corpus's
+  `BachelorArbeit\...\BA\Bachelorarbeit.{pdf,docx}` layout (verified against the real production registry
+  before writing the test) correctly finds all same-folder pairs at confidence 1.0 (including the real
+  `Bachelorarbeit1.docx`/`BachelorarbeitCopy.docx` stem variants, via a noise-suffix-stripping normalization),
+  a distance-1 parent/child-folder pair at a discounted confidence, and correctly proposes *no* candidate for
+  a same-stem PDF with no office file within folder-proximity range (`BAP\Bachelorarbeit.pdf`) and for
+  dissimilar-stem same-folder pairs; idempotent re-run; CLI; the human-review report tool
+  (`tools/validate_twins.py`, same non-pass/fail design as `validate_classify.py`). Caught and fixed, before
+  running any test, a repeat of the same `activity.outputs` entity-id-pattern bug found in T-P2-08 (was
+  building a combined `"blob1|blob2"` string instead of two separate blob ids). 265 passed, 4 pre-existing
+  pdflatex-only failures; mypy strict and ruff clean. Real-corpus run (30-sample precision report) pending.
 
 ### T-P2-10 — Genre classification v1 and exam-solution pairing
 - **Phase:** P2

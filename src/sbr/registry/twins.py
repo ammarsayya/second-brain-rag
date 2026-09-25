@@ -1,0 +1,240 @@
+"""Source-twin candidate detection (T-P2-09, FR-07, ADR-009).
+
+A "twin" pair is a PDF and an office document (DOCX/PPTX/DOC/PPSX/PPT) that are
+almost certainly the *same underlying document* — the office file usually has
+real, OMML-native equations (ADR-009's "OMML-first" math strategy), while the
+PDF is a rendered export. This stage only *proposes* candidates from filename
+stem similarity and folder proximity; it never opens file content, and
+confirming a candidate into a firm ``twin_of`` relation is T-P5-04's job, not
+this one's.
+
+Detection is purely metadata-driven, over already-classified blobs:
+
+* **Stem similarity** — the filename without its extension, casefolded and
+  with common "extra copy" noise (trailing digits, ``(1)``, ``copy``,
+  ``kopie``, ``final``, ``v2`` …) stripped before comparing, scored with
+  :func:`difflib.SequenceMatcher.ratio`. An exact match after stripping scores
+  1.0; a fuzzy match must clear :data:`MIN_STEM_SIMILARITY`.
+* **Folder proximity** — the PDF and the office file must be in the same
+  folder (distance 0) or an immediate parent/child folder of each other
+  (distance 1); anything more distant is not proposed, to keep precision high
+  and the candidate set from exploding on a large corpus (candidates are
+  grouped by folder first, which also keeps this stage roughly linear in
+  corpus size rather than doing a full cross product of every PDF against
+  every office blob).
+
+Both are combined into one ``confidence`` score (``BlobRelation.confidence``);
+the raw stem/folder signals are kept in ``evidence`` for the human-review
+report (``tools/validate_twins.py``) rather than only a blended number.
+"""
+
+from __future__ import annotations
+
+import re
+from collections import defaultdict
+from collections.abc import Callable
+from dataclasses import dataclass
+from datetime import UTC, datetime
+from difflib import SequenceMatcher
+from pathlib import PureWindowsPath
+from typing import Final
+
+from sbr import __version__
+from sbr.config import SbrConfig
+from sbr.db import registry as reg
+from sbr.db.connection import transaction
+from sbr.db.registry import RegistryDB
+from sbr.provenance import ProvenanceStore
+from sbr.schemas import BlobRecord, PathObservation
+from sbr.schemas.registry import BlobRelation, ObservationState, RelationStatus, RelationType
+
+TWIN_PRODUCER: Final = "sbr.registry.twins"
+TWIN_STAGE: Final = "twins"
+
+OFFICE_FORMATS: Final = frozenset({"docx", "doc", "pptx", "ppsx", "ppt"})
+MAX_FOLDER_DISTANCE: Final = 1
+MIN_STEM_SIMILARITY: Final = 0.72
+_NOISE_SUFFIX: Final = re.compile(
+    r"[\s_\-]*(\(\d+\)|copy|kopie|final|fassung|version|v\d+|neu|alt|\d+)+$", re.IGNORECASE
+)
+
+
+@dataclass(frozen=True, slots=True)
+class TwinCandidate:
+    pdf_blob: str
+    office_blob: str
+    confidence: float
+    stem_similarity: float
+    folder_distance: int
+    pdf_relpath: str
+    office_relpath: str
+
+
+@dataclass(frozen=True, slots=True)
+class TwinRunResult:
+    activity_id: str
+    pdf_candidates_considered: int
+    office_candidates_considered: int
+    pairs_proposed: int
+    candidates: tuple[TwinCandidate, ...]
+
+
+def _normalized_stem(relpath: str) -> str:
+    stem = PureWindowsPath(relpath).stem.casefold()
+    stripped = _NOISE_SUFFIX.sub("", stem)
+    return stripped or stem
+
+
+def _folder_parts(relpath: str) -> tuple[str, ...]:
+    return PureWindowsPath(relpath).parts[:-1]
+
+
+def _folder_distance(a: tuple[str, ...], b: tuple[str, ...]) -> int | None:
+    """0 = same folder, 1 = immediate parent/child, else None (too far to propose)."""
+    if a == b:
+        return 0
+    if len(a) == len(b) + 1 and a[:-1] == b:
+        return 1
+    if len(b) == len(a) + 1 and b[:-1] == a:
+        return 1
+    return None
+
+
+def _stem_similarity(a: str, b: str) -> float:
+    if a == b:
+        return 1.0
+    return SequenceMatcher(None, a, b).ratio()
+
+
+def _utcnow() -> datetime:
+    return datetime.now(UTC)
+
+
+def find_twin_candidates(
+    pdf_observations: list[PathObservation],
+    office_observations: list[PathObservation],
+) -> list[TwinCandidate]:
+    """Pure function: propose candidates from two already-selected observation lists.
+
+    Grouped by folder first (office observations bucketed by their folder path), so each PDF only ever
+    compares against office files in its own folder or an immediate parent/child folder — not a full cross
+    product against every office file in the corpus.
+    """
+    office_by_folder: dict[tuple[str, ...], list[PathObservation]] = defaultdict(list)
+    for obs in office_observations:
+        office_by_folder[_folder_parts(obs.relpath)].append(obs)
+
+    candidates: dict[tuple[str, str], TwinCandidate] = {}
+    for pdf in pdf_observations:
+        if pdf.blob_id is None:
+            continue
+        pdf_folder = _folder_parts(pdf.relpath)
+        pdf_stem = _normalized_stem(pdf.relpath)
+        candidate_folders = {pdf_folder}
+        if pdf_folder:
+            candidate_folders.add(pdf_folder[:-1])  # pdf's parent (office could be one level up)
+        candidate_folders.update(
+            folder for folder in office_by_folder if len(folder) == len(pdf_folder) + 1 and folder[:-1] == pdf_folder
+        )  # office could be one level down, in a child folder of pdf's folder
+        for office_folder in candidate_folders:
+            for office in office_by_folder.get(office_folder, ()):
+                if office.blob_id is None:
+                    continue
+                distance = _folder_distance(pdf_folder, office_folder)
+                if distance is None:
+                    continue
+                similarity = _stem_similarity(pdf_stem, _normalized_stem(office.relpath))
+                if similarity < MIN_STEM_SIMILARITY:
+                    continue
+                confidence = round(similarity * (1.0 if distance == 0 else 0.85), 4)
+                key = (pdf.blob_id, office.blob_id)
+                existing = candidates.get(key)
+                if existing is not None and existing.confidence >= confidence:
+                    continue
+                candidates[key] = TwinCandidate(
+                    pdf_blob=pdf.blob_id,
+                    office_blob=office.blob_id,
+                    confidence=confidence,
+                    stem_similarity=round(similarity, 4),
+                    folder_distance=distance,
+                    pdf_relpath=pdf.relpath,
+                    office_relpath=office.relpath,
+                )
+    return sorted(candidates.values(), key=lambda c: (-c.confidence, c.pdf_blob, c.office_blob))
+
+
+def detect_twin_candidates(
+    config: SbrConfig,
+    db: RegistryDB,
+    *,
+    owner: str = "system:twin-detector",
+    clock: Callable[[], datetime] = _utcnow,
+) -> TwinRunResult:
+    """Detect twin candidates over every currently-known blob and persist them as BlobRelation rows."""
+    blobs = {b.blob_id: b for b in db.repo(reg.BLOB).find()}
+    current_by_blob: dict[str, PathObservation] = {}
+    for obs in db.repo(reg.PATH_OBSERVATION).find({"state": ObservationState.PRESENT}):
+        if obs.blob_id is not None and obs.blob_id not in current_by_blob:
+            current_by_blob[obs.blob_id] = obs
+
+    def _blob_format(blob: BlobRecord) -> str | None:
+        return blob.format
+
+    pdf_observations = [
+        obs for blob_id, obs in current_by_blob.items() if (b := blobs.get(blob_id)) is not None and b.format == "pdf"
+    ]
+    office_observations = [
+        obs
+        for blob_id, obs in current_by_blob.items()
+        if (b := blobs.get(blob_id)) is not None and _blob_format(b) in OFFICE_FORMATS
+    ]
+
+    candidates = find_twin_candidates(pdf_observations, office_observations)
+
+    relations = db.repo(reg.BLOB_RELATION)
+    provenance = ProvenanceStore(db.conn, clock=clock)
+    with provenance.activity(
+        kind=TWIN_STAGE,
+        producer=TWIN_PRODUCER,
+        producer_version=__version__,
+        agent=owner,
+        params={"min_stem_similarity": MIN_STEM_SIMILARITY, "max_folder_distance": MAX_FOLDER_DISTANCE},
+    ) as activity:
+        with transaction(db.conn):
+            for candidate in candidates:
+                relations.upsert(
+                    BlobRelation(
+                        src_blob=candidate.pdf_blob,
+                        dst_blob=candidate.office_blob,
+                        type=RelationType.TWIN_CANDIDATE,
+                        confidence=candidate.confidence,
+                        evidence={
+                            "stem_similarity": candidate.stem_similarity,
+                            "folder_distance": candidate.folder_distance,
+                        },
+                        status=RelationStatus.CANDIDATE,
+                        activity_id=activity.activity_id,
+                    )
+                )
+        activity.outputs.extend(dict.fromkeys(blob_id for c in candidates for blob_id in (c.pdf_blob, c.office_blob)))
+
+    return TwinRunResult(
+        activity_id=activity.activity_id,
+        pdf_candidates_considered=len(pdf_observations),
+        office_candidates_considered=len(office_observations),
+        pairs_proposed=len(candidates),
+        candidates=tuple(candidates),
+    )
+
+
+__all__ = [
+    "MAX_FOLDER_DISTANCE",
+    "MIN_STEM_SIMILARITY",
+    "OFFICE_FORMATS",
+    "TWIN_PRODUCER",
+    "TWIN_STAGE",
+    "TwinCandidate",
+    "TwinRunResult",
+    "detect_twin_candidates",
+    "find_twin_candidates",
+]

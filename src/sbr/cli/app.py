@@ -27,6 +27,7 @@ from sbr.registry.dedup import select_canonical_paths
 from sbr.registry.hash import DEFAULT_BATCH_SIZE, hash_pending
 from sbr.registry.scan import scan_sources
 from sbr.registry.sensitivity import classify_sensitivity
+from sbr.registry.twins import detect_twin_candidates
 from sbr.schemas import WorkItemState
 
 app = typer.Typer(
@@ -315,6 +316,22 @@ def archives_cmd(config: Path | None = ConfigOption) -> None:
         }
 
     _run("archives", config, body)
+
+
+@app.command("twins")
+def twins_cmd(config: Path | None = ConfigOption) -> None:
+    """Propose PDF<->office-document twin candidates by stem similarity and folder proximity."""
+
+    def body(rt: Runtime) -> dict[str, object]:
+        result = detect_twin_candidates(rt.config, rt.db)
+        return {
+            "activity_id": result.activity_id,
+            "pdf_candidates_considered": result.pdf_candidates_considered,
+            "office_candidates_considered": result.office_candidates_considered,
+            "pairs_proposed": result.pairs_proposed,
+        }
+
+    _run("twins", config, body)
 
 
 @config_app.command("show")
