@@ -163,12 +163,48 @@ this file is a human-readable summary plus session-to-session continuity notes, 
   `docs(P2): T-P2-05 DONE - real-corpus sensitivity review verified`.
 - No other task depends on T-P2-05; `next_eligible_tasks` unaffected beyond removing T-P2-05 itself.
 
-## Next eligible tasks (per `docs/35_EXECUTION_STATE.json`, updated after T-P2-05)
+### T-P2-06 — Exact duplicate groups and canonical selection — **DONE**
+- Genuine design gap resolved: `curation/canonical_overrides.yaml` (blob-to-blob) doesn't fit this task's
+  actual need (obs-level "which path is canonical within one exact-duplicate blob's aliases") — added a new,
+  additive `curation/canonical_path_overrides.yaml` following the exact same `CurationModel`/loader conventions,
+  leaving the existing file untouched for its intended later use (twins/near-dedup).
+- Canonical heuristic: not-mirror-candidate → shallower path → shorter path → no `(1)`/`Kopie` marker →
+  lexicographic tie-break. Owner overrides always win. Nothing is ever deleted (ADR-031).
+- **Full production pipeline run against `D:\MBI-BRAIN`** (a first — needed because duplicate-group membership
+  is a global property, not something a bounded sample can validate): `config/sbr.toml` created (local,
+  gitignored, points at the real corpus). Results:
+  - scan: 83,880 files / 558.75GB / 34.8s
+  - hash: 83,784 hashed, 96 genuinely inaccessible (permission-locked/vanished — isolated correctly, ~62 min)
+  - classify: 34,814 unique blobs (i.e. ~58% of files are exact duplicates of something else), 1,027 unknown
+    extensions listed for review, 113 encrypted PDFs (**investigated**: sampled 5, all have genuine
+    `/Encrypt N 0 R` trailer entries — a broader, safer superset than docs/37's narrower "13 files that prompt
+    for a password" count, not a bug)
+  - sensitivity: 19 restricted / 11 third_party_personal at the blob level
+  - dedup: 23,326 duplicate groups, 11,488 singletons
+- `tools/validate_dedup.py --config config/sbr.toml` vs. `audit/phase0/dup_groups.json`: **0 splits, 0 merges**
+  across 8,084 comparable historical groups (25,195 surviving paths), 1,757 missing as expected (matches the
+  documented 2,033-file t2→t3 quarantine in magnitude). Every Phase-0 duplicate relationship with 2+ surviving
+  members today is still correctly grouped.
+- Commits: `feat(P2): exact duplicate canonical selection (T-P2-06)`,
+  `docs(P2): T-P2-06 DONE - real-corpus Phase-0 comparison verified`.
+- `next_eligible_tasks` recomputed: adds T-P2-07, T-P2-14 (both depend on T-P2-06).
+- **The full production registry (`var/db/registry.sqlite`, scanned+hashed+classified+sensitivity+dedup) is
+  now persisted and reusable** — later P2 tasks that need real-corpus data don't need to re-scan/re-hash from
+  scratch; the job-queue idempotency means re-running `sbr scan`/`sbr hash`/etc. only touches what changed.
 
-`T-P13-04`, `T-P2-06`, `T-P2-08`, `T-P2-09`, `T-P2-10`, `T-P2-11`, `T-P2-13`, `T-P4-01`, `T-P4-13`, `T-P7-03`,
-`T-P9-02`.
+## Codex delegation stopped (2026-09-25, owner instruction)
 
-Per docs/30's sequence, T-P2-06 (exact duplicate groups and canonical selection) is next.
+The owner's Codex token budget ran out. **From here, all remaining implementation is done directly by Claude,
+not delegated to `codex:rescue`.** This applies to all subsequent tasks until/unless the owner says otherwise.
+
+## Next eligible tasks (per `docs/35_EXECUTION_STATE.json`, updated after T-P2-06)
+
+`T-P13-04`, `T-P2-07`, `T-P2-08`, `T-P2-09`, `T-P2-10`, `T-P2-11`, `T-P2-13`, `T-P2-14`, `T-P4-01`, `T-P4-13`,
+`T-P7-03`, `T-P9-02`.
+
+Per docs/30's explicit rule ("pick the *first* task in the recommended-order list whose deps are all DONE" —
+not just any dependency-eligible task), **T-P2-08 (archive container inventory)** is next, even though T-P2-07
+is also newly eligible — docs/30 lists T-P2-08 before T-P2-07 in its recommended sequence.
 
 Per `docs/30_IMPLEMENTATION_SEQUENCE.md`'s recommended linear order, the P2 sequence after T-P2-02 is:
 T-P2-03 (change detection) → T-P2-04 (classification) → T-P2-05 (exclusions/sensitivity, owner review) →
