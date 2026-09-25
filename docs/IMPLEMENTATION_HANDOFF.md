@@ -239,12 +239,42 @@ not delegated to `codex:rescue`.** This applies to all subsequent tasks until/un
   `docs(P2): T-P2-08 DONE - real-corpus archive reconciliation verified`.
 - `next_eligible_tasks` recomputed: adds T-P2-12 (all three dependencies now DONE).
 
-## Next eligible tasks (per `docs/35_EXECUTION_STATE.json`, updated after T-P2-08)
+### T-P2-09 — Source-twin candidate detection — **DONE**
+- Implemented directly. `src/sbr/registry/twins.py`: proposes PDF<->office-document candidate pairs
+  (`BlobRelation`, `twin_candidate`, metadata-only, no SourceFS) from filename stem similarity
+  (`difflib.SequenceMatcher` after stripping explicit copy-markers) and folder proximity (same folder, or
+  immediate parent/child, grouped by folder for near-linear scaling). No schema gap — `TWIN_CANDIDATE` already
+  existed.
+- **Two real precision bugs found and fixed reviewing the real-corpus output before reporting**, both worth
+  remembering if this module is touched again:
+  1. Office lock files (`~$name.docx`) scored high via genuine string similarity on their filename — excluded
+     outright, never legitimate content.
+  2. `SequenceMatcher.ratio()` alone scored two *different* documents sharing a template as near-identical
+     when the actually-distinguishing part (a chapter number, an exam date) differed — e.g. `..._Kap2_3...` vs
+     `..._Kap2_2...` scored 0.958. Fixed with an explicit numeric-token guard: when both stems carry digits and
+     those digit-sets differ, reject the pair outright regardless of text similarity (a bare copy-numbering
+     like `Bachelorarbeit1` still passes, since only one side has digits to contradict it).
+- **Real-corpus run**: 54 candidate pairs proposed (down from 104 pre-fix). Real thesis pair found at
+  confidence 1.0. 30-sample precision report manually reviewed: confidence correlates well with correctness —
+  every ≥0.85 entry correct, only the 0.6–0.8 tail has legitimately ambiguous cases (appropriate for a
+  candidate-only system; T-P5-04 confirms/rejects later).
+- Commits: `feat(P2): source-twin candidate detection (T-P2-09)`,
+  `fix(P2): exclude Office lock files from twin detection (T-P2-09)`,
+  `docs(P2): document twin-candidate stale-row limitation (T-P2-09)`,
+  `fix(P2): reject twin candidates with mismatched numeric identifiers (T-P2-09)`,
+  `docs(P2): T-P2-09 DONE - real-corpus twin detection verified`.
+- **Known limitation documented in the module docstring**: a re-run doesn't remove a previously-proposed
+  `candidate`-status row that no longer qualifies (the registry has no delete capability by design, and
+  `RelationStatus` has no "superseded" value distinct from an owner's `rejected`) — flagged as future work, not
+  built unilaterally. Hit once in practice (required a manual one-off SQL cleanup after each precision fix,
+  same pattern needed if this module changes again).
 
-`T-P13-04`, `T-P2-07`, `T-P2-09`, `T-P2-10`, `T-P2-11`, `T-P2-12`, `T-P2-13`, `T-P2-14`, `T-P4-01`, `T-P4-13`,
-`T-P7-03`, `T-P9-02`.
+## Next eligible tasks (per `docs/35_EXECUTION_STATE.json`, updated after T-P2-09)
 
-Per docs/30's sequence, **T-P2-09 (source-twin candidate detection)** is next.
+`T-P13-04`, `T-P2-07`, `T-P2-10`, `T-P2-11`, `T-P2-12`, `T-P2-13`, `T-P2-14`, `T-P4-01`, `T-P4-13`, `T-P7-03`,
+`T-P9-02`.
+
+Per docs/30's sequence, **T-P2-10 (genre classification v1 and exam-solution pairing)** is next.
 
 Per `docs/30_IMPLEMENTATION_SEQUENCE.md`'s recommended linear order, the P2 sequence after T-P2-02 is:
 T-P2-03 (change detection) → T-P2-04 (classification) → T-P2-05 (exclusions/sensitivity, owner review) →
