@@ -306,6 +306,7 @@ def archives_cmd(config: Path | None = ConfigOption) -> None:
             "containers_processed": result.containers_processed,
             "containers_unsupported": result.containers_unsupported,
             "containers_over_limit": result.containers_over_limit,
+            "containers_read_failure": result.containers_read_failure,
             "members_total": result.members_total,
             "members_already_present": result.members_already_present,
             "members_extracted_new": result.members_extracted_new,

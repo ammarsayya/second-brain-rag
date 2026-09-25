@@ -35,12 +35,17 @@ Formats: ``zip`` (stdlib ``zipfile``, streamed straight off the SourceFS file
 handle), ``7z`` (``py7zr``, which has no member-streaming API — each targeted
 member is extracted into a private temporary directory, hashed there, then
 either copied into ``archive_extract`` or discarded), ``tar``/``tar.gz``/
-``tar.bz2``/``tar.xz`` (stdlib ``tarfile``, streamed). ``rar`` requires an
-external ``unrar``-compatible tool that this environment does not have
-installed; when unavailable, RAR containers are recorded as
+``tar.bz2``/``tar.xz`` (stdlib ``tarfile``, streamed), ``rar`` (``rarfile``,
+which shells out to an external ``unrar``-compatible tool for both listing
+and extraction — the container is copied to a private temporary file first,
+same as ``7z``). RAR requires that external tool to actually be installed and
+on PATH; when it is not, RAR containers are recorded as
 ``unsupported_archive`` (the archive itself stays a known, classified blob —
 only its member inventory is unavailable) rather than silently skipped or
-crashing the run.
+crashing the run. Read failures for any format (corrupt/truncated archives
+that pass magic-byte classification but fail to actually parse) are recorded
+as ``read_failure`` and counted in :attr:`ArchiveRunResult.containers_read_failure`
+— never silently dropped from the run's totals.
 
 CP437 mojibake in member names (common for old, non-UTF-8-flagged zips, docs/08
 §7) is repaired for *display only* (``ArchiveMember.member_name_display``);
@@ -120,6 +125,7 @@ class ArchiveRunResult:
     containers_processed: int
     containers_unsupported: int
     containers_over_limit: int
+    containers_read_failure: int
     members_total: int
     members_already_present: int
     members_extracted_new: int
@@ -228,6 +234,22 @@ def _tar_members(stream: BinaryIO) -> tuple[list[_MemberPlan], Callable[[str], B
     return plans, opener
 
 
+def _rar_members(archive_path: Path) -> tuple[list[_MemberPlan], Callable[[str], BinaryIO]]:
+    """List and stream RAR members via the external unrar-compatible tool (rarfile shells out to it)."""
+    rf = rarfile.RarFile(archive_path)
+    plans = [
+        _MemberPlan(info.filename, _cp437_repair(info.filename), info.file_size)
+        for info in rf.infolist()
+        if not info.is_dir()
+    ]
+
+    def opener(path: str) -> BinaryIO:
+        # rarfile is an untyped import (mypy override); .open() is typed Any as a result.
+        return rf.open(path)  # type: ignore[no-any-return]
+
+    return plans, opener
+
+
 def _7z_members(archive_path: Path, work_dir: Path) -> tuple[list[_MemberPlan], Callable[[str], BinaryIO]]:
     with py7zr.SevenZipFile(archive_path, "r") as probe:
         entries = [entry for entry in probe.list() if not entry.is_directory]
@@ -258,16 +280,18 @@ def _process_container(
     logger: logging.Logger,
 ) -> tuple[list[ArchiveMember], list[BlobRecord], str]:
     """Return (member rows, newly-extracted blob rows, outcome label)."""
+    rar_available = True
     if blob.format == "rar":
         try:
             rarfile.tool_setup()
         except rarfile.Error:
-            return [], [], "unsupported"
+            rar_available = False
 
     is_tar = blob.format in ("tar", "gz", "bz2", "xz") and observation.relpath.lower().endswith(
         (".tar", ".tar.gz", ".tgz", ".tar.bz2", ".tar.xz")
     )
-    if blob.format not in ("zip", "7z") and not is_tar:
+    is_rar = blob.format == "rar" and rar_available
+    if blob.format not in ("zip", "7z") and not is_tar and not is_rar:
         return [], [], "unsupported"
 
     with tempfile.TemporaryDirectory(prefix="sbr-archive-") as raw_work:
@@ -285,6 +309,17 @@ def _process_container(
                     rows, new_blobs, outcome = _emit_members(
                         blob, plans, opener_factory, known_blob_ids, extract_root, work_dir, activity_id, clock
                     )
+            elif is_rar:
+                local_copy = work_dir / "container.rar"
+                with (
+                    fs.open_binary(observation.root_id, observation.relpath) as stream,
+                    local_copy.open("wb") as out,
+                ):
+                    shutil.copyfileobj(stream, out)
+                plans, opener_factory = _rar_members(local_copy)
+                rows, new_blobs, outcome = _emit_members(
+                    blob, plans, opener_factory, known_blob_ids, extract_root, work_dir, activity_id, clock
+                )
             else:
                 local_copy = work_dir / "container.7z"
                 with (
@@ -296,7 +331,7 @@ def _process_container(
                 rows, new_blobs, outcome = _emit_members(
                     blob, plans, opener_factory, known_blob_ids, extract_root, work_dir, activity_id, clock
                 )
-        except (zipfile.BadZipFile, tarfile.TarError, py7zr.exceptions.ArchiveError, OSError) as exc:
+        except (zipfile.BadZipFile, tarfile.TarError, py7zr.exceptions.ArchiveError, rarfile.Error, OSError) as exc:
             logger.warning(
                 "archive could not be inventoried",
                 extra={"sbr": {"stage": ARCHIVE_STAGE, "subject_id": blob.blob_id, "error": type(exc).__name__}},
@@ -458,6 +493,8 @@ def inventory_archives(
             "processed",
             "unsupported",
             "over_limit",
+            "read_failure",
+            "no_current_observation",
             "already_present",
             "extracted_new",
             "skipped_limit",
@@ -479,6 +516,7 @@ def inventory_archives(
                 continue
             present = current_by_blob.get(blob.blob_id)
             if not present:
+                counts["no_current_observation"] += 1
                 continue
             observation = present[0]
             member_rows, new_blobs, outcome = _process_container(
@@ -503,6 +541,7 @@ def inventory_archives(
         containers_processed=counts["processed"],
         containers_unsupported=counts["unsupported"],
         containers_over_limit=counts["over_limit"],
+        containers_read_failure=counts["read_failure"],
         members_total=(
             counts["already_present"] + counts["extracted_new"] + counts["skipped_limit"] + counts["excluded"]
         ),

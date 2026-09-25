@@ -5,6 +5,9 @@ from __future__ import annotations
 import zipfile
 from collections.abc import Callable
 from pathlib import Path
+from typing import Any
+
+import pytest
 
 from sbr.config import SbrConfig, config_from_mapping
 from sbr.db import registry as reg
@@ -177,6 +180,90 @@ def test_non_document_new_member_is_recorded_but_not_extracted(
         assert member.status is ArchiveMemberStatus.SKIPPED_LIMIT
         assert member.member_blob is not None  # still hashed and known
         assert member.extracted_path is None  # but not physically extracted
+
+
+def test_corrupt_archive_is_tracked_as_read_failure_not_silently_dropped(
+    make_config: Callable[..., SbrConfig], tmp_path: Path
+) -> None:
+    """Regression: a container whose outcome isn't processed/unsupported/over_limit must still be counted.
+
+    Found in review: containers_considered (408) didn't add up to processed + unsupported + over_limit against
+    the real corpus (385 + 21 + 0 = 406, two short) because read_failure outcomes were silently untracked.
+    """
+    config = make_config()
+    root = Path(config.roots.sources[0].path)
+    # Real ZIP magic bytes (classify.py detects it as knowledge_class=archive, format=zip) but truncated/corrupt,
+    # so zipfile.ZipFile() raises BadZipFile when actually opened for member inventory.
+    (root / "corrupt.zip").write_bytes(b"PK\x03\x04" + b"\x00" * 40)
+
+    with _open(config) as db:
+        _run_pipeline(config, db)
+        result = inventory_archives(config, db)
+
+        assert result.containers_considered == 1
+        assert result.containers_read_failure == 1
+        assert result.containers_processed == 0
+        assert (
+            result.containers_processed
+            + result.containers_unsupported
+            + result.containers_over_limit
+            + result.containers_read_failure
+            == result.containers_considered
+        )
+        assert db.repo(reg.ARCHIVE_MEMBER).count() == 0
+
+
+def test_rar_dispatch_is_inventoried_when_the_tool_is_available(
+    make_config: Callable[..., SbrConfig], tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """RAR needs the proprietary `rar` packer to build a real fixture, which this environment doesn't have
+
+    (only the free `unrar` extractor). This test proves this module's own RAR dispatch/integration logic end
+    to end — real-corpus reconciliation (docs/28 T-P2-08) is what actually exercises `rarfile`'s own RAR
+    parsing against genuine archives, which no synthetic fixture here can substitute for.
+    """
+    import rarfile as rarfile_module
+
+    from sbr.registry import archives as archives_module
+
+    class _StubRarInfo:
+        def __init__(self, filename: str, file_size: int) -> None:
+            self.filename = filename
+            self.file_size = file_size
+
+        def is_dir(self) -> bool:
+            return False
+
+    class _StubRarFile:
+        def __init__(self, path: Path) -> None:
+            self._entries = {"inside.txt": b"content that only lives in this rar"}
+
+        def infolist(self) -> list[_StubRarInfo]:
+            return [_StubRarInfo(name, len(data)) for name, data in self._entries.items()]
+
+        def open(self, name: str) -> Any:
+            import io
+
+            return io.BytesIO(self._entries[name])
+
+    monkeypatch.setattr(rarfile_module, "tool_setup", lambda: None)
+    monkeypatch.setattr(archives_module.rarfile, "RarFile", _StubRarFile)
+
+    config = make_config()
+    root = Path(config.roots.sources[0].path)
+    (root / "fake.rar").write_bytes(b"Rar!\x1a\x07\x01\x00" + b"\x00" * 20)  # real RAR5 magic bytes
+
+    with _open(config) as db:
+        _run_pipeline(config, db)
+        result = inventory_archives(config, db)
+        [member] = db.repo(reg.ARCHIVE_MEMBER).find()
+
+        assert result.containers_processed == 1
+        assert result.containers_unsupported == 0
+        assert member.member_path == "inside.txt"
+        assert member.status is ArchiveMemberStatus.EXTRACTED_NEW
+        assert member.extracted_path is not None
+        assert Path(member.extracted_path).read_bytes() == b"content that only lives in this rar"
 
 
 def test_cli_prints_json(make_config: Callable[..., SbrConfig], tmp_path: Path) -> None:
