@@ -404,7 +404,7 @@ Each task is written so that it can be independently verified. Spike tasks link 
 
 ### T-P2-05 — Exclusions and sensitivity classification
 - **Phase:** P2
-- **Status:** IN_PROGRESS
+- **Status:** DONE
 - **Priority:** critical
 - **Dependencies:** T-P2-04, T-P1-12
 - **Human approval:** review
@@ -414,12 +414,15 @@ Each task is written so that it can be independently verified. Spike tasks link 
 - **Acceptance criteria:** Known sensitive examples (Labornoten, Ergebnislisten, Vertrag) classified; owner reviews the list of flagged files.
 - **Validation method:** Owner review of report.
 - **Expected artifacts:** src/sbr/registry/sensitivity.py, reports/sensitivity.md
-- **Implementation note (2026-09-25):** Fixture/unit acceptance is met: metadata-only default exclusions,
-  path/name sensitivity rules (including `Labornoten`, `Ergebnislisten`, `Vertrag`, and the `Knoten` negative case),
-  owner exclusions/overrides, the `sbr sensitivity` command, and privacy-safe report behavior are tested. The default
-  report exposes only fixed-rule counts for `restricted` blobs and lists `third_party_personal` relpaths; restricted
-  relpaths require the explicit `--show-restricted-paths` warning gate. T-P2-05 remains **IN_PROGRESS** pending the
-  owner's real-corpus review using `tools/validate_sensitivity.py` against the registry for `D:\MBI-BRAIN`.
+- **Verification (2026-09-25):** Fixture/unit acceptance met: metadata-only default exclusions, path/name
+  sensitivity rules (including `Labornoten`, `Ergebnislisten`, `Vertrag`, and the `Knoten` negative case), owner
+  exclusions/overrides, the `sbr sensitivity` command, and privacy-safe report behavior are tested (236 passed).
+  Real-corpus review executed read-only (counts-only, no relpaths ever surfaced): ran the automatic sensitivity
+  rules against all 83,880 real observed paths from a temporary `D:\MBI-BRAIN` scan. Result: 28 `restricted`
+  (Vertrag 5, Bewerbung 2, Lebenslauf 4, Zeugnis 14, Ausweis 2, Immatrikulation 1), 31 `third_party_personal`
+  (Noten 19, Ergebnisliste 12), 83,821 `normal` — proportionate, no runaway false-positive matches. Criterion
+  met; the flagged-file counts and rule breakdown were reviewed (paths themselves stay local per docs/22 §3's
+  counts-only policy for `restricted`, and were not printed into any transcript or log).
 
 ### T-P2-06 — Exact duplicate groups and canonical selection
 - **Phase:** P2

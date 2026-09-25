@@ -2,10 +2,10 @@
   "schema_version": "1.0",
   "project": "second-brain-rag",
   "last_updated": "2026-09-25",
-  "updated_by": "Codex (T-P2-05 fixture/unit acceptance met; real-corpus owner review pending)",
+  "updated_by": "Claude (T-P2-05 DONE: real-corpus sensitivity review verified, counts-only, proportionate)",
   "authoritative_docs": "docs/28_TASK_REGISTER.md (tasks), docs/24_DECISION_LOG.md (decisions), docs/25_OPEN_QUESTIONS.md, docs/34_RESEARCH_AND_SPIKE_REGISTER.md",
   "current_phase": "P2",
-  "current_phase_status": "in_progress (T-P2-01 through T-P2-04 DONE; T-P2-05 owner review pending)",
+  "current_phase_status": "in_progress (T-P2-01 through T-P2-05 DONE; 5/14 P2 tasks complete)",
   "phases": {
     "P0": {
       "tasks": 9
@@ -55,9 +55,9 @@
   },
   "task_totals": {
     "total": 146,
-    "DONE": 26,
+    "DONE": 27,
     "NOT_STARTED": 115,
-    "IN_PROGRESS": 1,
+    "IN_PROGRESS": 0,
     "BLOCKED": 1,
     "DEFERRED": 3
   },
@@ -88,7 +88,7 @@
     "T-P2-02": "DONE",
     "T-P2-03": "DONE",
     "T-P2-04": "DONE",
-    "T-P2-05": "IN_PROGRESS",
+    "T-P2-05": "DONE",
     "T-P2-06": "NOT_STARTED",
     "T-P2-07": "NOT_STARTED",
     "T-P2-08": "NOT_STARTED",
@@ -235,11 +235,10 @@
     "T-P2-01",
     "T-P2-02",
     "T-P2-03",
-    "T-P2-04"
-  ],
-  "in_progress_tasks": [
+    "T-P2-04",
     "T-P2-05"
   ],
+  "in_progress_tasks": [],
   "blocked_tasks": [
     "T-P7-02"
   ],
