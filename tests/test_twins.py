@@ -83,6 +83,21 @@ def test_real_thesis_layout_same_folder_pairs_score_highest() -> None:
     assert not any(c.pdf_blob == _blob("3") for c in candidates)
 
 
+def test_office_lock_file_is_never_proposed_despite_string_similarity() -> None:
+    """Regression: found on the real corpus - '~$chelorarbeit.docx' (a Word lock file, created while the real
+    file is open) scored 0.857 against 'Bachelorarbeit.pdf' via genuine string similarity on the shared
+    'chelorarbeit' substring. Lock files are never legitimate content and must be excluded outright."""
+    pdfs = [_obs(r"Folder\Bachelorarbeit.pdf", _blob("1"))]
+    office = [
+        _obs(r"Folder\~$chelorarbeit.docx", _blob("2")),
+        _obs(r"Folder\Bachelorarbeit.docx", _blob("3")),
+    ]
+
+    candidates = find_twin_candidates(pdfs, office)
+
+    assert {c.office_blob for c in candidates} == {_blob("3")}
+
+
 def test_dissimilar_stems_in_the_same_folder_are_not_proposed() -> None:
     pdfs = [_obs(r"Course\Skript.pdf", _blob("a"))]
     office = [_obs(r"Course\Uebung3.docx", _blob("b"))]

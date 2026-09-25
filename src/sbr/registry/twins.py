@@ -119,9 +119,16 @@ def find_twin_candidates(
     Grouped by folder first (office observations bucketed by their folder path), so each PDF only ever
     compares against office files in its own folder or an immediate parent/child folder — not a full cross
     product against every office file in the corpus.
+
+    Office lock files (``~$name.docx``, created while the real file is open in Word/PowerPoint/Excel) are
+    excluded before any comparison. Found in review on the real corpus: ``~$chelorarbeit.docx`` scored 0.857
+    against ``Bachelorarbeit.pdf`` via genuine string similarity on the shared ``chelorarbeit`` substring — a
+    real false positive from a file that is never legitimate content, not a scoring bug.
     """
     office_by_folder: dict[tuple[str, ...], list[PathObservation]] = defaultdict(list)
     for obs in office_observations:
+        if PureWindowsPath(obs.relpath).name.startswith("~$"):
+            continue
         office_by_folder[_folder_parts(obs.relpath)].append(obs)
 
     candidates: dict[tuple[str, str], TwinCandidate] = {}
