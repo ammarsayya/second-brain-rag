@@ -21,6 +21,7 @@ from sbr.cli.runtime import Runtime, command_runtime
 from sbr.config import ConfigError
 from sbr.db import registry as reg
 from sbr.registry.changes import detect_changes
+from sbr.registry.classify import DEFAULT_RULES_PATH, classify_pending
 from sbr.registry.hash import DEFAULT_BATCH_SIZE, hash_pending
 from sbr.registry.scan import scan_sources
 from sbr.schemas import WorkItemState
@@ -37,6 +38,7 @@ app.add_typer(config_app, name="config")
 ConfigOption = typer.Option(
     None, "--config", help="Path to the TOML config file (default: $SBR_CONFIG or config/sbr.toml)."
 )
+ClassificationRulesOption = typer.Option(DEFAULT_RULES_PATH, "--rules", help="Classification rules TOML file.")
 
 
 @app.callback()
@@ -182,6 +184,36 @@ def hash_cmd(
         }
 
     _run("hash", config, body)
+
+
+@app.command("classify")
+def classify_cmd(
+    rules: Path = ClassificationRulesOption,
+    config: Path | None = ConfigOption,
+) -> None:
+    """Classify every hashed blob that is missing a format or remains unknown."""
+
+    def body(rt: Runtime) -> dict[str, object]:
+        result = classify_pending(rt.config, rt.db, rules_path=rules)
+        return {
+            "activity_id": result.activity_id,
+            "considered": result.considered,
+            "updated": result.updated,
+            "unknown_count": len(result.unknowns),
+            "unknowns": [
+                {
+                    "blob_id": item.blob_id,
+                    "root_id": item.root_id,
+                    "relpath": item.relpath,
+                    "extension": item.extension,
+                }
+                for item in result.unknowns
+            ],
+            "failure_count": len(result.failures),
+            "failures": [{"blob_id": item.blob_id, "error": item.error} for item in result.failures],
+        }
+
+    _run("classify", config, body)
 
 
 @app.command("changes")

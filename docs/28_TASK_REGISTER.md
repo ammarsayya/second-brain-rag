@@ -376,7 +376,7 @@ Each task is written so that it can be independently verified. Spike tasks link 
 
 ### T-P2-04 — File classification v1 (format + knowledge class)
 - **Phase:** P2
-- **Status:** NOT_STARTED
+- **Status:** IN_PROGRESS
 - **Priority:** critical
 - **Dependencies:** T-P2-02
 - **Human approval:** none
@@ -386,6 +386,12 @@ Each task is written so that it can be independently verified. Spike tasks link 
 - **Acceptance criteria:** All t0 extensions mapped; unknowns listed for review; precision checked on 200 random files.
 - **Validation method:** Manual spot check report.
 - **Expected artifacts:** src/sbr/registry/classify.py, config/classification.toml
+- **Verification (2026-09-25):** Fixture/unit acceptance is met: all t0 extensions are covered by the TOML rules;
+  focused magic-byte overrides, OOXML/OLE container handling, junk/tool path rules, bounded encrypted-PDF detection,
+  unknown enumeration, CLI output, SourceFS-only reads, schema migration up/down, and JSON/Markdown review-report
+  generation are tested. Focused classification/migration suite: 23 passed. Full suite: 232 passed plus the 4
+  documented pdflatex-only fixture-generation failures. Ruff check/format and strict mypy are clean. The task remains
+  IN_PROGRESS until the owner runs `tools/validate_classify.py` against the real corpus and reviews the 200-file sample.
 
 ### T-P2-05 — Exclusions and sensitivity classification
 - **Phase:** P2

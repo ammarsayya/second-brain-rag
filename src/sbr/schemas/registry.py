@@ -36,6 +36,7 @@ class KnowledgeClass(StrEnum):
     TOOL_ARTIFACT = "tool_artifact"
     JUNK = "junk"
     EXECUTABLE = "executable"
+    THIRD_PARTY_REFERENCE = "third_party_reference"
     UNKNOWN = "unknown"
 
 
@@ -136,6 +137,7 @@ class BlobRecord(StrictModel):
     magic_type: str | None = None
     format: str | None = None
     knowledge_class: KnowledgeClass = KnowledgeClass.UNKNOWN
+    encrypted: bool = False
     sensitivity: Sensitivity = Sensitivity.NORMAL
     status: BlobStatus = BlobStatus.ACTIVE
     first_seen_scan: ScanId

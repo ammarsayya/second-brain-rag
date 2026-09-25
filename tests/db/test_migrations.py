@@ -46,6 +46,21 @@ def test_fresh_database_migrates_to_head(tmp_path: Path) -> None:
         assert db.migrate().applied == ()  # idempotent
 
 
+def test_classification_column_up_and_down(tmp_path: Path) -> None:
+    """SQLite accepts the v5 STRICT-table ADD COLUMN and can reverse it cleanly."""
+    with RegistryDB(tmp_path / "var" / "db" / "registry.sqlite") as db:
+        db.migrate(4)
+        assert "encrypted" not in {row[1] for row in db.conn.execute("PRAGMA table_info(blob)")}
+        report = db.migrate(5)
+        assert report.applied == (5,)
+        columns = {row[1]: row for row in db.conn.execute("PRAGMA table_info(blob)")}
+        assert columns["encrypted"][3] == 1
+        assert columns["encrypted"][4] == "0"
+        report = db.migrate(4)
+        assert report.reverted == (5,)
+        assert "encrypted" not in {row[1] for row in db.conn.execute("PRAGMA table_info(blob)")}
+
+
 def test_each_version_upgrades_to_head_with_backup(tmp_path: Path) -> None:
     """For every N-1 (1..head-1) and a synthetic next migration: data survives and a backup is taken first."""
     base = tmp_path / "m"

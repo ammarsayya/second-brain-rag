@@ -1,0 +1,111 @@
+version = "1"
+header_bytes = 64
+pdf_encryption_scan_bytes = 1048576
+zero_byte_is_junk = true
+
+# Extension routing is deliberately data, not Python. Values are case-insensitive
+# and include the leading dot so omissions are easy to compare with corpus censuses.
+[extensions]
+document = [".pdf", ".txt", ".md", ".tex"]
+office = [".docx", ".doc", ".pptx", ".ppt", ".ppsx"]
+spreadsheet = [".xlsx", ".xls", ".csv"]
+media = [".mp4", ".avi", ".mkv", ".m4v", ".webm", ".mov", ".mp3", ".wmv"]
+image = [".jpg", ".jpeg", ".png", ".bmp", ".gif"]
+code = [".java", ".m", ".c", ".h", ".ino", ".py", ".sh"]
+data = [".mat", ".fig", ".slx", ".mlapp"]
+tool_artifact = [".wbjn", ".mechdb", ".agdb", ".rst", ".wbpz", ".class", ".exml", ".ctxt", ".bluej"]
+archive = [".zip", ".rar", ".7z", ".tar", ".gz", ".tgz", ".bz2", ".xz"]
+executable = [".exe", ".jar", ".bat", ".com", ".scr", ".dll", ".msi"]
+third_party_reference = [".html", ".htm"]
+
+[path_rules]
+junk_components = ["__macosx"]
+junk_name_prefixes = ["._"]
+junk_names = ["thumbs.db", ".ds_store", "desktop.ini"]
+tool_artifact_components = [".metadata", "_projectscratch", "slprj"]
+
+# Strong signatures override misleading extensions. Container signatures preserve
+# a configured extension only for formats that genuinely use that container.
+[[signatures]]
+prefix_hex = "25504446"
+magic_type = "application/pdf"
+format = "pdf"
+knowledge_class = "document"
+
+[[signatures]]
+prefix_hex = "504b0304"
+magic_type = "application/zip"
+format = "zip"
+knowledge_class = "archive"
+preserve_extensions = [".docx", ".xlsx", ".pptx", ".ppsx", ".jar", ".zip"]
+
+[[signatures]]
+prefix_hex = "d0cf11e0a1b11ae1"
+magic_type = "application/x-ole-storage"
+format = "ole2"
+knowledge_class = "office"
+preserve_extensions = [".doc", ".xls", ".ppt"]
+
+[[signatures]]
+prefix_hex = "ffd8ff"
+magic_type = "image/jpeg"
+format = "jpg"
+knowledge_class = "image"
+preserve_extensions = [".jpg", ".jpeg"]
+
+[[signatures]]
+prefix_hex = "89504e470d0a1a0a"  # PNG file signature, not a secret (pragma: allowlist secret)
+magic_type = "image/png"
+format = "png"
+knowledge_class = "image"
+
+[[signatures]]
+prefix_hex = "47494638"
+magic_type = "image/gif"
+format = "gif"
+knowledge_class = "image"
+
+[[signatures]]
+prefix_hex = "424d"
+magic_type = "image/bmp"
+format = "bmp"
+knowledge_class = "image"
+
+[[signatures]]
+prefix_hex = "526172211a07"
+magic_type = "application/vnd.rar"
+format = "rar"
+knowledge_class = "archive"
+
+[[signatures]]
+prefix_hex = "377abcaf271c"
+magic_type = "application/x-7z-compressed"
+format = "7z"
+knowledge_class = "archive"
+
+[[signatures]]
+prefix_hex = "1f8b"
+magic_type = "application/gzip"
+format = "gz"
+knowledge_class = "archive"
+
+[[signatures]]
+prefix_hex = "4d5a"
+magic_type = "application/vnd.microsoft.portable-executable"
+format = "exe"
+knowledge_class = "executable"
+preserve_extensions = [".exe", ".dll", ".scr"]
+
+[[signatures]]
+offset = 4
+prefix_hex = "66747970"
+magic_type = "video/mp4"
+format = "mp4"
+knowledge_class = "media"
+preserve_extensions = [".mp4", ".m4v", ".mov"]
+
+[[signatures]]
+prefix_hex = "494433"
+magic_type = "audio/mpeg"
+format = "mp3"
+knowledge_class = "media"

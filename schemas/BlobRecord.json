@@ -30,6 +30,7 @@
         "tool_artifact",
         "junk",
         "executable",
+        "third_party_reference",
         "unknown"
       ],
       "title": "KnowledgeClass",
@@ -72,6 +73,11 @@
       ],
       "default": null,
       "title": "Canonical Obs Id"
+    },
+    "encrypted": {
+      "default": false,
+      "title": "Encrypted",
+      "type": "boolean"
     },
     "first_seen_scan": {
       "pattern": "^scan_[0-7][0-9A-HJKMNP-TV-Z]{25}$",
