@@ -65,7 +65,7 @@ _GENRE_RULES: Final[tuple[tuple[str, re.Pattern[str]], ...]] = (
     ("thesis", re.compile(r"\b(bachelorarbeit|masterarbeit|diplomarbeit)\b", re.IGNORECASE)),
     (
         "solution",
-        re.compile(r"\b(l(ö|oe)sung(en)?|musterl(ö|oe)sung(en)?|kurzl(ö|oe)sung(en)?|tutlos)\b", re.IGNORECASE),
+        re.compile(r"\b(l(ö|oe)sung(en)?|musterl(ö|oe)sung(en)?|kurzl(ö|oe)sung(en)?|tutlos|lsg)\b", re.IGNORECASE),
     ),
     ("report", re.compile(r"\bbericht(e)?\b", re.IGNORECASE)),
     ("lab", re.compile(r"\b(labor|versuch(e)?)\b", re.IGNORECASE)),
@@ -120,12 +120,25 @@ def _isbn_digits(candidate: str) -> str | None:
     return digits
 
 
+_BARE_ISBN13_STEM: Final = re.compile(r"^97[89][-\s]?\d[-\s]?\d{1,7}[-\s]?\d{1,7}[-\s]?\d$")
+
+
 def extract_isbn(relpath: str) -> str | None:
-    """Return a normalized ISBN-10/13 (digits + trailing X only) if the path contains one."""
+    """Return a normalized ISBN-10/13 (digits + trailing X only) if the path contains one.
+
+    Two patterns: an explicit "ISBN ..." label anywhere in the path, or — found in review on the real corpus,
+    e.g. a textbook saved as "978-3-8348-9049-8.pdf" with no "ISBN" text at all — a filename stem that is
+    *itself* nothing but a hyphenated 13-digit Bookland (978/979-prefixed) number. Deliberately not extended to
+    bare 10-digit stems without an explicit "ISBN" label: a random 10-digit number is too easily something
+    else entirely (an ID, a phone number, a date-like string).
+    """
     match = _ISBN_PATTERN.search(_normalize_delimiters(relpath))
-    if match is None:
-        return None
-    return _isbn_digits(match.group(1))
+    if match is not None:
+        return _isbn_digits(match.group(1))
+    stem = PureWindowsPath(relpath).stem
+    if _BARE_ISBN13_STEM.match(stem) is not None:
+        return _isbn_digits(stem)
+    return None
 
 
 def extract_semester(relpath: str) -> str | None:
@@ -137,7 +150,16 @@ def extract_semester(relpath: str) -> str | None:
 
 
 def classify_genre(relpath: str) -> GenreDecision:
-    """Pure function: decide one path's genre, confidence, ISBN and semester from its name/path alone."""
+    """Pure function: decide one path's genre, confidence, ISBN and semester from its name/path alone.
+
+    Filename-level match only — an earlier version also fell back to an ancestor-*folder*-only match at a
+    lower confidence (e.g. anything under a "BachelorArbeit\\" project folder, regardless of the file's own
+    name). Found in review on the real corpus's 150-file precision sample: this made a very large fraction of
+    unrelated files inside that folder tree — JPEGs, .mat data, .m scripts, even a screenshot inside a "Labor"
+    folder — score genre="thesis"/"lab"/"script" despite not being thesis/lab/script documents themselves.
+    Living inside a folder named after a project or course doesn't make an arbitrary file "that genre"; only
+    the file's own name is evidence of what kind of document it is.
+    """
     isbn = extract_isbn(relpath)
     semester = extract_semester(relpath)
     if isbn is not None:
@@ -146,11 +168,6 @@ def classify_genre(relpath: str) -> GenreDecision:
     for genre, pattern in _GENRE_RULES:
         if pattern.search(name) is not None:
             return GenreDecision(genre=genre, confidence=0.9, isbn=None, semester=semester)
-    # A rule matching only an ancestor folder (not the filename itself) is a weaker signal.
-    normalized_path = _normalize_delimiters(relpath)
-    for genre, pattern in _GENRE_RULES:
-        if pattern.search(normalized_path) is not None:
-            return GenreDecision(genre=genre, confidence=0.6, isbn=None, semester=semester)
     return GenreDecision(genre=None, confidence=None, isbn=None, semester=semester)
 
 

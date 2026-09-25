@@ -56,12 +56,12 @@ def test_every_named_genre_keyword_is_recognized() -> None:
         r"BachelorArbeit\Masterarbeit_Entwurf.pdf": "thesis",
         r"Reg1\Loesungen\Musterloesung_Klausur.pdf": "solution",
         r"Reg1\Loesungen\Kurzloesung.pdf": "solution",
-        r"Reg1\TutLos\Blatt1.pdf": "solution",
+        r"Reg1\Loesungen\TutLos_Blatt1.pdf": "solution",  # keyword must be in the filename itself, not just the folder
         r"Mechanical\Bericht_Labor1.pdf": "report",
-        r"Mechanical\Labor\Versuch1.pdf": "lab",
+        r"Mechanical\Labor\Versuch_1.pdf": "lab",
         r"Reg1\Klausuren\Klausur_SS2019.pdf": "exam",
         r"Reg1\Uebung\Aufgabenblatt_1.pdf": "exercise",
-        r"Reg1\Aufgabenblaetter\Blatt2.pdf": "exercise",
+        r"Reg1\Aufgabenblaetter\Aufgabenblatt_2.pdf": "exercise",
         r"Reg1\Skripte\Skript_Kap1.pdf": "script",
     }
     for relpath, genre in expected.items():
@@ -87,9 +87,40 @@ def test_unrelated_filenames_get_no_genre() -> None:
         assert decision.confidence is None
 
 
+def test_files_inside_a_named_project_folder_get_no_genre_from_the_folder_alone() -> None:
+    """Regression: found on the real corpus's 150-file precision sample - roughly 20% of the sample was
+    genre="thesis"/"lab"/"script" purely because the file lived somewhere under a "BachelorArbeit\\"/"Labor\\"/
+    "Skript\\" folder tree, even for JPEGs, .mat data files, .m scripts, and a screenshot. A folder name is not
+    evidence of what an individual file inside it actually is; only the file's own name counts now."""
+    for relpath in (
+        r"BachelorArbeit\MatlabBachelorArbeit\App_Innere\Bilder_3D\LastKoll1_parametrization_594.jpg",
+        r"BachelorArbeit\Matlab\Bachelorarbeit\Test_Bachelor\Opt\tester.m",
+        r"Mechanical\Kolbenmaschinen\Labor\Labor1\MS\Codes\2\Screenshot (84).png",
+        r"Mechanical\messundsteuerungstechnik\Mathe\Math2\skript\Vorlesung_7.mp4",
+    ):
+        decision = classify_genre(relpath)
+        assert decision.genre is None, f"{relpath!r}: expected no genre, got {decision.genre!r}"
+
+
+def test_lsg_abbreviation_is_recognized_as_solution() -> None:
+    """Regression: 'Lsg' (a common German abbreviation for Loesung) was not in the solution keyword list, so
+    '08_Uebung_Lsg (1).pdf' - clearly an exercise SOLUTION - classified as the weaker 'exercise' genre instead
+    (matching only 'Uebung')."""
+    assert classify_genre(r"Course\08_Uebung_Lsg (1).pdf").genre == "solution"
+
+
 def test_isbn_extraction_normalizes_hyphenated_and_underscored_forms() -> None:
     assert extract_isbn(r"books\Numerik_ISBN_978-3-540-72233-9.pdf") == "9783540722339"
     assert extract_isbn(r"books\Klausur.pdf") is None
+
+
+def test_bare_isbn13_filename_is_recognized_without_an_isbn_label() -> None:
+    """Regression: a textbook saved as e.g. '978-3-8348-9049-8.pdf' with no literal 'ISBN' text anywhere in
+    the path was not detected at all - found on the real corpus's precision sample."""
+    assert extract_isbn(r"books\matlab\978-3-8348-9049-8.pdf") == "9783834890498"
+    # A bare 10-digit stem is deliberately NOT treated as an ISBN without an explicit label (too easily
+    # something else - an ID, a phone number, a date-like string).
+    assert extract_isbn(r"books\1234567890.pdf") is None
 
 
 def test_semester_extraction() -> None:
