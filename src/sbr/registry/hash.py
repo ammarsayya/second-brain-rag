@@ -112,7 +112,9 @@ def _blob_record(
         return BlobRecord(
             blob_id=content.blob_id,
             size=content.size,
-            first_seen_scan=observation.first_seen_scan,
+            # A path may predate this content (modified in place); blob birth is
+            # the scan whose snapshot S2 is hashing, not path birth.
+            first_seen_scan=observation.last_seen_scan,
             last_seen_scan=observation.last_seen_scan,
             activity_id=activity_id,
         )
@@ -207,7 +209,12 @@ def hash_pending(
                         jobs.complete(
                             item.job_id,
                             item.lease_token,
-                            artifacts={"blob_id": content.blob_id, "observation_id": observation.obs_id},
+                            artifacts={
+                                "blob_id": content.blob_id,
+                                "observation_id": observation.obs_id,
+                                "previous_blob_id": observation.blob_id or "",
+                                "scan_id": observation.last_seen_scan,
+                            },
                         )
                     hashed_count += 1
                     bytes_hashed += content.size

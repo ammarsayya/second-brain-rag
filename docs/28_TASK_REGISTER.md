@@ -357,7 +357,7 @@ Each task is written so that it can be independently verified. Spike tasks link 
 
 ### T-P2-03 — Change detection (new/modified/moved/deleted)
 - **Phase:** P2
-- **Status:** NOT_STARTED
+- **Status:** DONE
 - **Priority:** critical
 - **Dependencies:** T-P2-02
 - **Human approval:** none
@@ -367,6 +367,12 @@ Each task is written so that it can be independently verified. Spike tasks link 
 - **Acceptance criteria:** Fixture scenarios (move, rename, modify, delete, re-add) produce correct events.
 - **Validation method:** TS-CHANGE tests.
 - **Expected artifacts:** src/sbr/registry/changes.py
+- **Verification (2026-09-24):** TS-CHANGE covers new content, known-content aliases, same-path modification
+  with a confirmed new-to-old `version_of` relation, one-to-one blob-based move/rename detection, deletion and
+  orphaning, and same-path re-add as a fresh observation. Tests assert observation/blob/event/relation row counts
+  never shrink. Focused scan/hash/change/safety suite: 30 passed. Full suite: 222 passed plus the 4 documented
+  pdflatex-only fixture-generation failures. Ruff check/format and strict mypy are clean; plan and cross-references
+  validate cleanly. Criterion met.
 
 ### T-P2-04 — File classification v1 (format + knowledge class)
 - **Phase:** P2

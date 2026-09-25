@@ -44,6 +44,11 @@ def _folder_tokens(relpath: str) -> list[str]:
     return [unicodedata.normalize("NFC", part).casefold() for part in split_relpath(relpath)[:-1]]
 
 
+def hash_job_version(scan_id: str, base_version: str = HASH_STAGE_VERSION) -> str:
+    """Version one hash input snapshot without reusing an earlier completed job."""
+    return f"{base_version}+scan.{scan_id.removeprefix('scan_')}"
+
+
 def _walk(source_fs: SourceFS, root_id: str, on_error: Callable[[str], None]) -> Iterator[SourceEntry]:
     """Yield regular-file entries in deterministic depth-first order."""
     pending: list[str | SourceEntry] = [""]
@@ -149,7 +154,9 @@ def scan_root(
                 relpath=normalized,
                 relpath_raw=raw,
                 display_name=entry.name,
-                blob_id=None if changed else current_blob,
+                # Keep the previous content identity until S2 atomically replaces it.  S2
+                # records it in the immutable output manifest for change detection.
+                blob_id=current_blob,
                 size=entry.size,
                 mtime_ns=entry.mtime_ns,
                 first_seen_scan=current.first_seen_scan if current is not None else scan.scan_id,
@@ -166,7 +173,7 @@ def scan_root(
                     jobs.enqueue(
                         observation.obs_id,
                         HASH_STAGE,
-                        hash_stage_version,
+                        hash_job_version(scan.scan_id, hash_stage_version),
                         priority=hash_priority(observation.relpath),
                     )
             files_seen += 1
@@ -230,4 +237,4 @@ def scan_sources(
     return [scan_root(config, db, root_id, source_fs=source_fs) for root_id in selected]
 
 
-__all__ = ["HASH_STAGE", "HASH_STAGE_VERSION", "scan_root", "scan_sources"]
+__all__ = ["HASH_STAGE", "HASH_STAGE_VERSION", "hash_job_version", "scan_root", "scan_sources"]

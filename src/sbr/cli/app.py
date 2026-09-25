@@ -20,6 +20,7 @@ from sbr import __version__
 from sbr.cli.runtime import Runtime, command_runtime
 from sbr.config import ConfigError
 from sbr.db import registry as reg
+from sbr.registry.changes import detect_changes
 from sbr.registry.hash import DEFAULT_BATCH_SIZE, hash_pending
 from sbr.registry.scan import scan_sources
 from sbr.schemas import WorkItemState
@@ -181,6 +182,30 @@ def hash_cmd(
         }
 
     _run("hash", config, body)
+
+
+@app.command("changes")
+def changes_cmd(
+    root_id: str = typer.Option(..., "--root", help="Configured source-root id."),
+    scan_id: str = typer.Option(..., "--scan-id", help="Completed scan id to classify after hashing."),
+    config: Path | None = ConfigOption,
+) -> None:
+    """Record new, alias, modified, moved, and deleted changes for one scan."""
+
+    def body(rt: Runtime) -> dict[str, object]:
+        try:
+            result = detect_changes(rt.config, rt.db, root_id, scan_id)
+        except KeyError:
+            raise typer.BadParameter(f"unknown source root id {root_id!r}", param_hint="--root") from None
+        return {
+            "activity_id": result.activity_id,
+            "scan_id": scan_id,
+            "root_id": root_id,
+            "counts": result.counts,
+            "events": [event.model_dump(mode="json") for event in result.events],
+        }
+
+    _run("changes", config, body)
 
 
 @config_app.command("show")

@@ -206,8 +206,8 @@ def test_repeat_scan_reuses_observations_and_only_enqueues_changes(
         changed = db.repo(reg.PATH_OBSERVATION).find({"relpath": "Regelungstechnik\\skript.pdf"})[0]
         assert changed.obs_id == before[changed.relpath].obs_id
         assert changed.last_seen_scan == third.scan_id
-        assert changed.blob_id is None
-        assert spy.calls == [(changed.obs_id, HASH_STAGE, "1", 100)]
+        assert changed.blob_id == before[changed.relpath].blob_id
+        assert spy.calls == [(changed.obs_id, HASH_STAGE, f"1+scan.{third.scan_id.removeprefix('scan_')}", 100)]
 
 
 def test_interrupt_marks_scan_and_activity_then_root_can_restart(make_config: Callable[..., SbrConfig]) -> None:
