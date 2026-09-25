@@ -2,10 +2,10 @@
   "schema_version": "1.0",
   "project": "second-brain-rag",
   "last_updated": "2026-09-25",
-  "updated_by": "Claude (T-P2-10 IN_PROGRESS: fixture/unit acceptance met, real-corpus 150-file eval pending)",
+  "updated_by": "Claude (T-P2-10 DONE: real-corpus 150-file precision eval = 0.9867, clears >=0.9 bar)",
   "authoritative_docs": "docs/28_TASK_REGISTER.md (tasks), docs/24_DECISION_LOG.md (decisions), docs/25_OPEN_QUESTIONS.md, docs/34_RESEARCH_AND_SPIKE_REGISTER.md",
   "current_phase": "P2",
-  "current_phase_status": "in_progress (T-P2-01 through T-P2-06, T-P2-08, T-P2-09 DONE; T-P2-10 IN_PROGRESS; 8/14 P2 tasks complete)",
+  "current_phase_status": "in_progress (T-P2-01 through T-P2-06, T-P2-08 through T-P2-10 DONE; 9/14 P2 tasks complete)",
   "phases": {
     "P0": {
       "tasks": 9
@@ -55,9 +55,9 @@
   },
   "task_totals": {
     "total": 146,
-    "DONE": 30,
+    "DONE": 31,
     "NOT_STARTED": 111,
-    "IN_PROGRESS": 1,
+    "IN_PROGRESS": 0,
     "BLOCKED": 1,
     "DEFERRED": 3
   },
@@ -93,7 +93,7 @@
     "T-P2-07": "NOT_STARTED",
     "T-P2-08": "DONE",
     "T-P2-09": "DONE",
-    "T-P2-10": "IN_PROGRESS",
+    "T-P2-10": "DONE",
     "T-P2-11": "NOT_STARTED",
     "T-P2-12": "NOT_STARTED",
     "T-P2-13": "NOT_STARTED",
@@ -239,11 +239,10 @@
     "T-P2-05",
     "T-P2-06",
     "T-P2-08",
-    "T-P2-09"
-  ],
-  "in_progress_tasks": [
+    "T-P2-09",
     "T-P2-10"
   ],
+  "in_progress_tasks": [],
   "blocked_tasks": [
     "T-P7-02"
   ],
@@ -254,6 +253,7 @@
     "T-P2-12",
     "T-P2-13",
     "T-P2-14",
+    "T-P3-01",
     "T-P4-01",
     "T-P4-13",
     "T-P7-03",

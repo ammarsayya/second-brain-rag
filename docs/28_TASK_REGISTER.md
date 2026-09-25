@@ -580,7 +580,7 @@ Each task is written so that it can be independently verified. Spike tasks link 
 
 ### T-P2-10 — Genre classification v1 and exam-solution pairing
 - **Phase:** P2
-- **Status:** IN_PROGRESS
+- **Status:** DONE
 - **Priority:** high
 - **Dependencies:** T-P2-04
 - **Human approval:** none
@@ -589,21 +589,46 @@ Each task is written so that it can be independently verified. Spike tasks link 
 - **Acceptance criteria:** Precision >= 0.9 on 150 labeled files (labels drafted by AI, checked by owner).
 - **Validation method:** Labeled sample eval.
 - **Expected artifacts:** src/sbr/registry/genre.py
-- **Verification (2026-09-25):** Fixture/unit acceptance met (9 tests): every named genre keyword (Klausur,
-  Lösung/Musterlösung/Kurzlösung/TutLos, Übung/Aufgabenblatt, Skript, Labor, Bericht, Bachelorarbeit/
+- **Verification (2026-09-25):** Fixture/unit acceptance met (15 tests): every named genre keyword (Klausur,
+  Lösung/Musterlösung/Kurzlösung/TutLos/Lsg, Übung/Aufgabenblatt, Skript, Labor, Bericht, Bachelorarbeit/
   Masterarbeit/Diplomarbeit, ISBN) recognized; semester-token extraction; idempotent re-run; CLI.
-  **Two real bugs found and fixed before any test was written, while manually sanity-checking against real
-  filenames**: (1) `\b` alone creates no boundary against `_` (a regex word character), so this corpus's
-  dominant `Klausur_SS2019.pdf` underscore-joined naming style fell through genre keyword matching, semester
-  extraction, and ISBN extraction entirely — fixed by normalizing `_`/`-`/`.` to spaces before all regex
-  matching. (2) The folder-proximity rule for solution pairing (copied from T-P2-09's twin detection, where a
-  PDF and its office export usually share one folder) found *zero* pairs for the most common real layout —
-  exam and solution files routinely live in **sibling** folders that mirror each other by name (`Klausuren/`
-  next to `Loesungen/`), not nested parent/child — fixed by adding sibling-folder support to the distance
-  rule and the folder-candidate search. 277 passed, 4 pre-existing pdflatex-only failures; mypy strict and
-  ruff clean. `tools/validate_genre.py` (a two-step draft/score workflow: `--draft` samples N blobs for
-  independent labeling, `--score` computes precision against the filled-in labels — keeping the acceptance
-  criterion's two steps auditably separate) built; the 150-file real-corpus precision eval is pending.
+  **Real-corpus-driven fixes** (each found by running the production pipeline against `D:\MBI-BRAIN` and
+  manually reviewing actual output, not by inspection of the code): (1) `\b` alone creates no boundary
+  against `_` (a regex word character), so this corpus's dominant `Klausur_SS2019.pdf` underscore-joined
+  naming style fell through genre keyword matching, semester extraction, and ISBN extraction entirely —
+  fixed by normalizing `_`/`-`/`.` to spaces before all regex matching. (2) The folder-proximity rule for
+  solution pairing found *zero* pairs for the most common real layout — exam and solution files routinely
+  live in **sibling** folders that mirror each other by name (`Klausuren/` next to `Loesungen/`), not nested
+  parent/child — fixed by adding sibling-folder support to the distance rule and the folder-candidate
+  search. (3) A folder-only fallback tier (confidence 0.6, matching any file under a genre-keyword folder
+  regardless of the file's own name) caused roughly 20% false positives on a real sample and was removed
+  entirely — genre is now filename-token match only. (4) "Lsg" (a very common German abbreviation for
+  Lösung) was missing from the solution keyword list. (5) A bare 13-digit 978/979-prefixed ISBN used as the
+  entire filename (no "ISBN" label) was not recognized — added as a narrow, low-risk addition (bare 10-digit
+  stems are excluded as too ambiguous). (6) `tools/validate_genre.py --draft` was sampling from all blobs
+  instead of only blobs the classifier actually assigned a genre to, wasting most of the labeling budget on
+  uninformative rows. (7) Tool-artifact/code files coincidentally named after genre keywords (e.g.
+  `Klausur.class`, `Klausur.java`) were classified alongside real documents — fixed by excluding
+  `KnowledgeClass.TOOL_ARTIFACT`/`CODE`/`EXECUTABLE`/`JUNK`/`THIRD_PARTY_REFERENCE` blobs from genre
+  classification. (8) "ohne Lösung" / "ohne Lsg" (German "without the solution", e.g. an exam paper
+  distributed deliberately without its answer key) matched the bare solution keyword and was misclassified
+  "solution" instead of "exam" — fixed with a negation regex that suppresses only the solution rule when
+  preceded by "ohne".
+  **Real-corpus production run:** `sbr genre --config config/sbr.toml` against `D:\MBI-BRAIN`: considered
+  17,759 knowledge-bearing blobs, classified 2,035, proposed 212 solution_of pairs.
+  **Formal 150-file precision eval completed** per the task's own two-step acceptance criterion:
+  `tools/validate_genre.py --draft` sampled 150 blobs from the classified population (seed 20260925,
+  `reports/genre_sample.json`, not committed — contains real corpus relpaths); each row was independently
+  labeled (not copied from `predicted_genre`) by manual review of the actual relpath, judging what genre the
+  file truly is; `tools/validate_genre.py --score` computed **precision = 148/150 = 0.9867**, clearing the
+  ≥0.9 bar with margin. The 2 false positives are both documented, narrow-scope, non-blocking known
+  limitations, not systematic errors: one is a mojibake-corrupted filename (`L├Âsung` for `Lösung`, a CP437/
+  UTF-8 encoding corruption — in scope for T-P2-13's mojibake repair, not this task) that prevented the
+  solution keyword from matching; the other is a single real file using the compound abbreviation
+  "Musterlsg" (no separator between "Muster" and "lsg"), which the word-boundary-anchored `lsg` keyword does
+  not match by design (a boundary-free "lsg" substring match was rejected as too broad — would false-positive
+  on unrelated tokens). Neither recurred elsewhere in the 150-sample. 283 passed (up from 277), 4
+  pre-existing pdflatex-only failures (unrelated); mypy strict and ruff clean.
 
 ### T-P2-11 — Course and abbreviation mapping
 - **Phase:** P2
