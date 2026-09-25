@@ -376,7 +376,7 @@ Each task is written so that it can be independently verified. Spike tasks link 
 
 ### T-P2-04 — File classification v1 (format + knowledge class)
 - **Phase:** P2
-- **Status:** IN_PROGRESS
+- **Status:** DONE
 - **Priority:** critical
 - **Dependencies:** T-P2-02
 - **Human approval:** none
@@ -386,6 +386,15 @@ Each task is written so that it can be independently verified. Spike tasks link 
 - **Acceptance criteria:** All t0 extensions mapped; unknowns listed for review; precision checked on 200 random files.
 - **Validation method:** Manual spot check report.
 - **Expected artifacts:** src/sbr/registry/classify.py, config/classification.toml
+- **Verification (2026-09-25):** All t0 extensions from docs/03 §3's census mapped in config/classification.toml.
+  `tools/validate_classify.py --corpus D:\MBI-BRAIN -n 200` produced a 200-file human-review sample (read-only,
+  bounded to the sampled set, not a full-corpus classification): distribution across all 11 knowledge classes
+  (document 33, third_party_reference 47, tool_artifact 33, image 37, code 23, data 8, office 4, media 4,
+  archive 3, spreadsheet 3, unknown 5). Manually reviewed the full report: every sampled classification is
+  correct on inspection (PDFs -> document, Linux man-page HTML -> third_party_reference, ANSYS .agdb ->
+  tool_artifact, an unlisted `.launch` extension correctly resolved via the Eclipse `.metadata` path-rule
+  fallback, all 5 unknowns are genuinely unmapped extensions (.dat/.out/.prefs/.xml/no-extension) correctly
+  listed for review rather than misclassified). Criterion met..toml
 - **Verification (2026-09-25):** Fixture/unit acceptance is met: all t0 extensions are covered by the TOML rules;
   focused magic-byte overrides, OOXML/OLE container handling, junk/tool path rules, bounded encrypted-PDF detection,
   unknown enumeration, CLI output, SourceFS-only reads, schema migration up/down, and JSON/Markdown review-report
