@@ -24,12 +24,13 @@ from ruamel.yaml import YAML
 from ruamel.yaml.comments import CommentedSeq
 from ruamel.yaml.error import YAMLError
 
-from sbr.schemas.base import AgentRef, BlobId
+from sbr.schemas.base import AgentRef, BlobId, Slug
 
 __all__ = [
     "Approval",
     "ApprovalDecision",
     "CanonicalOverride",
+    "CanonicalPathOverride",
     "ConceptCurationAction",
     "ConceptCurationEntry",
     "CourseMapEntry",
@@ -42,6 +43,7 @@ __all__ = [
     "append_approval",
     "load_approvals",
     "load_canonical_overrides",
+    "load_canonical_path_overrides",
     "load_concept_curation",
     "load_course_map",
     "load_exclusions",
@@ -92,6 +94,15 @@ class CanonicalOverride(CurationModel):
 
     canonical: BlobId
     aliases: Annotated[list[BlobId], Field(min_length=1)]
+    reason: str | None = None
+
+
+class CanonicalPathOverride(CurationModel):
+    """Owner selection of one path observation within an exact-duplicate blob (ADR-031)."""
+
+    blob_id: BlobId
+    root_id: Slug
+    relpath: Annotated[str, StringConstraints(min_length=1)]
     reason: str | None = None
 
 
@@ -221,6 +232,10 @@ def load_course_map(path: Path) -> CurationFile[CourseMapEntry]:
 
 def load_canonical_overrides(path: Path) -> CurationFile[CanonicalOverride]:
     return load_curation_file(path, CanonicalOverride, list_key="overrides")
+
+
+def load_canonical_path_overrides(path: Path) -> CurationFile[CanonicalPathOverride]:
+    return load_curation_file(path, CanonicalPathOverride, list_key="overrides")
 
 
 def load_exclusions(path: Path) -> CurationFile[Exclusion]:

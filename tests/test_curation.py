@@ -11,6 +11,7 @@ from sbr.curation import (
     Approval,
     ApprovalDecision,
     CanonicalOverride,
+    CanonicalPathOverride,
     ConceptCurationAction,
     CurationError,
     ExclusionScope,
@@ -18,6 +19,7 @@ from sbr.curation import (
     append_approval,
     load_approvals,
     load_canonical_overrides,
+    load_canonical_path_overrides,
     load_concept_curation,
     load_course_map,
     load_curation_file,
@@ -39,6 +41,7 @@ def test_the_seeded_curation_files_all_load_empty() -> None:
     assert load_taxonomy(root / "taxonomy.yaml").records == ()
     assert load_course_map(root / "course_map.yaml").records == ()
     assert load_canonical_overrides(root / "canonical_overrides.yaml").records == ()
+    assert load_canonical_path_overrides(root / "canonical_path_overrides.yaml").records == ()
     assert load_exclusions(root / "exclusions.yaml").records == ()
     assert load_sensitivity_overrides(root / "sensitivity_overrides.yaml").records == ()
     assert load_concept_curation(root / "concept_curation.yaml").records == ()
@@ -85,6 +88,27 @@ def test_course_map_allows_mixed_case_owner_abbreviations(tmp_path: Path) -> Non
 def test_canonical_override_requires_at_least_one_alias() -> None:
     with pytest.raises(Exception, match="at least 1"):
         CanonicalOverride(canonical=CANONICAL, aliases=[])
+
+
+def test_canonical_path_override_round_trips_owner_readable_path(tmp_path: Path) -> None:
+    path = tmp_path / "canonical_path_overrides.yaml"
+    path.write_text(
+        "overrides:\n"
+        f"  - blob_id: '{CANONICAL}'\n"
+        "    root_id: fx\n"
+        "    relpath: 'folder\\preferred.pdf'\n"
+        "    reason: Owner keeps this path\n",
+        encoding="utf-8",
+    )
+
+    [override] = load_canonical_path_overrides(path).records
+
+    assert override == CanonicalPathOverride(
+        blob_id=CANONICAL,
+        root_id="fx",
+        relpath="folder\\preferred.pdf",
+        reason="Owner keeps this path",
+    )
 
 
 def test_exclusion_and_sensitivity_override_scopes(tmp_path: Path) -> None:

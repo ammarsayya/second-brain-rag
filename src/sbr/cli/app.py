@@ -22,6 +22,7 @@ from sbr.config import ConfigError
 from sbr.db import registry as reg
 from sbr.registry.changes import detect_changes
 from sbr.registry.classify import DEFAULT_RULES_PATH, classify_pending
+from sbr.registry.dedup import select_canonical_paths
 from sbr.registry.hash import DEFAULT_BATCH_SIZE, hash_pending
 from sbr.registry.scan import scan_sources
 from sbr.registry.sensitivity import classify_sensitivity
@@ -42,6 +43,7 @@ ConfigOption = typer.Option(
 ClassificationRulesOption = typer.Option(DEFAULT_RULES_PATH, "--rules", help="Classification rules TOML file.")
 ExclusionsOption = typer.Option(None, "--exclusions", help="Owner exclusion-curation YAML file.")
 SensitivityOverridesOption = typer.Option(None, "--overrides", help="Owner sensitivity-override YAML file.")
+CanonicalPathOverridesOption = typer.Option(None, "--overrides", help="Owner canonical-path override YAML file.")
 
 
 @app.callback()
@@ -267,6 +269,28 @@ def changes_cmd(
         }
 
     _run("changes", config, body)
+
+
+@app.command("dedup")
+def dedup_cmd(
+    overrides: Path | None = CanonicalPathOverridesOption,
+    config: Path | None = ConfigOption,
+) -> None:
+    """Select one canonical PRESENT path for every known blob; retain every alias."""
+
+    def body(rt: Runtime) -> dict[str, object]:
+        result = select_canonical_paths(rt.config, rt.db, overrides_path=overrides)
+        return {
+            "activity_id": result.activity_id,
+            "considered": result.considered,
+            "duplicate_groups": result.duplicate_groups,
+            "singletons": result.singletons,
+            "without_present_observation": result.without_present_observation,
+            "updated": result.updated,
+            "overrides_applied": result.overrides_applied,
+        }
+
+    _run("dedup", config, body)
 
 
 @config_app.command("show")

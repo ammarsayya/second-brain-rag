@@ -1,0 +1,5 @@
+# Curation ledger: owner override of the canonical PRESENT path within one exact-duplicate blob (ADR-031;
+# git-tracked). blob_id identifies the content group; root_id + relpath selects one observation. This is separate
+# from canonical_overrides.yaml, whose blob-to-blob choices are reserved for twins and later near-dedup work.
+# Loaded/validated by sbr.curation.load_canonical_path_overrides. Empty by default: automatic selection applies.
+overrides: []

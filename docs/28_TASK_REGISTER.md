@@ -426,7 +426,7 @@ Each task is written so that it can be independently verified. Spike tasks link 
 
 ### T-P2-06 — Exact duplicate groups and canonical selection
 - **Phase:** P2
-- **Status:** NOT_STARTED
+- **Status:** IN_PROGRESS
 - **Priority:** critical
 - **Dependencies:** T-P2-02, T-P1-12
 - **Human approval:** none
@@ -436,6 +436,14 @@ Each task is written so that it can be independently verified. Spike tasks link 
 - **Acceptance criteria:** Groups equal Phase-0 results on unchanged subset; overrides respected; nothing deleted.
 - **Validation method:** Tests + comparison to audit/phase0/dup_groups.json.
 - **Expected artifacts:** src/sbr/registry/dedup.py
+- **Verification (2026-09-25):** Fixture/unit acceptance met: deterministic canonical-path ranking (non-mirror,
+  shallower then shorter path, duplicate-download marker, lexical tie-break), owner path override precedence,
+  singleton canonical assignment, CLI behavior, and the no-row-deletion invariant are tested. The bounded,
+  read-only `tools/validate_dedup.py` reports Phase-0 survivor splits/merges in JSON plus a human summary and treats
+  quarantined-away paths as expected missing members. Real-corpus comparison against
+  `audit/phase0/dup_groups.json` remains pending; the owner will run it against `D:\MBI-BRAIN`. Task remains
+  IN_PROGRESS until that evidence is reviewed. Full suite: 249 passed plus the 4 known pdflatex-only fixture
+  generation failures; ruff check/format and strict mypy are clean.
 
 ### T-P2-07 — Mirror-directory and cleanup-suggestion report
 - **Phase:** P2
