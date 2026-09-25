@@ -1,4 +1,210 @@
 # Curation ledger: course id -> owner-known folder abbreviations and matching patterns (ADR-029; git-tracked).
-# Seeding from the module handbook and folder abbreviations (Reg1, RGT, MSR2, GrdInf, BS1, KONleh, ...) is T-P4-14;
-# this file starts empty. Loaded/validated by sbr.curation.load_course_map.
-courses: []
+# Seeded for T-P2-11 from the two authoritative taxonomy seeds at the corpus root (docs/12 §"Seeds", docs/03):
+#   D:\MBI-BRAIN\curriculum_mbi_ws2019.pdf        - official module/submodule list, PO WS2019 (course_id, name)
+#   D:\MBI-BRAIN\MBI-WS2019-Modulhandbuch.pdf     - per-module descriptions (used to resolve abbreviations, e.g.
+#                                                    "MSR" = Messen-Steuern-Regeln, "SAB" = Sensor-Aktor-Bus-Technik)
+# course_id is the official M-Kürzel (MBI-nnn) from the curriculum, or the more specific TM-Kürzel (MAB-nnn-nn /
+# MBI-nnn-nn) where the real corpus folder structure distinguishes a submodule the parent module code would blur
+# (e.g. Betriebslehre's "Betg" vs "RechtK" subfolders -> two different MAB-114-* submodules, not one MBI-112 lump).
+#
+# Matching (src/sbr/registry/courses.py): `aliases` are single folder-segment tokens (matched case-insensitively
+# against one entry of PathObservation.folder_tokens); `folder_patterns` are ordered multi-segment token sequences
+# (backslash-separated, matched as a contiguous run within folder_tokens) used to disambiguate a short/reused token
+# by its parent folder, or to give one course a broad default over an entire subtree. Whichever matcher's LAST
+# token lands deepest in a file's folder_tokens wins (so a specific nested pattern like "BachelorArbeit\Praxisphase"
+# overrides the broader "BachelorArbeit" default for files under it); a longer matcher wins ties over a shorter one.
+# Folder segments this file does not mention at all resolve to course_id=None ("unknown") automatically - that is
+# the acceptance criterion's "marked unknown", not a gap to silently ignore. tools/validate_courses.py reports
+# every level-3 folder's resolution (mapped course_id, or unknown) against the real corpus for owner review.
+courses:
+  # --- Semester 1 (WiSem) ---
+  - course_id: MBI-101
+    name: Mathematik 1
+    aliases: [Math1, Mathe1]
+    folder_patterns: []
+  - course_id: MBI-102
+    name: Physik 1
+    aliases: [Phy1]
+    folder_patterns: ["Mechanical\\physik"] # bare "physik\Physik\..." with no semester token defaults here (Phy2 below overrides via a deeper alias match)
+  - course_id: MBI-105
+    name: Konstruktive Grundlagen
+    aliases: [MAE, MAE_3, MAED, KL, KG, Kost.inv, konstruktion, "Wolf KGR"] # ambiguous vs MBI-111/MBI-129 Konstruktionselemente without further evidence; owner review
+    folder_patterns: ["Mechanical\\konstruktonsgrundlagen"]
+  - course_id: MAB-105-02
+    name: Grundlagen Werkstoffkunde
+    aliases: [WK, werkstoffkunde, Werkstoffkunde]
+    folder_patterns: []
+  - course_id: MBI-106
+    name: Grundlagen der Informatik
+    aliases: [GrdInf]
+    folder_patterns: ["Information\\MO\\Informatik", "Information\\vorvorl\\GrdInf"]
+  - course_id: MBI-123
+    name: Technische Mechanik 1 - Statik
+    aliases: [Statik]
+    folder_patterns: ["Mechanical\\Statik"]
+  - course_id: MBI-124
+    name: Elektrotechnik
+    aliases: [Elektrotechnik, EBuch, GrundlagenElektronik]
+    folder_patterns: ["Mechanical\\Elektrotechnik"]
+
+  # --- Semester 2 (SoSem) ---
+  - course_id: MBI-110
+    name: Angewandte Informatik
+    aliases: [AngeInf, AngeInfo]
+    folder_patterns: []
+  - course_id: MAB-110-01
+    name: Maschinenelemente 1
+    aliases: []
+    folder_patterns: [] # no distinct folder evidence separate from MBI-105's MAE_3/MAED bucket; left for owner review
+  - course_id: MBI-112
+    name: Betriebslehre
+    aliases: [BWL, Bwl1, Managment]
+    folder_patterns: ["Betriebslehre"]
+  - course_id: MAB-114-01
+    name: Betriebslehre Grundlagen
+    aliases: [Betg]
+    folder_patterns: []
+  - course_id: MAB-114-03
+    name: Rechtskunde
+    aliases: [RechtK]
+    folder_patterns: []
+  - course_id: MBI-126
+    name: Mathematik 2
+    aliases: [Math2, Mathe2]
+    folder_patterns: []
+  - course_id: MBI-127
+    name: Naturwissenschaften (Physik 2)
+    aliases: [Phy2, WISs]
+    folder_patterns: [] # WISs = Wissenschaftliches Schreiben und Praesentieren, MAB-114-05, bundled in this module
+
+  # --- Semester 3 (WiSem) ---
+  - course_id: MBI-113
+    name: Mathematik 3
+    aliases: [Math3]
+    folder_patterns: ["Mechanical\\Mathematik\\Math 3"]
+  - course_id: MBI-119
+    name: Algorithmen und Datenstrukturen
+    aliases: [AlgDat, AlOp, "Algorithmen und Datenstrukturen"] # AlOp: no exact handbook hit, closest plausible match; owner review
+    folder_patterns: []
+  - course_id: MBI-120
+    name: Objektorientierte Programmierung
+    aliases: [ObjOriP, Java1, "Java Klassen", Bluej]
+    folder_patterns: ["Information\\Java_1"]
+  - course_id: MAB-205-01
+    name: Konstruktionslehre
+    aliases: [KONleh]
+    folder_patterns: []
+  - course_id: MBI-130
+    name: Technische Mechanik 3 - Kinematik / Kinetik
+    aliases: [kinematik, Kinematik]
+    folder_patterns: ["Mechanical\\kinematik"]
+
+  # --- Semester 4 (SoSem) ---
+  - course_id: MBI-206
+    name: Messen-Steuern-Regeln 1 (MSR1)
+    aliases: [Reg1, RT1, MSR1, Mes, Messt, Messtechnik, Messtechnik1, Steuer, Steuerung, SteuerungsTe, SteuerungsTe1, Steuerungstechnik]
+    folder_patterns: []
+  - course_id: MBI-207
+    name: Finite-Elemente-Methode 1
+    aliases: [FEM1, FEM1L, Fin, Finit1, LabFiles, Rust]
+    folder_patterns: []
+  - course_id: MBI-221
+    name: Technische Mechanik 4
+    aliases: []
+    folder_patterns: [] # no distinct folder evidence in the corpus; owner review
+  - course_id: MBI-231
+    name: Software-Engineering
+    aliases: [SoftEng, Softeng, SoftEnge, SoftEnV, SoftEn, SoftEng2]
+    folder_patterns: ["Information\\MO\\Softwaretechnik"]
+  - course_id: MBI-232
+    name: Systemprogrammierung
+    aliases: [SysProg, Sys, SWP]
+    folder_patterns: ["Information\\MO\\C", "Information\\Informatikx\\Ckurs"] # Programmiersprache C/C++ is this module's own submodule (MAB-232-01)
+  - course_id: MAB-232-01
+    name: Programmiersprache C/C++
+    aliases: []
+    folder_patterns: ["Information\\C"]
+
+  # --- Semester 5 (WiSem) ---
+  - course_id: MBI-203
+    name: Numerische Mathematik
+    aliases: [NumMat, "Numerische Mathematik"]
+    folder_patterns: ["Information\\MO\\Num"]
+  - course_id: MBI-204
+    name: Bewegungslehre 1
+    aliases: [Bewe, Bewegungstechnik, Dyn, Dyn_1, Maschinendynamik] # 1-vs-2 split not evident in folder names; defaulted to the required (non-elective) semester-5 course, owner review
+    folder_patterns: ["Mechanical\\Bewegungstechnik", "Mechanical\\Dynamik"]
+  - course_id: MBI-210
+    name: Messen-Steuern-Regeln 2 (MSR2)
+    aliases: [Reg2, Reg22, MSR2]
+    folder_patterns: []
+  - course_id: MBI-214
+    name: Projekt-MBI
+    aliases: []
+    folder_patterns: []
+
+  # --- Semester 6 (SoSem) ---
+  - course_id: MBI-233
+    name: IT-Systems Engineering
+    aliases: [IT]
+    folder_patterns: []
+  - course_id: MBI-234-01
+    name: Betriebssysteme
+    aliases: [BetSys, BetSys_1, BS1, BS2] # BS1/BS2 not an official handbook split; closest plausible course by domain and name, owner review
+    folder_patterns: ["Information\\MO\\Bet"]
+  - course_id: MBI-234-02
+    name: Datenbanksysteme
+    aliases: [DatBan, DatBan_1]
+    folder_patterns: []
+
+  # --- Semester 7 (WiSem) ---
+  - course_id: MBI-215
+    name: Praxisphase
+    aliases: []
+    folder_patterns: ["BachelorArbeit\\Praxisphase"]
+  - course_id: MBI-216
+    name: Bachelorarbeit
+    aliases: []
+    folder_patterns: ["BachelorArbeit"] # broad default for the whole thesis-work tree; overridden by the more specific Praxisphase pattern above
+  - course_id: MBI-217-01
+    name: Modellbildung technischer Systeme
+    aliases: [ModellbTSys, ModellbTSys_1, MTS]
+    folder_patterns: []
+  - course_id: MBI-217-02
+    name: Simulationstechnik
+    aliases: [SMS]
+    folder_patterns: []
+
+  # --- Wahlpflichtmodule (electives) ---
+  - course_id: MBI-270
+    name: Industrierobotik
+    aliases: [Rob, Rob_1, neuRob, RoboterApp, RobYoutube]
+    folder_patterns: ["Mechanical\\Robotertechnik"]
+  - course_id: MBI-271
+    name: Messen-Steuern-Regeln 3 (MSR3)
+    aliases: [Reg3, Reg33, RegAm, MSR3, SAB, SAB_Teil2_neu, SAB_Teil2_neu_1]
+    folder_patterns: [] # SAB = Sensor-Aktor-Bus-Technik, MAB-283-02, this module's own submodule
+  - course_id: MBI-273-01
+    name: Bewegungslehre 2 (Bewegungstechnik 2)
+    aliases: []
+    folder_patterns: [] # no distinct folder evidence separate from MBI-204's bucket; owner review
+  - course_id: MBI-274
+    name: Prozessleittechnik
+    aliases: [ProzLei]
+    folder_patterns: ["Mechanical\\Prozessleittechnik"]
+  - course_id: MBI-275
+    name: Finite-Elemente-Methode 2
+    aliases: [FEM2, FEM2L, FiniL2, Finit2]
+    folder_patterns: []
+  - course_id: MBI-276
+    name: Maschinenelemente 2 und Kolbenmaschinen
+    aliases: [Kolbenmaschinen]
+    folder_patterns: ["Mechanical\\Kolbenmaschinen"]
+
+  # --- Not in the WS2019 curriculum at all: real corpus folders with no handbook match. Kept here (empty
+  # patterns) only as a documented "considered, not a course" note; they resolve to unknown like any other
+  # unmatched folder and are listed in the owner-review report the same way. ---
+  # Automatisierungslabor, Foerdertechnik: no matching module found in MBI-WS2019-Modulhandbuch.pdf; may be an
+  #   elective from a different program version, or extracurricular lab access. Owner review.
+  # books\, Ckurs (top-level), English (top-level): not course-specific (personal reference library, a
+  #   stand-alone prep course outside the PO, and an unrelated stray folder respectively).

@@ -39,7 +39,6 @@ T0 = datetime(2026, 9, 24, 12, 0, tzinfo=UTC)
 def test_the_seeded_curation_files_all_load_empty() -> None:
     root = Path(__file__).resolve().parent.parent / "curation"
     assert load_taxonomy(root / "taxonomy.yaml").records == ()
-    assert load_course_map(root / "course_map.yaml").records == ()
     assert load_canonical_overrides(root / "canonical_overrides.yaml").records == ()
     assert load_canonical_path_overrides(root / "canonical_path_overrides.yaml").records == ()
     assert load_exclusions(root / "exclusions.yaml").records == ()
@@ -83,6 +82,21 @@ def test_course_map_allows_mixed_case_owner_abbreviations(tmp_path: Path) -> Non
     [course] = load_course_map(p).records
     assert course.course_id == "Reg1"
     assert course.aliases == ["RGT", "Reg1"]
+
+
+def test_the_seeded_course_map_is_populated_and_ids_are_unique() -> None:
+    """T-P2-11: unlike every other curation file, course_map.yaml is seeded with real content (from the
+    corpus root's module handbook and curriculum PDFs), not left empty - this loads it back and checks basic
+    shape invariants (courses.py's matching relies on unique course_ids)."""
+    root = Path(__file__).resolve().parent.parent / "curation"
+    courses = load_course_map(root / "course_map.yaml").records
+    assert len(courses) > 0
+    ids = [c.course_id for c in courses]
+    assert len(ids) == len(set(ids))
+    # Most entries carry real folder evidence; a handful are curriculum modules kept for documentation with no
+    # observed folder match yet (flagged in the YAML's own comments as "owner review") - not every entry needs one.
+    with_matchers = sum(1 for c in courses if c.aliases or c.folder_patterns)
+    assert with_matchers / len(courses) > 0.8
 
 
 def test_canonical_override_requires_at_least_one_alias() -> None:

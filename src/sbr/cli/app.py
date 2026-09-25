@@ -23,6 +23,7 @@ from sbr.db import registry as reg
 from sbr.registry.archives import inventory_archives
 from sbr.registry.changes import detect_changes
 from sbr.registry.classify import DEFAULT_RULES_PATH, classify_pending
+from sbr.registry.courses import classify_courses
 from sbr.registry.dedup import select_canonical_paths
 from sbr.registry.genre import classify_genres
 from sbr.registry.hash import DEFAULT_BATCH_SIZE, hash_pending
@@ -47,6 +48,7 @@ ClassificationRulesOption = typer.Option(DEFAULT_RULES_PATH, "--rules", help="Cl
 ExclusionsOption = typer.Option(None, "--exclusions", help="Owner exclusion-curation YAML file.")
 SensitivityOverridesOption = typer.Option(None, "--overrides", help="Owner sensitivity-override YAML file.")
 CanonicalPathOverridesOption = typer.Option(None, "--overrides", help="Owner canonical-path override YAML file.")
+CourseMapOption = typer.Option(None, "--course-map", help="Owner course-mapping curation YAML file.")
 
 
 @app.callback()
@@ -349,6 +351,25 @@ def genre_cmd(config: Path | None = ConfigOption) -> None:
         }
 
     _run("genre", config, body)
+
+
+@app.command("courses")
+def courses_cmd(
+    course_map: Path | None = CourseMapOption,
+    config: Path | None = ConfigOption,
+) -> None:
+    """Assign a curated course_id/confidence from folder tokens (curation/course_map.yaml)."""
+
+    def body(rt: Runtime) -> dict[str, object]:
+        result = classify_courses(rt.config, rt.db, course_map_path=course_map)
+        return {
+            "activity_id": result.activity_id,
+            "considered": result.considered,
+            "classified": result.classified,
+            "unknown": result.unknown,
+        }
+
+    _run("courses", config, body)
 
 
 @config_app.command("show")
