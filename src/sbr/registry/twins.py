@@ -67,9 +67,14 @@ TWIN_STAGE: Final = "twins"
 OFFICE_FORMATS: Final = frozenset({"docx", "doc", "pptx", "ppsx", "ppt"})
 MAX_FOLDER_DISTANCE: Final = 1
 MIN_STEM_SIMILARITY: Final = 0.72
-_NOISE_SUFFIX: Final = re.compile(
-    r"[\s_\-]*(\(\d+\)|copy|kopie|final|fassung|version|v\d+|neu|alt|\d+)+$", re.IGNORECASE
-)
+# Deliberately does NOT strip a bare trailing digit run: found in review on the real corpus that this
+# corpus's filenames routinely use trailing numbers as meaningful identifiers (exam/session numbers, chapter
+# numbers, dates), not "extra copy" markers - e.g. "..._Kap2_2..." and "..._Kap2_3..." are DIFFERENT chapters,
+# and "10 Ingenieurmathematik III 2010-03-29" / "06 Ingenieurmathematik III 2008-08-27" are different lecture
+# sessions entirely. Blindly stripping digits made SequenceMatcher score these as near-identical on the shared
+# template text alone, a real precision failure caught by the 30-sample report review. Only unambiguous
+# "this is another copy of the same file" markers are stripped.
+_NOISE_SUFFIX: Final = re.compile(r"[\s_\-]*(\(\d+\)|copy|kopie|final|fassung|neu|alt)+$", re.IGNORECASE)
 
 
 @dataclass(frozen=True, slots=True)
@@ -92,10 +97,33 @@ class TwinRunResult:
     candidates: tuple[TwinCandidate, ...]
 
 
+_DIGIT_RUN: Final = re.compile(r"\d+")
+
+
 def _normalized_stem(relpath: str) -> str:
     stem = PureWindowsPath(relpath).stem.casefold()
     stripped = _NOISE_SUFFIX.sub("", stem)
     return stripped or stem
+
+
+def _numeric_tokens(stem: str) -> frozenset[str]:
+    """Every digit run in a normalized stem, zero-padding-insensitive (``"03"`` and ``"3"`` are the same token)."""
+    return frozenset(match.group().lstrip("0") or "0" for match in _DIGIT_RUN.finditer(stem))
+
+
+def _numeric_mismatch(pdf_stem: str, office_stem: str) -> bool:
+    """True when both stems carry numeric identifiers and those identifiers genuinely differ.
+
+    Found in review on the real corpus: SequenceMatcher.ratio() alone scores two filenames that share a long
+    template substring as highly similar even when the part that actually distinguishes them — an exam/session
+    number, a chapter number, a date — differs completely (e.g. "..._Kap2_3..." vs "..._Kap2_2...", or
+    "10 Ingenieurmathematik III 2010-03-29" vs "06 Ingenieurmathematik III 2008-08-27"). When only one side
+    carries a number (e.g. a bare "Bachelorarbeit1" copy-numbering against a PDF with no digits at all) there is
+    nothing on the other side to contradict it, so the guard does not apply there.
+    """
+    pdf_tokens = _numeric_tokens(pdf_stem)
+    office_tokens = _numeric_tokens(office_stem)
+    return bool(pdf_tokens) and bool(office_tokens) and pdf_tokens != office_tokens
 
 
 def _folder_parts(relpath: str) -> tuple[str, ...]:
@@ -163,7 +191,10 @@ def find_twin_candidates(
                 distance = _folder_distance(pdf_folder, office_folder)
                 if distance is None:
                     continue
-                similarity = _stem_similarity(pdf_stem, _normalized_stem(office.relpath))
+                office_stem = _normalized_stem(office.relpath)
+                if _numeric_mismatch(pdf_stem, office_stem):
+                    continue
+                similarity = _stem_similarity(pdf_stem, office_stem)
                 if similarity < MIN_STEM_SIMILARITY:
                     continue
                 confidence = round(similarity * (1.0 if distance == 0 else 0.85), 4)

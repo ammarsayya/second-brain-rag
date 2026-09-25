@@ -69,8 +69,12 @@ def test_real_thesis_layout_same_folder_pairs_score_highest() -> None:
     same_folder = by_pair[(_blob("1"), _blob("4"))]
     assert same_folder.confidence == 1.0
     assert same_folder.folder_distance == 0
-    assert by_pair[(_blob("1"), _blob("5"))].confidence == 1.0  # "Bachelorarbeit1" strips to the same stem
-    assert by_pair[(_blob("1"), _blob("6"))].confidence == 1.0  # "BachelorarbeitCopy" too
+    # "Bachelorarbeit1" is NOT stem-normalized to an exact match on purpose: a bare trailing digit is often a
+    # meaningful identifier elsewhere in this corpus (exam/session numbers, chapter numbers), not a copy
+    # marker, so it is deliberately not stripped. It still clears the similarity threshold via SequenceMatcher
+    # overlap, just below 1.0.
+    assert 0.9 < by_pair[(_blob("1"), _blob("5"))].confidence < 1.0
+    assert by_pair[(_blob("1"), _blob("6"))].confidence == 1.0  # "BachelorarbeitCopy" is an explicit marker
 
     parent_folder = by_pair[(_blob("2"), _blob("7"))]
     assert parent_folder.confidence == 1.0
@@ -81,6 +85,26 @@ def test_real_thesis_layout_same_folder_pairs_score_highest() -> None:
     assert cross_folder.confidence < 1.0  # distance-1 is discounted relative to same-folder
 
     assert not any(c.pdf_blob == _blob("3") for c in candidates)
+
+
+def test_different_chapter_numbers_are_not_proposed_as_twins() -> None:
+    """Regression: found on the real corpus - '..._Kap2_3_V2.pdf' and '..._Kap2_2_V2.ppsx' (different chapter
+    segments of a lecture series) scored 0.958 before the digit-stripping fix, because the shared template
+    text dominated the ratio despite the chapter number - the actually distinguishing part - differing."""
+    pdfs = [_obs(r"Course\SS-2019_Kinematik_Kap2_3_V2.pdf", _blob("1"))]
+    office = [_obs(r"Course\SS-2019_Kinematik_Kap2_2_V2.ppsx", _blob("2"))]
+
+    assert find_twin_candidates(pdfs, office) == []
+
+
+def test_different_lecture_sessions_sharing_a_template_are_not_proposed() -> None:
+    """Regression: found on the real corpus - PDFs and a .doc from clearly different lecture dates/session
+    numbers ("10 Ingenieurmathematik III 2010-03-29" vs "06 Ingenieurmathematik III 2008-08-27") scored 0.912
+    before the fix, purely from the shared "Ingenieurmathematik III" template text."""
+    pdfs = [_obs(r"Course\10 Ingenieurmathematik III 2010-03-29.pdf", _blob("1"))]
+    office = [_obs(r"Course\06 Ingenieurmathematik III 2008-08-27.doc", _blob("2"))]
+
+    assert find_twin_candidates(pdfs, office) == []
 
 
 def test_office_lock_file_is_never_proposed_despite_string_similarity() -> None:
