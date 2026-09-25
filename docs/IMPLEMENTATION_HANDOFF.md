@@ -113,11 +113,40 @@ this file is a human-readable summary plus session-to-session continuity notes, 
 - No real-corpus acceptance criterion for this task (fixture-scenario-only per docs/28) — marked DONE directly,
   unlike T-P2-01/T-P2-02 which needed a separate real-corpus run.
 
-## Next eligible tasks (per `docs/35_EXECUTION_STATE.json`, updated after T-P2-03)
+### T-P2-04 — File classification v1 (format + knowledge class) — **DONE**
+- Implemented by Codex in two passes: (1) full implementation (`src/sbr/registry/classify.py`,
+  `config/classification.toml`, migration 0005 for `BlobRecord.encrypted`, `sbr classify` CLI,
+  `tools/validate_classify.py`, `tests/test_classify.py`) — magic-byte detection via a TOML-configured
+  signature table (PDF/ZIP/OLE2/JPEG/PNG/GIF/BMP/RAR/7z/gzip/PE/MP4/MP3), path-based junk/tool_artifact rules,
+  bounded `/Encrypt`-marker PDF encryption detection (tail scan, no parsing/decryption). Two schema extensions
+  authorized (explicitly required by T-P2-04's own task text): `KnowledgeClass.THIRD_PARTY_REFERENCE` (ADR-038,
+  still `PROPOSED` in docs/24 — left alone, that's the owner's call, but the task register's acceptance
+  criteria mandates the class regardless and it's fully reversible) and `BlobRecord.encrypted: bool`. (2) Same
+  bounded-`--corpus`-sampling fix pattern as T-P2-02's `validate_hash.py` — `validate_classify.py` initially
+  only supported `--config` (would have required fully classifying the whole real corpus first); added a
+  `--corpus` bootstrap mode that scans, then hashes+classifies only the sampled set.
+- Hit a `detect-secrets` false positive on commit: a PNG magic-byte hex constant in `classification.toml`
+  triggered the hex-high-entropy heuristic. Resolved properly via the project's documented mechanism
+  (`.secrets.baseline`, regenerated + inline comment), not by bypassing the hook.
+- **Real-corpus validation executed** (2026-09-25, read-only, bounded to 200 sampled files, not a full-corpus
+  pass): `tools/validate_classify.py --corpus D:\MBI-BRAIN -n 200`. This validator deliberately does not
+  self-declare pass/fail (classification quality needs human judgment) — manually reviewed the generated
+  report: distribution across all 11 knowledge classes, every sampled row correct on inspection (PDFs->document,
+  man-page HTML->third_party_reference matching the census, ANSYS .agdb->tool_artifact, an unlisted `.launch`
+  file correctly resolved via the `.metadata` path-rule fallback, all 5 unknowns genuinely unmapped extensions
+  correctly surfaced for review). **PASS** (by manual judgment).
+- Commits: `feat(P2): file classification v1 - format + knowledge class (T-P2-04)`,
+  `docs(P2): T-P2-04 DONE - real-corpus classification review verified`.
+- `docs/28`/`docs/35` updated to `DONE`. `next_eligible_tasks` recomputed: adds T-P2-05, T-P2-09, T-P2-10,
+  T-P2-11.
 
-`T-P13-04`, `T-P2-04`, `T-P2-06`, `T-P2-08`, `T-P2-13`, `T-P4-01`, `T-P4-13`, `T-P7-03`, `T-P9-02`.
+## Next eligible tasks (per `docs/35_EXECUTION_STATE.json`, updated after T-P2-04)
 
-Per docs/30's sequence, T-P2-04 (file classification v1) is next.
+`T-P13-04`, `T-P2-05`, `T-P2-06`, `T-P2-08`, `T-P2-09`, `T-P2-10`, `T-P2-11`, `T-P2-13`, `T-P4-01`, `T-P4-13`,
+`T-P7-03`, `T-P9-02`.
+
+Per docs/30's sequence, T-P2-05 (exclusions and sensitivity classification — "Human approval: review", meaning
+implement normally, owner reviews the output) is next.
 
 Per `docs/30_IMPLEMENTATION_SEQUENCE.md`'s recommended linear order, the P2 sequence after T-P2-02 is:
 T-P2-03 (change detection) → T-P2-04 (classification) → T-P2-05 (exclusions/sensitivity, owner review) →
