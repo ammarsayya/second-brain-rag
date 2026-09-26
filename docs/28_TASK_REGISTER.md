@@ -683,7 +683,7 @@ Each task is written so that it can be independently verified. Spike tasks link 
 
 ### T-P2-13 — Display-name repair for mojibake paths
 - **Phase:** P2
-- **Status:** NOT_STARTED
+- **Status:** DONE
 - **Priority:** low
 - **Dependencies:** T-P2-01
 - **Human approval:** none
@@ -692,6 +692,32 @@ Each task is written so that it can be independently verified. Spike tasks link 
 - **Acceptance criteria:** 228 known cases repaired correctly on sample.
 - **Validation method:** Unit tests with known pairs.
 - **Expected artifacts:** src/sbr/registry/names.py
+- **Verification (2026-09-26):** `src/sbr/registry/names.py`: `repair_mojibake()` — a telltale-gated CP437/
+  CP850/CP1252-as-UTF-8 repair, promoted from `archives.py`'s private `_cp437_repair` (T-P2-08) as the shared
+  implementation (`archives.py` now imports and re-exports it rather than duplicating the detector). Never a
+  blind encode/decode round trip: only fires when a real mojibake telltale (`Ã`, `â€`, `Â`, `├`, `â`) is
+  present, since an unconditional round trip destroys already-correct names (docs/08 §7's own example,
+  T-P2-08's own earlier bug). `repair_names()`: a new registry stage (`sbr names` CLI) recomputing every
+  current `PathObservation.display_name`; `relpath`/`relpath_raw` are never touched (HC-01).
+  **Real-corpus finding while verifying this task's own acceptance criterion**: checking the production
+  registry found that every one of the corpus's 306 known mojibake cases (228 at t0, docs/03; 306 at t2/t3,
+  docs/37) has the corruption in an **ancestor folder name**, not the file's own leaf name (e.g. an entire
+  folder literally named `Fehlersuche mittels Fl├ñche RL 9.11.06` containing otherwise correctly-named files)
+  — `display_name` alone, scoped to the leaf per its documented meaning (docs/31), only ever had 14 real
+  cases to repair. Rather than reinterpret `display_name`'s documented meaning or add an unreviewed schema/
+  migration change to `PathObservation` unilaterally, added `repair_relpath_display()`: a pure, general-
+  purpose function that repairs every segment of a full relpath, available to whichever later consumer
+  (T-P2-14's manifest report, citation rendering) needs a readable full path. **Verified against the
+  production registry: all 306 known real-corpus mojibake cases repair cleanly via
+  `repair_relpath_display()`** (0 remain corrupted afterward), spot-checked by sampling 15 repaired paths for
+  plausibility. **Closed T-P2-10's own documented known limitation**: `classify_genre()` now repairs a
+  filename's mojibake before matching genre keywords, fixing the real "L├Âsung Klausur WS 15-16-*.pdf"
+  (mojibake for "Lösung...") false positive — re-running `sbr genre` against the production registry
+  confirmed both real occurrences now classify "solution" (previously "exam"). 13 new tests across
+  `test_names.py` (repair correctness on the documented and real-corpus examples, the never-touch-correct-
+  names safety property, `repair_relpath_display`'s real-corpus-derived case, stage persistence/idempotence,
+  CLI) and `test_genre.py` (the closed mojibake regression); 304 passed (up from 301), 4 pre-existing
+  pdflatex-only failures (unrelated); mypy strict and ruff clean.
 
 ### T-P2-14 — Manifest report command
 - **Phase:** P2
