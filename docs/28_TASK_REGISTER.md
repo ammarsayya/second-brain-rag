@@ -937,7 +937,7 @@ Each task is written so that it can be independently verified. Spike tasks link 
 
 ### T-P3-08 — SPIKE-OCR: scanned German pages
 - **Phase:** P3
-- **Status:** NOT_STARTED
+- **Status:** IN_PROGRESS
 - **Priority:** high
 - **Dependencies:** T-P3-04
 - **Human approval:** none
@@ -947,6 +947,24 @@ Each task is written so that it can be independently verified. Spike tasks link 
 - **Acceptance criteria:** CER per engine, speed, confidence usefulness.
 - **Validation method:** Report reviewed.
 - **Expected artifacts:** eval/reports/spike_ocr.md
+- **Verification (2026-09-26):** IN_PROGRESS, not DONE: "CER per engine" needs gold transcriptions
+  (MBI-Gold-Layout, T-P3-03) that don't exist yet (gated on owner approval, correctly not started), and the
+  full engine set (PaddleOCR, remote VLM) hasn't been benchmarked this pass. Installed Tesseract 5.5.3
+  (chocolatey) + the German tessdata pack (neither previously on this machine). `tools/spike_ocr.py`: found
+  scanned-page candidates the same way T-P3-01's stratifier does; ran real Tesseract-deu OCR against each
+  sample's embedded page image (pypdf's own image extraction — a scanned page is normally one full-page
+  image XObject, no new rasterization dependency needed). **Real-corpus run**: 764 scanned-page candidates
+  (exactly matching T-P3-01's own "scanned" bucket eligible-pool count — a useful cross-check), 25 sampled,
+  21 OCR'd (4 had no embedded image). Mean 1.52s/page, mean word confidence 52.0/100 — hiding a striking
+  split: the `Ckurs` English slide-export samples (this task's own named case, "English photographed slide
+  captures") score 80–90% and OCR cleanly; genuinely handwritten/degraded German scans score 24–45%.
+  **Real, actionable corpus defect found**: one scanned page (named "Gescannt") is stored upside-down/
+  rotated 180°, producing reversed-character garbage regardless of engine — any real OCR pipeline for this
+  corpus needs page-orientation correction first, independent of ADR-010's eventual engine choice.
+  Handwriting-presence detection explicitly deferred (no dedicated tool lined up; declined to fake it from a
+  proxy that doesn't measure it). 5 new tests; 373 passed; mypy strict and ruff clean. **Owner action needed
+  to close this task**: review `eval/reports/spike_ocr.md`; decide whether PaddleOCR/remote-VLM benchmarking
+  is worth the additional install/policy cost given Tesseract's already-visible split by content type.
 
 ### T-P3-09 — SPIKE-COMPUTE: throughput and cost projection
 - **Phase:** P3

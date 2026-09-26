@@ -2,10 +2,10 @@
   "schema_version": "1.0",
   "project": "second-brain-rag",
   "last_updated": "2026-09-25",
-  "updated_by": "Claude (T-P3-07 IN_PROGRESS: SPIKE-OMML real-corpus evidence gathered via pandoc, 99.9% syntax-valid, key PPTX-limitation finding; owner manual review of 50-sample still needed to close)",
+  "updated_by": "Claude (T-P3-08 IN_PROGRESS: SPIKE-OCR real-corpus evidence gathered via Tesseract-deu, key rotated-page defect found; owner review pending)",
   "authoritative_docs": "docs/28_TASK_REGISTER.md (tasks), docs/24_DECISION_LOG.md (decisions), docs/25_OPEN_QUESTIONS.md, docs/34_RESEARCH_AND_SPIKE_REGISTER.md",
   "current_phase": "P3",
-  "current_phase_status": "in_progress (T-P3-01, T-P3-04 DONE; T-P3-07 IN_PROGRESS - evidence gathered, owner review pending; T-P3-02/T-P3-03 require owner approval to start - not begun)",
+  "current_phase_status": "in_progress (T-P3-01, T-P3-04 DONE; T-P3-07/T-P3-08 IN_PROGRESS - evidence gathered, owner review pending; T-P3-02/T-P3-03 require owner approval to start - not begun)",
   "phases": {
     "P0": {
       "tasks": 9
@@ -56,8 +56,8 @@
   "task_totals": {
     "total": 146,
     "DONE": 38,
-    "NOT_STARTED": 103,
-    "IN_PROGRESS": 1,
+    "NOT_STARTED": 102,
+    "IN_PROGRESS": 2,
     "BLOCKED": 1,
     "DEFERRED": 3
   },
@@ -105,7 +105,7 @@
     "T-P3-05": "NOT_STARTED",
     "T-P3-06": "NOT_STARTED",
     "T-P3-07": "IN_PROGRESS",
-    "T-P3-08": "NOT_STARTED",
+    "T-P3-08": "IN_PROGRESS",
     "T-P3-09": "NOT_STARTED",
     "T-P3-10": "NOT_STARTED",
     "T-P3-11": "NOT_STARTED",
@@ -250,7 +250,8 @@
     "T-P3-04"
   ],
   "in_progress_tasks": [
-    "T-P3-07"
+    "T-P3-07",
+    "T-P3-08"
   ],
   "blocked_tasks": [
     "T-P7-02"
@@ -259,7 +260,6 @@
     "T-P13-04",
     "T-P3-02",
     "T-P3-03",
-    "T-P3-08",
     "T-P4-01",
     "T-P4-13",
     "T-P5-06",
