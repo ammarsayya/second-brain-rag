@@ -335,15 +335,33 @@ not delegated to `codex:rescue`.** This applies to all subsequent tasks until/un
   per-entry comments (several aliases are the owner's best guess from the handbook, not a verified official
   abbreviation, and are explicitly flagged as such).
 
-## Next eligible tasks (per `docs/35_EXECUTION_STATE.json`, updated after T-P2-11)
+### T-P2-13 — Display-name repair for mojibake paths — **DONE**
+- Implemented directly. `src/sbr/registry/names.py`: `repair_mojibake()` promoted from `archives.py`'s private
+  `_cp437_repair` (T-P2-08) as the shared telltale-gated implementation; `archives.py` now imports/re-exports
+  it instead of duplicating the detector. `repair_names()` (new stage, `sbr names` CLI) recomputes every
+  current `PathObservation.display_name`; `relpath`/`relpath_raw` are never touched (HC-01).
+- **Real-corpus finding while verifying this task's own acceptance criterion**: every one of the corpus's 306
+  known mojibake cases (228 at t0, docs/03; 306 at t2/t3, docs/37) has the corruption in an **ancestor folder
+  name**, not the file's own leaf name — `display_name` alone (scoped to the leaf per docs/31) only had 14
+  real cases to fix. Rather than reinterpret that field's documented meaning or add an unreviewed schema/
+  migration change unilaterally, added `repair_relpath_display()`: a pure function repairing every segment of
+  a full relpath, for any later consumer (T-P2-14's manifest report, citation rendering) that needs a
+  readable full path. Verified against the real registry: **all 306 known cases repair cleanly** (0 remain
+  corrupted).
+- **Closed T-P2-10's own documented known limitation**: wired `repair_mojibake` into `classify_genre()`'s
+  filename matching, fixing the real "L├Âsung Klausur WS 15-16-*.pdf" false positive — re-running `sbr genre`
+  against the production registry confirmed both real occurrences now classify "solution" (previously "exam").
+- Commits: `feat(P2): display-name mojibake repair (T-P2-13)`,
+  `fix(P2): resolve T-P2-10's mojibake false positive via T-P2-13's repair (T-P2-13)`,
+  `docs(P2): mark T-P2-13 DONE — mojibake repair verified against all 306 real cases (T-P2-13)`.
 
-`T-P13-04`, `T-P2-07`, `T-P2-12`, `T-P2-13`, `T-P2-14`, `T-P3-01`, `T-P4-01`, `T-P4-13`, `T-P5-06`, `T-P7-03`,
-`T-P9-02`.
+## Next eligible tasks (per `docs/35_EXECUTION_STATE.json`, updated after T-P2-13)
 
-Per `docs/30_IMPLEMENTATION_SEQUENCE.md`'s recommended linear order, the P2 sequence after T-P2-11 is:
-T-P2-13 (name repair) → T-P2-14 (manifest report) → T-P2-07 (mirror report) → T-P2-12 (audit refresh, after
-Q-B01). **T-P2-13 (display-name mojibake repair) is next** — it also directly resolves the mojibake false
-positive (`L├Âsung` for `Lösung`) documented as a known limitation in T-P2-10's verification note.
+`T-P13-04`, `T-P2-07`, `T-P2-12`, `T-P2-14`, `T-P3-01`, `T-P4-01`, `T-P4-13`, `T-P5-06`, `T-P7-03`, `T-P9-02`.
+
+Per `docs/30_IMPLEMENTATION_SEQUENCE.md`'s recommended linear order, the P2 sequence after T-P2-13 is:
+T-P2-14 (manifest report) → T-P2-07 (mirror report) → T-P2-12 (audit refresh, after Q-B01). **T-P2-14
+(manifest report command, `sbr report manifest` per docs/28) is next.**
 
 Tasks marked "Human approval: review" (T-P2-05, T-P2-11 done, T-P2-12, T-P2-07) are implemented normally —
 the owner reviews the *output* (a report/list), it is not a pre-start gate like "Human approval: required"
@@ -365,30 +383,29 @@ P2 tasks with satisfied dependencies remain, per the standing instruction not to
 
 ## Exact next action
 
-1. Implement T-P2-13 (display-name mojibake repair) directly: `src/sbr/registry/names.py` — detect CP437/
-   Latin-1 mojibake in `PathObservation.display_name`/relpath segments, store a repaired display name
-   alongside the untouched original path (HC-01: the observed path itself is never rewritten, only a derived
-   display field). `src/sbr/registry/archives.py`'s existing `_cp437_repair()` (T-P2-08) already has a
-   telltale-gated detector (`Ã`, `â€`, `Â`, `├`, `â`) for exactly this corruption pattern on archive member
-   names — reuse/generalize it rather than re-deriving detection from scratch, and reuse its lesson: an earlier
-   version of that helper fired unconditionally and corrupted already-correct names, so gate repair attempts on
-   real telltales, never blindly re-encode/decode every name.
-2. Acceptance criterion: "228 known cases repaired correctly on sample" — find the 228 figure's source (likely
-   docs/03's corpus audit mojibake census; grep docs/03 and docs/37 for it) before building the validation
-   sample, so the sample is measured against the same known-case set the criterion means, not an invented one.
-3. This directly resolves T-P2-10's documented mojibake false positive (`L├Âsung` for `Lösung` misclassified
-   "exam" instead of "solution") — after implementing, it's worth re-running genre classification against the
-   real corpus using repaired display names (or noting explicitly why that's deferred) rather than leaving the
-   known limitation unresolved once the tool to fix it exists.
+1. Implement T-P2-14 (manifest report command) directly: `src/sbr/reports/manifest.py` (new package —
+   `sbr/reports/` doesn't exist yet, check for an `__init__.py` convention elsewhere in `src/sbr/` first) plus
+   a `sbr report manifest` CLI command (docs/28: "producing counts by class, genre, course, duplicates,
+   sensitivity, archives (Markdown + CSV) per spec 31" — read `docs/31_CORPUS_MANIFEST_SPEC.md` for the exact
+   field/count shape expected before designing the query set).
+2. Acceptance criterion: "Report generated; matches DB queries" — validation method is "snapshot test on
+   fixtures", i.e. run the report against the synthetic fixture corpus (T-P1-13, `tests/fixtures/corpus/`) and
+   assert its counts match hand-computed expectations from the same fixtures, not just "the command exits 0".
+3. Pull genre/course counts straight from `blob_classification` (T-P2-10/T-P2-11's output — verify both
+   columns are populated as expected on the fixture corpus first), duplicate counts from dedup's canonical/
+   alias split (T-P2-06), sensitivity counts from T-P2-05's classification, archive counts from T-P2-08's
+   inventory. Consider whether the report should call `repair_relpath_display()` (T-P2-13, already available)
+   when rendering any relpath in the Markdown/CSV output, for readability — check docs/31 for whether the spec
+   expects raw or repaired paths in a manifest report meant for human/citation use.
 4. Write tests, run `tools/check.ps1` equivalent (pytest + mypy strict + ruff check + ruff format --check),
    confirm only the 4 known pdflatex failures remain.
 5. Run against the real production registry (`config/sbr.toml` against `D:\MBI-BRAIN`) and manually
-   sanity-check repaired names before claiming completion — this session's established discipline of
-   independently re-verifying against real data has caught a real bug in every P2 task implemented directly so
-   far.
+   sanity-check the generated report's counts against a few independent spot-checks before claiming
+   completion — this session's established discipline of independently re-verifying against real data has
+   caught a real bug in every P2 task implemented directly so far.
 6. Update `docs/28`/`docs/35` (DONE or IN_PROGRESS with a precise pending note), commit, run
    `validate_plan.py` / `audit_crossrefs.py`.
 7. Continue the same IMPLEMENT → TEST → VERIFY (real corpus) → UPDATE STATE → VALIDATE → COMMIT → NEXT loop
-   through the rest of P2 (T-P2-14, T-P2-07, T-P2-12) toward 14/14 DONE, then reassess Phase 3/5's first
-   eligible tasks (T-P3-01, T-P5-06), until a genuine blocker (owner decision, credentials, destructive action,
-   or an acceptance criterion genuinely impossible to satisfy).
+   through the rest of P2 (T-P2-07, T-P2-12) toward 14/14 DONE, then reassess Phase 3/5's first eligible tasks
+   (T-P3-01, T-P5-06), until a genuine blocker (owner decision, credentials, destructive action, or an
+   acceptance criterion genuinely impossible to satisfy).
