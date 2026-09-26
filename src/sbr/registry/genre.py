@@ -44,6 +44,7 @@ from sbr.db import registry as reg
 from sbr.db.connection import transaction
 from sbr.db.registry import RegistryDB
 from sbr.provenance import ProvenanceStore
+from sbr.registry.names import repair_mojibake
 from sbr.schemas import BlobClassification, PathObservation
 from sbr.schemas.registry import BlobRelation, KnowledgeClass, ObservationState, RelationStatus, RelationType
 
@@ -172,12 +173,18 @@ def classify_genre(relpath: str) -> GenreDecision:
     folder — score genre="thesis"/"lab"/"script" despite not being thesis/lab/script documents themselves.
     Living inside a folder named after a project or course doesn't make an arbitrary file "that genre"; only
     the file's own name is evidence of what kind of document it is.
+
+    The leaf name is matched after mojibake repair (T-P2-13's ``repair_mojibake``): a real 150-file precision
+    sample false positive was ``L├Âsung Klausur WS 15-16-1.pdf`` (mojibake for ``Lösung Klausur WS
+    15-16-1.pdf``) — the corrupted ``├Â`` broke the solution keyword's match, misclassifying an actual
+    solution document as a plain exam. Repair never changes ``relpath`` itself, only what this function reads
+    off it to decide genre.
     """
     isbn = extract_isbn(relpath)
     semester = extract_semester(relpath)
     if isbn is not None:
         return GenreDecision(genre="textbook", confidence=0.95, isbn=isbn, semester=semester)
-    name = _normalize_delimiters(PureWindowsPath(relpath).name)
+    name = _normalize_delimiters(repair_mojibake(PureWindowsPath(relpath).name))
     negated_solution = _NEGATED_SOLUTION.search(name) is not None
     for genre, pattern in _GENRE_RULES:
         if genre == "solution" and negated_solution:

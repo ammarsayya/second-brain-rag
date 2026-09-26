@@ -121,6 +121,15 @@ def test_ohne_loesung_negation_does_not_suppress_real_solutions() -> None:
     assert classify_genre(r"Reg1\Loesungen\Musterloesung.pdf").genre == "solution"
 
 
+def test_mojibake_corrupted_solution_keyword_still_matches_after_repair() -> None:
+    """Regression: real 150-file precision sample finding (T-P2-10), fixed once T-P2-13's repair_mojibake
+    existed to call. 'L├Âsung Klausur WS 15-16-1.pdf' is mojibake for 'Lösung Klausur WS 15-16-1.pdf' - the
+    corrupted '├Â' broke the bare 'Lösung' keyword match, misclassifying an actual solution document as a
+    plain exam."""
+    decision = classify_genre(r"Mechanical\messundsteuerungstechnik\Mes\mes\L├Âsung Klausur WS 15-16-1.pdf")
+    assert decision.genre == "solution"
+
+
 def test_isbn_extraction_normalizes_hyphenated_and_underscored_forms() -> None:
     assert extract_isbn(r"books\Numerik_ISBN_978-3-540-72233-9.pdf") == "9783540722339"
     assert extract_isbn(r"books\Klausur.pdf") is None
