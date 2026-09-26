@@ -78,6 +78,7 @@ from sbr.db.registry import RegistryDB
 from sbr.ids import hash_stream
 from sbr.obs.logging import get_logger
 from sbr.provenance import ProvenanceStore
+from sbr.registry.names import repair_mojibake
 from sbr.safety import assert_writable
 from sbr.schemas import ArchiveMember, BlobRecord, PathObservation
 from sbr.schemas.registry import ArchiveMemberStatus, KnowledgeClass, ObservationState
@@ -142,35 +143,7 @@ class _MemberPlan:
     declared_size: int
 
 
-_MOJIBAKE_TELLTALES: Final = ("Ã", "â€", "Â", "├", "â")
-
-
-def _cp437_repair(name: str) -> str:
-    """Repair display-only mojibake, without guessing at an already-correct name.
-
-    Python's ``zipfile`` already decodes a non-UTF-8-flagged entry name using CP437 per
-    the ZIP spec, which is *correct* for the common case this project's fixtures and
-    corpus exercise (verified: a name written as CP437 round-trips exactly through
-    ``zipfile.ZipInfo.filename``). Blindly re-encoding an already-correct name as CP437
-    and re-decoding it as UTF-8/CP1252 does **not** detect mojibake — it destroys correct
-    names that happen to survive the round trip as different-but-still-printable
-    characters (e.g. 'Ü' becomes 'š'). This function therefore only acts when the name
-    already contains one of a small set of byte sequences that are essentially only ever
-    produced by a genuine UTF-8-read-as-a-single-byte-codepage mistake elsewhere in the
-    pipeline (docs/08 §7's own example: ``Fl├ñche`` for ``Fläche``) — never a blind
-    encode/decode round trip on a name with no such evidence.
-    """
-    if not any(telltale in name for telltale in _MOJIBAKE_TELLTALES):
-        return name
-    for source_encoding in ("cp437", "cp850", "cp1252"):
-        try:
-            raw = name.encode(source_encoding)
-            repaired = raw.decode("utf-8")
-        except (UnicodeEncodeError, UnicodeDecodeError):
-            continue
-        if repaired != name and repaired.isprintable():
-            return repaired
-    return name
+_cp437_repair = repair_mojibake  # T-P2-13 promoted this to sbr.registry.names as the shared implementation
 
 
 def _is_traversal(member_path: str) -> bool:

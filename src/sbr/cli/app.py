@@ -27,6 +27,7 @@ from sbr.registry.courses import classify_courses
 from sbr.registry.dedup import select_canonical_paths
 from sbr.registry.genre import classify_genres
 from sbr.registry.hash import DEFAULT_BATCH_SIZE, hash_pending
+from sbr.registry.names import repair_names
 from sbr.registry.scan import scan_sources
 from sbr.registry.sensitivity import classify_sensitivity
 from sbr.registry.twins import detect_twin_candidates
@@ -370,6 +371,21 @@ def courses_cmd(
         }
 
     _run("courses", config, body)
+
+
+@app.command("names")
+def names_cmd(config: Path | None = ConfigOption) -> None:
+    """Repair CP437/CP850/CP1252 mojibake in display_name; relpath is never touched."""
+
+    def body(rt: Runtime) -> dict[str, object]:
+        result = repair_names(rt.config, rt.db)
+        return {
+            "activity_id": result.activity_id,
+            "considered": result.considered,
+            "repaired": result.repaired,
+        }
+
+    _run("names", config, body)
 
 
 @config_app.command("show")
