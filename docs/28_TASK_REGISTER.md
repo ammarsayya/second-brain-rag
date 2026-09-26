@@ -793,7 +793,7 @@ Each task is written so that it can be independently verified. Spike tasks link 
 
 ### T-P3-01 — Select MBI-Gold-Extract sample set
 - **Phase:** P3
-- **Status:** NOT_STARTED
+- **Status:** DONE
 - **Priority:** critical
 - **Dependencies:** T-P2-06, T-P2-10
 - **Human approval:** review
@@ -803,6 +803,23 @@ Each task is written so that it can be independently verified. Spike tasks link 
 - **Acceptance criteria:** Coverage matrix filled; owner approves list.
 - **Validation method:** Selection script reproducible (seeded).
 - **Expected artifacts:** eval/gold/extract_sample.yaml
+- **Verification (2026-09-26):** `src/sbr/eval/signals.py` (pure, unit-tested document-shape classifiers:
+  PDF producer bucket, scanned-page detection, landscape/slide-like, native-OMML presence) and
+  `src/sbr/eval/gold_extract.py` (pure stratified selector: an ordered, quota'd bucket list — rarer/more
+  critical shapes first — filling each from the still-unselected pool, deterministic given a seed, never
+  letting one blob quietly satisfy multiple buckets). `tools/select_gold_extract_sample.py`: the real-corpus
+  orchestrator, reusing T-P2-12's already-computed PDF page census rather than re-opening every PDF a second
+  time. **Real-corpus run** against `D:\MBI-BRAIN`: 5,034 canonical document blobs (pdf/docx/doc/pptx/ppsx/
+  ppt) considered, **120 of 120 target pages selected**, coverage matrix filled for all 17 buckets (16 hit
+  their quota exactly; `unmapped_course` selected 4 of quota 6 because the 120-page budget was exhausted by
+  that point in priority order, not because its eligible pool — 2,249 blobs — was short). Spot-checked the
+  `thesis` bucket's real output: exactly the owner's actual Bachelorarbeit/Masterarbeit documents (matching
+  T-P2-09's earlier twin-detection finding), with page picks correctly avoiding page 1 on longer PDFs.
+  Written to `eval/gold/extract_sample.yaml` (git-ignored per docs/33 §41/docs/22 §4 — copyrighted lecture
+  material, blob_id+page references stay local, never a public remote). 16 new tests; 334 passed (up from
+  318), 4 pre-existing pdflatex-only failures (unrelated); mypy strict and ruff clean. **Owner follow-up open**
+  (this task's own review tier): the owner reviews `eval/gold/extract_sample.yaml`'s 120-entry list before it
+  is treated as final for the spikes that consume it (T-P3-05 onward).
 
 ### T-P3-02 — Build MBI-Gold-Math (~300 equations)
 - **Phase:** P3
@@ -830,7 +847,7 @@ Each task is written so that it can be independently verified. Spike tasks link 
 
 ### T-P3-04 — Extraction evaluation harness
 - **Phase:** P3
-- **Status:** NOT_STARTED
+- **Status:** DONE
 - **Priority:** critical
 - **Dependencies:** T-P3-01, T-P1-05
 - **Human approval:** none
@@ -839,6 +856,25 @@ Each task is written so that it can be independently verified. Spike tasks link 
 - **Acceptance criteria:** Harness runs on a dummy extractor and produces a report.
 - **Validation method:** Unit tests for metrics.
 - **Expected artifacts:** src/sbr/eval/extract/*
+- **Verification (2026-09-26):** `src/sbr/eval/extract/contracts.py`: a deliberate subset of docs/04 §2's full
+  DocIR (Block/Equation/Table/Figure) so every T-P3-05+ candidate adapts into the same shape and the harness
+  scores every engine identically. `metrics.py`: text CER/WER, reading-order edit distance, heading F1,
+  equation exact/normalized-match + token edit distance, **false-confidence rate** (docs/20's own "most
+  important" equation metric), figure detection F1 (greedy IoU matching), table-structure-similarity.
+  **Render-compare and true TEDS are explicit, documented stubs, not faked**: render-compare needs a LaTeX
+  rendering engine SPIKE-MATH (T-P3-06, ADR-009) has not chosen yet, and the table metric here is a labeled
+  simplified proxy, not the published tree-edit-distance TEDS algorithm — both matter only once real gold
+  math/layout data (T-P3-02/03) exists, and those remain correctly un-started pending owner approval
+  ("Human approval: required"). `dummy.py`: a real (not mocked) pypdf-text-layer baseline extractor — the
+  floor every real candidate must beat, and what "runs on a dummy extractor" means. `harness.py`: scores a
+  full sample batch, never letting one bad page or a crashing engine abort the run; RAM capture reuses
+  `jobs.governor`'s existing best-effort measurement (NFR-06: no new dependency for this, honestly 0.0 on
+  Windows) rather than adding psutil. New `sbr eval extract` CLI command + `goldfile.py` (a minimal YAML gold
+  schema, since MBI-Gold-Extract/Math/Layout's own labeled output doesn't exist yet) writes JSONL per docs/20
+  §3's own convention. 27 new tests (every metric's edge cases, scoring semantics including the
+  false-confidence and crash-as-error cases, the dummy extractor against a real PDF fixture, goldfile
+  parsing, CLI). 361 passed (up from 334), 4 pre-existing pdflatex-only failures (unrelated); mypy strict and
+  ruff clean.
 
 ### T-P3-05 — SPIKE-PARSER: parser/layout comparison on CPU
 - **Phase:** P3
