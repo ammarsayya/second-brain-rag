@@ -904,7 +904,7 @@ Each task is written so that it can be independently verified. Spike tasks link 
 
 ### T-P3-07 — SPIKE-OMML: Office math conversion fidelity
 - **Phase:** P3
-- **Status:** NOT_STARTED
+- **Status:** IN_PROGRESS
 - **Priority:** high
 - **Dependencies:** T-P3-04
 - **Human approval:** none
@@ -914,6 +914,26 @@ Each task is written so that it can be independently verified. Spike tasks link 
 - **Acceptance criteria:** ≥98% of sampled OMML equations render correctly; alignment method chosen.
 - **Validation method:** Render comparison + manual review of 50.
 - **Expected artifacts:** eval/reports/spike_omml.md
+- **Verification (2026-09-26):** Evidence-gathering complete; the acceptance criterion's own validation method
+  (manual review of 50 equations) genuinely requires the owner's judgment, so this stays IN_PROGRESS rather
+  than DONE until that review happens — not something to route around or approximate. `tools/spike_omml.py`
+  (installed pandoc via chocolatey — docs/36's own primary candidate, not previously on this machine) ran
+  against every real OMML-bearing DOCX/PPTX in `D:\MBI-BRAIN`: 44 files, 0 conversion failures, 2,608
+  equations extracted, **99.9% syntactically valid** (balanced braces, non-empty, no pandoc error marker —
+  necessary but not sufficient for "renders correctly"). **Key finding**: pandoc converts DOCX excellently
+  (thesis equation counts across its several saved copies — 422/425/427/431 — match docs/24 §64's already-
+  known official figure almost exactly) but extracts **zero** equations from every one of the 14 PPTX files
+  that genuinely contain native OMML (confirmed in each file's raw XML) — consistent across all 14, reading
+  as a real pandoc PPTX-reader limitation, not corpus-specific noise. This is a concrete input to ADR-009:
+  pandoc alone does not cover PowerPoint-native math; one of docs/36's listed alternatives (docx2python +
+  custom OMML XSLT, or LibreOffice) would need to cover the PPTX case, or PPTX equations route through
+  SPIKE-MATH's eventual recognizer instead of source conversion. A reproducible 50-equation sample (seeded)
+  is in `eval/reports/spike_omml.md` for the owner's manual review. 15 of 44 files have a PDF twin candidate
+  (T-P2-09) for future PDF<->DOCX alignment — not scored here, since that needs SPIKE-MATH's own PDF-side
+  extraction to exist first; **"alignment method chosen" is therefore not yet decided**, correctly deferred.
+  7 new tests; 368 passed; mypy strict and ruff clean. **Owner action needed to close this task**: review the
+  50-sample table for correctness (not just syntax) to determine whether the ≥98% bar is met, and choose (or
+  defer) a PPTX-specific conversion path.
 
 ### T-P3-08 — SPIKE-OCR: scanned German pages
 - **Phase:** P3
