@@ -65,7 +65,13 @@ def test_manifest_totals_and_breakdowns_match_a_hand_counted_fixture_tree(
     )
 
     top_level = {f.folder: f.files for f in report.by_top_level_folder}
-    assert top_level == {"Statik": 2, "Reg1": 1, "notes.txt": 1}
+    assert top_level == {"Statik": 2, "Reg1": 1, "(root)": 1}  # notes.txt has no folder at all
+
+    # Regression: an earlier version took the first two segments of the WHOLE path (filename included), so a
+    # file directly inside a single-depth folder (no subfolder, exactly this fixture's shape) was wrongly
+    # bucketed per-file instead of under its one real folder.
+    level2 = {f.folder: f.files for f in report.by_level2_folder}
+    assert level2 == {"Statik": 2, "Reg1": 1, "(root)": 1}
 
     assert report.duplicates.duplicate_groups == 1
     assert report.duplicates.redundant_bytes == len(b"%PDF-1.7\nexam one")

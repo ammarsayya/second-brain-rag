@@ -92,13 +92,29 @@ class ManifestReport:
     )
 
 
+def _folder_parts(relpath: str) -> tuple[str, ...]:
+    """The path's folder segments, filename excluded - a bare root-level file has zero folder segments."""
+    return PureWindowsPath(relpath).parts[:-1]
+
+
 def _top_level(relpath: str) -> str:
-    return PureWindowsPath(relpath).parts[0] if relpath else "(root)"
+    parts = _folder_parts(relpath)
+    return parts[0] if parts else "(root)"
 
 
 def _level2(relpath: str) -> str:
-    parts = PureWindowsPath(relpath).parts
-    return "\\".join(parts[:2]) if len(parts) >= 2 else _top_level(relpath)
+    """The first two folder segments, filename excluded.
+
+    Regression: an earlier version took ``parts[:2]`` off the *whole* path (including the filename), so a
+    file sitting directly in a single-depth folder (e.g. ``Ckurs\\notes.pdf``, no subfolder) was wrongly
+    bucketed under a distinct "level-2 folder" per file (``Ckurs\\notes.pdf``, ``Ckurs\\other.pdf``, ...)
+    instead of correctly under ``Ckurs`` itself - found by a mirror-detection test built on exactly this shape
+    of fixture (files directly inside two top-level folders, no subfolder).
+    """
+    parts = _folder_parts(relpath)
+    if len(parts) >= 2:
+        return "\\".join(parts[:2])
+    return parts[0] if parts else "(root)"
 
 
 def _category_counts(counter_files: Counter[str], counter_bytes: Counter[str]) -> tuple[CategoryCount, ...]:

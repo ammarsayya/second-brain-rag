@@ -34,6 +34,8 @@ from sbr.registry.scan import scan_sources
 from sbr.registry.sensitivity import classify_sensitivity
 from sbr.registry.twins import detect_twin_candidates
 from sbr.reports.manifest import build_manifest, render_csv_rows, render_markdown
+from sbr.reports.mirrors import MIN_OVERLAP, MIN_SHARED_BLOBS, build_mirrors_report
+from sbr.reports.mirrors import render_markdown as render_mirrors_markdown
 from sbr.safety import assert_writable
 from sbr.schemas import WorkItemState
 
@@ -58,6 +60,9 @@ CanonicalPathOverridesOption = typer.Option(None, "--overrides", help="Owner can
 CourseMapOption = typer.Option(None, "--course-map", help="Owner course-mapping curation YAML file.")
 ManifestMarkdownOption = typer.Option(Path("reports/manifest.md"), "--markdown-output")
 ManifestCsvOption = typer.Option(Path("reports/manifest.csv"), "--csv-output")
+MirrorsMarkdownOption = typer.Option(Path("reports/mirrors.md"), "--markdown-output")
+MirrorsMinOverlapOption = typer.Option(MIN_OVERLAP, "--min-overlap")
+MirrorsMinSharedOption = typer.Option(MIN_SHARED_BLOBS, "--min-shared-blobs")
 
 
 @app.callback()
@@ -428,6 +433,29 @@ def report_manifest_cmd(
         }
 
     _run("report manifest", config, body)
+
+
+@report_app.command("mirrors")
+def report_mirrors_cmd(
+    markdown_output: Path = MirrorsMarkdownOption,
+    min_overlap: float = MirrorsMinOverlapOption,
+    min_shared_blobs: int = MirrorsMinSharedOption,
+    config: Path | None = ConfigOption,
+) -> None:
+    """Report-only, no action: folders sharing a large fraction of content by hash, for the owner to review."""
+
+    def body(rt: Runtime) -> dict[str, object]:
+        pairs = build_mirrors_report(rt.config, rt.db, min_overlap=min_overlap, min_shared_blobs=min_shared_blobs)
+        assert_writable(markdown_output.resolve(), rt.config)
+        markdown_output.parent.mkdir(parents=True, exist_ok=True)
+        markdown_output.write_text(render_mirrors_markdown(pairs), encoding="utf-8")
+        return {
+            "pairs_found": len(pairs),
+            "total_reclaimable_bytes": sum(p.bytes_reclaimable for p in pairs),
+            "markdown_output": str(markdown_output),
+        }
+
+    _run("report mirrors", config, body)
 
 
 @config_app.command("show")
