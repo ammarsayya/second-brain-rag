@@ -1,0 +1,994 @@
+{
+  "$defs": {
+    "Annotation": {
+      "additionalProperties": false,
+      "description": "Owner's marks on a source (docs/09 §2, docs/11 §7). Always USER_ANNOTATION (ADR-013) - never collapsed\ninto the surrounding text, and never dropped by dedup (ADR-032).",
+      "properties": {
+        "bbox": {
+          "maxItems": 4,
+          "minItems": 4,
+          "prefixItems": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "number"
+            },
+            {
+              "type": "number"
+            },
+            {
+              "type": "number"
+            }
+          ],
+          "title": "Bbox",
+          "type": "array"
+        },
+        "id": {
+          "pattern": "^ann_[0-7][0-9A-HJKMNP-TV-Z]{25}$",
+          "title": "Id",
+          "type": "string"
+        },
+        "kind": {
+          "pattern": "^(pdf_annot|ink_detected|highlight)$",
+          "title": "Kind",
+          "type": "string"
+        },
+        "page_index": {
+          "minimum": 0,
+          "title": "Page Index",
+          "type": "integer"
+        },
+        "text": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Text"
+        }
+      },
+      "required": [
+        "id",
+        "kind",
+        "page_index",
+        "bbox"
+      ],
+      "title": "Annotation",
+      "type": "object"
+    },
+    "Block": {
+      "additionalProperties": false,
+      "description": "Atomic layout element (docs/04 §2, docs/09 §2). ``order`` is reading order within its page.",
+      "properties": {
+        "bbox": {
+          "anyOf": [
+            {
+              "maxItems": 4,
+              "minItems": 4,
+              "prefixItems": [
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "number"
+                }
+              ],
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Bbox"
+        },
+        "confidence": {
+          "anyOf": [
+            {
+              "maximum": 1.0,
+              "minimum": 0.0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Confidence"
+        },
+        "equation_ref": {
+          "anyOf": [
+            {
+              "pattern": "^eq_[0-7][0-9A-HJKMNP-TV-Z]{25}$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Equation Ref"
+        },
+        "figure_ref": {
+          "anyOf": [
+            {
+              "pattern": "^fig_[0-7][0-9A-HJKMNP-TV-Z]{25}$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Figure Ref"
+        },
+        "id": {
+          "pattern": "^blk_[0-7][0-9A-HJKMNP-TV-Z]{25}$",
+          "title": "Id",
+          "type": "string"
+        },
+        "lang": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Lang"
+        },
+        "order": {
+          "minimum": 0,
+          "title": "Order",
+          "type": "integer"
+        },
+        "page": {
+          "minimum": 0,
+          "title": "Page",
+          "type": "integer"
+        },
+        "source": {
+          "pattern": "^(text_layer|ocr|office|vision)$",
+          "title": "Source",
+          "type": "string"
+        },
+        "table_ref": {
+          "anyOf": [
+            {
+              "pattern": "^tbl_[0-7][0-9A-HJKMNP-TV-Z]{25}$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Table Ref"
+        },
+        "text": {
+          "title": "Text",
+          "type": "string"
+        },
+        "type": {
+          "$ref": "#/$defs/BlockKind"
+        }
+      },
+      "required": [
+        "id",
+        "type",
+        "page",
+        "order",
+        "text",
+        "source"
+      ],
+      "title": "Block",
+      "type": "object"
+    },
+    "BlockKind": {
+      "description": "docs/04 §2's own Block kind list.",
+      "enum": [
+        "paragraph",
+        "heading",
+        "list",
+        "equation",
+        "figure",
+        "table",
+        "caption",
+        "code",
+        "footnote",
+        "header",
+        "footer",
+        "annotation"
+      ],
+      "title": "BlockKind",
+      "type": "string"
+    },
+    "DocumentInfo": {
+      "additionalProperties": false,
+      "properties": {
+        "genre": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Genre"
+        },
+        "lang": {
+          "items": {
+            "pattern": "^[a-z]{2}$",
+            "type": "string"
+          },
+          "title": "Lang",
+          "type": "array"
+        },
+        "pages": {
+          "minimum": 0,
+          "title": "Pages",
+          "type": "integer"
+        },
+        "title": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Title"
+        }
+      },
+      "required": [
+        "pages"
+      ],
+      "title": "DocumentInfo",
+      "type": "object"
+    },
+    "Equation": {
+      "additionalProperties": false,
+      "properties": {
+        "bbox": {
+          "maxItems": 4,
+          "minItems": 4,
+          "prefixItems": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "number"
+            },
+            {
+              "type": "number"
+            },
+            {
+              "type": "number"
+            }
+          ],
+          "title": "Bbox",
+          "type": "array"
+        },
+        "blob_id": {
+          "pattern": "^b3:[0-9a-f]{64}$",
+          "title": "Blob Id",
+          "type": "string"
+        },
+        "crop_ref": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Crop Ref"
+        },
+        "display": {
+          "title": "Display",
+          "type": "boolean"
+        },
+        "id": {
+          "pattern": "^eq_[0-7][0-9A-HJKMNP-TV-Z]{25}$",
+          "title": "Id",
+          "type": "string"
+        },
+        "label": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Label"
+        },
+        "latex_normalized": {
+          "title": "Latex Normalized",
+          "type": "string"
+        },
+        "page_index": {
+          "minimum": 0,
+          "title": "Page Index",
+          "type": "integer"
+        },
+        "preferred_reading": {
+          "minimum": 0,
+          "title": "Preferred Reading",
+          "type": "integer"
+        },
+        "readings": {
+          "items": {
+            "$ref": "#/$defs/EquationReading"
+          },
+          "minItems": 1,
+          "title": "Readings",
+          "type": "array"
+        },
+        "validation_status": {
+          "$ref": "#/$defs/ValidationStatus"
+        }
+      },
+      "required": [
+        "id",
+        "blob_id",
+        "page_index",
+        "bbox",
+        "display",
+        "readings",
+        "preferred_reading",
+        "latex_normalized",
+        "validation_status"
+      ],
+      "title": "Equation",
+      "type": "object"
+    },
+    "EquationReading": {
+      "additionalProperties": false,
+      "description": "One candidate LaTeX reading of an equation (docs/10 §1/§3) — several may coexist; see ``preferred_reading``.",
+      "properties": {
+        "confidence": {
+          "maximum": 1.0,
+          "minimum": 0.0,
+          "title": "Confidence",
+          "type": "number"
+        },
+        "engine": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Engine"
+        },
+        "latex": {
+          "title": "Latex",
+          "type": "string"
+        },
+        "source_kind": {
+          "$ref": "#/$defs/EquationSourceKind"
+        },
+        "validations": {
+          "patternProperties": {
+            "^V[1-5]$": {
+              "type": "boolean"
+            }
+          },
+          "title": "Validations",
+          "type": "object"
+        }
+      },
+      "required": [
+        "latex",
+        "source_kind",
+        "confidence"
+      ],
+      "title": "EquationReading",
+      "type": "object"
+    },
+    "EquationSourceKind": {
+      "description": "docs/10 §1's priority-ordered math source kinds.",
+      "enum": [
+        "omml_exact",
+        "office_ole_equation",
+        "latex_source",
+        "vision_recognized",
+        "text_layer_linear",
+        "none"
+      ],
+      "title": "EquationSourceKind",
+      "type": "string"
+    },
+    "ExtractorRef": {
+      "additionalProperties": false,
+      "description": "One entry in a DocIR's ``extractors`` list: which engine (and exact config) produced part of it.",
+      "properties": {
+        "name": {
+          "maxLength": 64,
+          "minLength": 1,
+          "title": "Name",
+          "type": "string"
+        },
+        "params_hash": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Params Hash"
+        },
+        "version": {
+          "maxLength": 64,
+          "minLength": 1,
+          "title": "Version",
+          "type": "string"
+        }
+      },
+      "required": [
+        "name",
+        "version"
+      ],
+      "title": "ExtractorRef",
+      "type": "object"
+    },
+    "Figure": {
+      "additionalProperties": false,
+      "properties": {
+        "ai_description": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Ai Description"
+        },
+        "bbox": {
+          "maxItems": 4,
+          "minItems": 4,
+          "prefixItems": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "number"
+            },
+            {
+              "type": "number"
+            },
+            {
+              "type": "number"
+            }
+          ],
+          "title": "Bbox",
+          "type": "array"
+        },
+        "caption": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Caption"
+        },
+        "confidence": {
+          "maximum": 1.0,
+          "minimum": 0.0,
+          "title": "Confidence",
+          "type": "number"
+        },
+        "crop_ref": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Crop Ref"
+        },
+        "id": {
+          "pattern": "^fig_[0-7][0-9A-HJKMNP-TV-Z]{25}$",
+          "title": "Id",
+          "type": "string"
+        },
+        "is_knowledge_bearing": {
+          "title": "Is Knowledge Bearing",
+          "type": "boolean"
+        },
+        "kind": {
+          "$ref": "#/$defs/FigureKind"
+        },
+        "label": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Label"
+        },
+        "page_index": {
+          "minimum": 0,
+          "title": "Page Index",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "id",
+        "page_index",
+        "bbox",
+        "kind",
+        "is_knowledge_bearing",
+        "confidence"
+      ],
+      "title": "Figure",
+      "type": "object"
+    },
+    "FigureKind": {
+      "description": "docs/04 §2 / docs/11 §1's own Figure kind list.",
+      "enum": [
+        "block_diagram",
+        "plot",
+        "schematic",
+        "technical_drawing",
+        "fem_result",
+        "robot_diagram",
+        "setup_photo",
+        "math_figure",
+        "table_image",
+        "decorative"
+      ],
+      "title": "FigureKind",
+      "type": "string"
+    },
+    "Page": {
+      "additionalProperties": false,
+      "description": "``index`` is the PDF page index (0-based); slides use one Page per slide (docs/09 §3).",
+      "properties": {
+        "blocks": {
+          "items": {
+            "pattern": "^blk_[0-7][0-9A-HJKMNP-TV-Z]{25}$",
+            "type": "string"
+          },
+          "title": "Blocks",
+          "type": "array"
+        },
+        "height": {
+          "exclusiveMinimum": 0,
+          "title": "Height",
+          "type": "number"
+        },
+        "index": {
+          "minimum": 0,
+          "title": "Index",
+          "type": "integer"
+        },
+        "label": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Label"
+        },
+        "triage": {
+          "additionalProperties": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "number"
+              },
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "integer"
+              }
+            ]
+          },
+          "title": "Triage",
+          "type": "object"
+        },
+        "width": {
+          "exclusiveMinimum": 0,
+          "title": "Width",
+          "type": "number"
+        }
+      },
+      "required": [
+        "index",
+        "width",
+        "height"
+      ],
+      "title": "Page",
+      "type": "object"
+    },
+    "Quality": {
+      "additionalProperties": false,
+      "properties": {
+        "math_status_counts": {
+          "patternProperties": {
+            "^V[1-5]$|^[a-z_]+$": {
+              "type": "integer"
+            }
+          },
+          "title": "Math Status Counts",
+          "type": "object"
+        },
+        "text_coverage": {
+          "anyOf": [
+            {
+              "maximum": 1.0,
+              "minimum": 0.0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Text Coverage"
+        },
+        "warnings": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Warnings",
+          "type": "array"
+        }
+      },
+      "title": "Quality",
+      "type": "object"
+    },
+    "Reference": {
+      "additionalProperties": false,
+      "description": "A bibliography entry or in-text citation; may resolve to another Document in the corpus (docs/04 §2).",
+      "properties": {
+        "id": {
+          "pattern": "^ref_[0-7][0-9A-HJKMNP-TV-Z]{25}$",
+          "title": "Id",
+          "type": "string"
+        },
+        "raw_text": {
+          "title": "Raw Text",
+          "type": "string"
+        },
+        "resolved_document_id": {
+          "anyOf": [
+            {
+              "pattern": "^doc_[0-7][0-9A-HJKMNP-TV-Z]{25}$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Resolved Document Id"
+        }
+      },
+      "required": [
+        "id",
+        "raw_text"
+      ],
+      "title": "Reference",
+      "type": "object"
+    },
+    "Section": {
+      "additionalProperties": false,
+      "properties": {
+        "blocks": {
+          "items": {
+            "pattern": "^blk_[0-7][0-9A-HJKMNP-TV-Z]{25}$",
+            "type": "string"
+          },
+          "title": "Blocks",
+          "type": "array"
+        },
+        "children": {
+          "items": {
+            "pattern": "^sec_[0-7][0-9A-HJKMNP-TV-Z]{25}$",
+            "type": "string"
+          },
+          "title": "Children",
+          "type": "array"
+        },
+        "id": {
+          "pattern": "^sec_[0-7][0-9A-HJKMNP-TV-Z]{25}$",
+          "title": "Id",
+          "type": "string"
+        },
+        "level": {
+          "minimum": 0,
+          "title": "Level",
+          "type": "integer"
+        },
+        "number": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Number"
+        },
+        "page_span": {
+          "maxItems": 2,
+          "minItems": 2,
+          "prefixItems": [
+            {
+              "minimum": 0,
+              "type": "integer"
+            },
+            {
+              "minimum": 0,
+              "type": "integer"
+            }
+          ],
+          "title": "Page Span",
+          "type": "array"
+        },
+        "title": {
+          "title": "Title",
+          "type": "string"
+        }
+      },
+      "required": [
+        "id",
+        "title",
+        "level",
+        "page_span"
+      ],
+      "title": "Section",
+      "type": "object"
+    },
+    "Table": {
+      "additionalProperties": false,
+      "properties": {
+        "bbox": {
+          "anyOf": [
+            {
+              "maxItems": 4,
+              "minItems": 4,
+              "prefixItems": [
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "number"
+                }
+              ],
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Bbox"
+        },
+        "caption": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Caption"
+        },
+        "confidence": {
+          "maximum": 1.0,
+          "minimum": 0.0,
+          "title": "Confidence",
+          "type": "number"
+        },
+        "id": {
+          "pattern": "^tbl_[0-7][0-9A-HJKMNP-TV-Z]{25}$",
+          "title": "Id",
+          "type": "string"
+        },
+        "label": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Label"
+        },
+        "page_index": {
+          "minimum": 0,
+          "title": "Page Index",
+          "type": "integer"
+        },
+        "rows": {
+          "items": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "title": "Rows",
+          "type": "array"
+        }
+      },
+      "required": [
+        "id",
+        "page_index",
+        "rows",
+        "confidence"
+      ],
+      "title": "Table",
+      "type": "object"
+    },
+    "ValidationStatus": {
+      "description": "docs/10 §2's equation validation-status outcomes.",
+      "enum": [
+        "verified",
+        "plausible",
+        "uncertain",
+        "failed"
+      ],
+      "title": "ValidationStatus",
+      "type": "string"
+    }
+  },
+  "$id": "sbr/1.0.0/DocIR.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "description": "The full per-``(blob_id, extractor_set_version)`` document, per docs/09 §2's own JSON shape.",
+  "properties": {
+    "annotations": {
+      "items": {
+        "$ref": "#/$defs/Annotation"
+      },
+      "title": "Annotations",
+      "type": "array"
+    },
+    "blob_id": {
+      "pattern": "^b3:[0-9a-f]{64}$",
+      "title": "Blob Id",
+      "type": "string"
+    },
+    "blocks": {
+      "items": {
+        "$ref": "#/$defs/Block"
+      },
+      "title": "Blocks",
+      "type": "array"
+    },
+    "docir_version": {
+      "default": "1.0",
+      "title": "Docir Version",
+      "type": "string"
+    },
+    "document": {
+      "$ref": "#/$defs/DocumentInfo"
+    },
+    "equations": {
+      "items": {
+        "$ref": "#/$defs/Equation"
+      },
+      "title": "Equations",
+      "type": "array"
+    },
+    "extractors": {
+      "items": {
+        "$ref": "#/$defs/ExtractorRef"
+      },
+      "minItems": 1,
+      "title": "Extractors",
+      "type": "array"
+    },
+    "figures": {
+      "items": {
+        "$ref": "#/$defs/Figure"
+      },
+      "title": "Figures",
+      "type": "array"
+    },
+    "pages": {
+      "items": {
+        "$ref": "#/$defs/Page"
+      },
+      "title": "Pages",
+      "type": "array"
+    },
+    "quality": {
+      "$ref": "#/$defs/Quality"
+    },
+    "references": {
+      "items": {
+        "$ref": "#/$defs/Reference"
+      },
+      "title": "References",
+      "type": "array"
+    },
+    "sections": {
+      "items": {
+        "$ref": "#/$defs/Section"
+      },
+      "title": "Sections",
+      "type": "array"
+    },
+    "tables": {
+      "items": {
+        "$ref": "#/$defs/Table"
+      },
+      "title": "Tables",
+      "type": "array"
+    }
+  },
+  "required": [
+    "blob_id",
+    "document",
+    "extractors",
+    "pages"
+  ],
+  "title": "DocIR",
+  "type": "object",
+  "x-sbr-schema-version": "1.0.0"
+}

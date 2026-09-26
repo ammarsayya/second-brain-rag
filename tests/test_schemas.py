@@ -12,9 +12,9 @@ from typing import Any
 import pytest
 from pydantic import BaseModel, ValidationError
 
+from sbr.docir import DocIR, DocumentInfo, ExtractorRef, Page
 from sbr.ids import hash_bytes, new_id
 from sbr.schemas import (
-    EXPORTED_MODELS,
     Activity,
     ActivityStatus,
     ArchiveMember,
@@ -34,7 +34,7 @@ from sbr.schemas import (
     WorkItemState,
     WorkOutput,
 )
-from sbr.schemas.export import render_schemas
+from sbr.schemas.export import ALL_EXPORTED_MODELS, render_schemas
 from sbr.schemas.registry import ArchiveMemberStatus, ChangeType, RelationType, RootKind
 
 ROOT = Path(__file__).resolve().parent.parent
@@ -155,6 +155,12 @@ def samples() -> list[BaseModel]:
             exit_code=0,
             counts={"files": 3},
         ),
+        DocIR(
+            blob_id=B1,
+            document=DocumentInfo(title="Skript", genre="lecture_script", lang=["de"], pages=1),
+            extractors=[ExtractorRef(name="pymupdf", version="1.28.2")],
+            pages=[Page(index=0, label="1", width=595.0, height=842.0)],
+        ),
     ]
 
 
@@ -167,7 +173,7 @@ def test_json_round_trip(obj: BaseModel) -> None:
 
 
 def test_every_exported_model_has_a_sample() -> None:
-    assert {type(o) for o in samples()} == set(EXPORTED_MODELS)
+    assert {type(o) for o in samples()} == set(ALL_EXPORTED_MODELS)
 
 
 def test_timestamps_serialize_as_utc() -> None:

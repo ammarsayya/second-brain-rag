@@ -11,10 +11,7 @@ from typing import Annotated, Any, Self
 
 from pydantic import Field, StringConstraints, field_validator, model_validator
 
-from sbr.schemas.base import ActivityId, BlobId, ObsId, ScanId, Slug, StrictModel, UtcDatetime
-
-NonNeg = Annotated[int, Field(ge=0)]
-Confidence = Annotated[float, Field(ge=0.0, le=1.0)]
+from sbr.schemas.base import ActivityId, BlobId, Confidence, NonNeg, ObsId, ScanId, Slug, StrictModel, UtcDatetime
 
 
 class RootKind(StrEnum):

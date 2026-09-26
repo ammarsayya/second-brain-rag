@@ -6,11 +6,14 @@ import re
 from datetime import UTC, datetime, timedelta
 from typing import Annotated, Final
 
-from pydantic import AfterValidator, AwareDatetime, BaseModel, ConfigDict, StringConstraints
+from pydantic import AfterValidator, AwareDatetime, BaseModel, ConfigDict, Field, StringConstraints
 
 SCHEMA_VERSION: Final = "1.0.0"
 
 _ULID = r"[0-7][0-9A-HJKMNP-TV-Z]{25}"
+
+NonNeg = Annotated[int, Field(ge=0)]
+Confidence = Annotated[float, Field(ge=0.0, le=1.0)]
 
 
 class StrictModel(BaseModel):
@@ -44,4 +47,11 @@ ObsId = Annotated[str, prefixed("obs")]
 BlockId = Annotated[str, prefixed("blk")]
 JobId = Annotated[str, prefixed("job")]
 ManifestId = Annotated[str, prefixed("man")]
+DocumentId = Annotated[str, prefixed("doc")]
+SectionId = Annotated[str, prefixed("sec")]
+EquationId = Annotated[str, prefixed("eq")]
+FigureId = Annotated[str, prefixed("fig")]
+TableId = Annotated[str, prefixed("tbl")]
+AnnotationId = Annotated[str, prefixed("ann")]
+ReferenceId = Annotated[str, prefixed("ref")]
 AnyEntityId = Annotated[str, StringConstraints(pattern=rf"^(b3:[0-9a-f]{{64}}|[a-z]+_{_ULID})$")]
