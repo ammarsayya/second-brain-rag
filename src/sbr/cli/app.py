@@ -10,6 +10,7 @@ same way against a freshly migrated, empty database.
 from __future__ import annotations
 
 import csv
+import dataclasses
 import io
 import json
 from collections.abc import Callable
@@ -22,6 +23,10 @@ from sbr import __version__
 from sbr.cli.runtime import Runtime, command_runtime
 from sbr.config import ConfigError
 from sbr.db import registry as reg
+from sbr.eval.extract.contracts import Extractor
+from sbr.eval.extract.dummy import DummyTextExtractor
+from sbr.eval.extract.goldfile import load_gold_samples
+from sbr.eval.extract.harness import run_harness
 from sbr.registry.archives import inventory_archives
 from sbr.registry.changes import detect_changes
 from sbr.registry.classify import DEFAULT_RULES_PATH, classify_pending
@@ -38,6 +43,7 @@ from sbr.reports.mirrors import MIN_OVERLAP, MIN_SHARED_BLOBS, build_mirrors_rep
 from sbr.reports.mirrors import render_markdown as render_mirrors_markdown
 from sbr.safety import assert_writable
 from sbr.schemas import WorkItemState
+from sbr.sourcefs import SourceFS
 
 app = typer.Typer(
     name="sbr",
@@ -49,6 +55,13 @@ config_app = typer.Typer(help="Configuration commands.")
 app.add_typer(config_app, name="config")
 report_app = typer.Typer(help="Read-only reports over the registry.")
 app.add_typer(report_app, name="report")
+eval_app = typer.Typer(help="Extraction/retrieval evaluation harnesses (P3+).")
+app.add_typer(eval_app, name="eval")
+
+EXTRACTORS: dict[str, Extractor] = {"dummy_text_layer": DummyTextExtractor()}
+GoldFileOption = typer.Option(..., "--gold", help="Gold-file YAML (sbr.eval.extract.goldfile schema).")
+ExtractorOption = typer.Option("dummy_text_layer", "--extractor", help="One of the registered EXTRACTORS.")
+ExtractHarnessOutputOption = typer.Option(Path("eval/reports/extract_harness.jsonl"), "--output")
 
 ConfigOption = typer.Option(
     None, "--config", help="Path to the TOML config file (default: $SBR_CONFIG or config/sbr.toml)."
@@ -456,6 +469,54 @@ def report_mirrors_cmd(
         }
 
     _run("report mirrors", config, body)
+
+
+@eval_app.command("extract")
+def eval_extract_cmd(
+    gold: Path = GoldFileOption,
+    extractor: str = ExtractorOption,
+    output: Path = ExtractHarnessOutputOption,
+    config: Path | None = ConfigOption,
+) -> None:
+    """Score one extractor against a gold file's samples; write one JSON line per page plus a summary line."""
+    if extractor not in EXTRACTORS:
+        raise typer.BadParameter(f"unknown extractor {extractor!r}; choices: {', '.join(EXTRACTORS)}")
+
+    def body(rt: Runtime) -> dict[str, object]:
+        source_fs = SourceFS(rt.config)
+        samples = load_gold_samples(source_fs, gold)
+        report = run_harness(EXTRACTORS[extractor], samples)
+
+        assert_writable(output.resolve(), rt.config)
+        output.parent.mkdir(parents=True, exist_ok=True)
+        with output.open("w", encoding="utf-8") as f:
+            for score in report.pages:
+                f.write(json.dumps({"type": "page", **dataclasses.asdict(score)}, ensure_ascii=False) + "\n")
+            f.write(
+                json.dumps(
+                    {
+                        "type": "summary",
+                        "extractor_name": report.extractor_name,
+                        "pages_scored": report.pages_scored,
+                        "pages_errored": report.pages_errored,
+                        "mean_text_cer": report.mean_text_cer,
+                        "mean_text_wer": report.mean_text_wer,
+                        "mean_false_confidence_rate": report.mean_false_confidence_rate,
+                        "total_elapsed_seconds": report.total_elapsed_seconds,
+                    },
+                    ensure_ascii=False,
+                )
+                + "\n"
+            )
+        return {
+            "extractor_name": report.extractor_name,
+            "pages_scored": report.pages_scored,
+            "pages_errored": report.pages_errored,
+            "mean_text_cer": report.mean_text_cer,
+            "output": str(output),
+        }
+
+    _run("eval extract", config, body)
 
 
 @config_app.command("show")
