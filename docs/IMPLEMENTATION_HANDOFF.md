@@ -28,7 +28,8 @@ this file is a human-readable summary plus session-to-session continuity notes, 
   `FixtureGenerationError: pdflatex not found on PATH` — this machine has no local TeX Live/MiKTeX install. The
   checked-in fixture corpus does not need it; only *regenerating* `skript.pdf` does. Do not attempt to fix by
   installing TeX Live unless asked; treat as environment-only and unrelated to any task's own regressions.
-  Baseline going forward: **206 passed, 4 known-failed** (pytest -q), growing as new tasks add tests.
+  Baseline as of Phase 2's completion (2026-09-26): **318 passed, 4 known-failed** (pytest -q), growing as new
+  tasks add tests.
 - Codex's default model was misconfigured (`gpt-6-sol`, unsupported by this ChatGPT account) at session start;
   fixed by editing `~/.codex/config.toml` to `model = "gpt-5.6-sol"`. If Codex delegations start failing with a
   400 "model not supported" error again, check that file first.
@@ -355,57 +356,104 @@ not delegated to `codex:rescue`.** This applies to all subsequent tasks until/un
   `fix(P2): resolve T-P2-10's mojibake false positive via T-P2-13's repair (T-P2-13)`,
   `docs(P2): mark T-P2-13 DONE — mojibake repair verified against all 306 real cases (T-P2-13)`.
 
-## Next eligible tasks (per `docs/35_EXECUTION_STATE.json`, updated after T-P2-13)
+### T-P2-07 — Mirror-directory and cleanup-suggestion report — **DONE**
+- Implemented directly. `src/sbr/reports/mirrors.py`: report-only, no action taken (Q-I10) — folder pairs
+  sharing a large fraction of content by exact BLAKE3 hash (overlap coefficient ≥50% AND ≥5 shared blobs,
+  both required), for the owner to decide by hand. New `sbr report mirrors` CLI command.
+- **Found and fixed a real bug shared with T-P2-14's manifest** (both fixed together): the level-2 folder
+  grouping took the first two segments of the *whole* relpath, filename included, so a file directly inside a
+  single-depth folder (no subfolder) was wrongly bucketed per-file instead of under its real folder — caught
+  by this task's own real-registry test, which surfaces only with that exact shallow-folder shape; T-P2-14's
+  own tests had never asserted on `by_level2_folder`'s actual contents.
+- **Real-corpus run**: 44 qualifying mirror pairs, 91.7 GB reclaimable. Top pairs independently corroborate
+  the parallel full-tree reimports already noticed while building T-P2-11's course map (`Information\Informatikx`
+  / `Information\vorvorl`: 100% overlap, ~20 GB alone).
+- Commits: `feat(P2): mirror-directory and cleanup-suggestion report (T-P2-07)`,
+  `docs(P2): mark T-P2-07 DONE — mirror report verified against real corpus (T-P2-07)`.
+- **Owner follow-up open** (review tier): `reports/mirrors.md`'s 44 pairs need owner review before any actual
+  cleanup; nothing was deleted or moved.
 
-`T-P13-04`, `T-P2-07`, `T-P2-12`, `T-P2-14`, `T-P3-01`, `T-P4-01`, `T-P4-13`, `T-P5-06`, `T-P7-03`, `T-P9-02`.
+### T-P2-12 — Corpus audit refresh on frozen corpus — **DONE (closes Phase 2, 14/14)**
+- Implemented directly. `docs/03_CORPUS_AUDIT.md` §0: every corpus statistic reconciled against the production
+  registry after the full P2 pipeline ran — confirms Q-B01's t3 baseline (83,880 files, 558,752,407,625 bytes)
+  byte-for-byte against docs/38.
+- **New exhaustive real PDF page census** (`tools/audit_pdf_pages_t3.py`, the one number the registry schema
+  doesn't carry yet): every one of the corpus's 4,665 unique PDF blobs opened once through SourceFS,
+  read-only; 4,638 opened (27 genuinely password-encrypted), **360,844 total unique pages** — a real,
+  exhaustive count that turns out substantially below the prior ~450–550k planning extrapolation.
+  Independently cross-validated: 75.9% of pages fall in documents ≥200 pages here, matching docs/37's own
+  separately-computed "75.9% in ≥200-page PDFs" figure from an unrelated pre-registry methodology to three
+  significant digits — strong corroboration for both.
+- Noted the wave-sizing consequence for docs/08 §4 (its page estimates are now upper bounds, not targets)
+  without redesigning that table — it needs the course map (84.3% coverage) cross-referenced with genre at
+  fuller coverage first, left to whichever task next revisits wave sizing (T-P13-01).
+- Commits: `feat(P2): corpus audit refresh with a real exhaustive PDF page census (T-P2-12)`,
+  `docs(P2): mark T-P2-12 DONE — Phase 2 complete, 14/14 P2 tasks (T-P2-12)`.
 
-Per `docs/30_IMPLEMENTATION_SEQUENCE.md`'s recommended linear order, the P2 sequence after T-P2-13 is:
-T-P2-14 (manifest report) → T-P2-07 (mirror report) → T-P2-12 (audit refresh, after Q-B01). **T-P2-14
-(manifest report command, `sbr report manifest` per docs/28) is next.**
+## PHASE 2 COMPLETE — 14/14 tasks DONE (2026-09-26)
 
-Tasks marked "Human approval: review" (T-P2-05, T-P2-11 done, T-P2-12, T-P2-07) are implemented normally —
-the owner reviews the *output* (a report/list), it is not a pre-start gate like "Human approval: required"
-tasks.
+Every P2 task (source registry, hashing, change detection, classification, sensitivity, exact dedup, mirror
+report, archive inventory, twin candidates, genre classification, course mapping, corpus audit refresh,
+mojibake repair, manifest report) is now DONE, each independently verified against the real production
+registry (`config/sbr.toml` against `D:\MBI-BRAIN`), not just fixture/unit tests. This session's own real-
+corpus-driven review process caught and fixed a genuine bug in nearly every task implemented directly
+(T-P2-08 through T-P2-14) — see each task's own verification note above for specifics. The production
+registry itself is a durable, reusable artifact (`var/db/registry.sqlite`, gitignored — rebuild via `sbr
+scan/hash/classify/sensitivity/dedup/archives/genre/courses/names` against `config/sbr.toml`), not something
+that needs re-running from scratch in a future session unless the corpus itself changes.
 
-T-P3-01 and T-P5-06 (Phase 3/5 tasks) are now also eligible — T-P2-10/T-P2-11 were their last blocking P2
-dependencies — but the docs/30 sequence keeps P2 work first; do not jump to a downstream phase while eligible
-P2 tasks with satisfied dependencies remain, per the standing instruction not to jump ahead prematurely.
+## Next eligible tasks (per `docs/35_EXECUTION_STATE.json`, updated after T-P2-12 — all in downstream phases)
+
+`T-P13-04`, `T-P3-01`, `T-P4-01`, `T-P4-13`, `T-P5-06`, `T-P7-03`, `T-P9-02`.
+
+Per `docs/30_IMPLEMENTATION_SEQUENCE.md`, **T-P3-01 (select MBI-Gold-Extract sample set)** is Phase 3's first
+task and the natural next step. Phase 3 is explicitly framed as a **decision gate** (docs/27: "Gold Set &
+Extraction Spikes") — it selects a ~120-page stratified gold sample, then runs extraction-technology spikes
+against it, feeding decisions CLAUDE.md's own constraint #6 requires ("do not ACCEPT a technology choice
+without its spike"). Some P3/P4 tasks further in are gated on owner decisions already logged as open
+(Q-B02 vault location, Q-B03 compute/privacy policy, Q-B04 model access) — those remain genuine stop points
+when reached, not something to route around.
+
+Tasks marked "Human approval: review" for T-P3-01 itself: implement normally, the owner reviews the selected
+sample/coverage matrix afterward — not a pre-start gate.
 
 ## Safety confirmations (ongoing, re-verify every session)
 
-- `D:\MBI-BRAIN`: **not modified.** Only touched via `SourceFS` read-only operations and, for validation
-  scripts, plain read-only file I/O explicitly scoped for that purpose. `test_full_scan_makes_zero_source_mutations`
-  and `tools/validate_scan.py`'s aggregate-state check both confirm this empirically, not just by design.
+- `D:\MBI-BRAIN`: **not modified.** Only touched via `SourceFS` read-only operations and, for validation/
+  audit scripts, plain read-only file I/O explicitly scoped for that purpose (`tools/audit_pdf_pages_t3.py`
+  opens PDF bytes exclusively through `SourceFS.open_binary`, never any other path).
+  `test_full_scan_makes_zero_source_mutations` and `tools/validate_scan.py`'s aggregate-state check both
+  confirm this empirically, not just by design.
 - `D:\studium_duplicated`: **not modified**, never scanned or ingested — excluded via `config.roots.protected`
   and `SourceFS`'s protected-path refusal, inherited automatically by every stage.
-- `audit/`, t0–t3 evidence: not touched this session.
+- `audit/`, t0–t3 evidence: existing files **not modified**; two new files added
+  (`audit/phase0/t3/pdf_unique_pages_t3.jsonl`, `pdf_page_census_t3_summary.json`) as new evidence alongside
+  the existing t3 baseline, matching that directory's own append-only convention — never rewriting what was
+  already there.
 - No secrets exposed; no destructive actions taken.
 
 ## Exact next action
 
-1. Implement T-P2-14 (manifest report command) directly: `src/sbr/reports/manifest.py` (new package —
-   `sbr/reports/` doesn't exist yet, check for an `__init__.py` convention elsewhere in `src/sbr/` first) plus
-   a `sbr report manifest` CLI command (docs/28: "producing counts by class, genre, course, duplicates,
-   sensitivity, archives (Markdown + CSV) per spec 31" — read `docs/31_CORPUS_MANIFEST_SPEC.md` for the exact
-   field/count shape expected before designing the query set).
-2. Acceptance criterion: "Report generated; matches DB queries" — validation method is "snapshot test on
-   fixtures", i.e. run the report against the synthetic fixture corpus (T-P1-13, `tests/fixtures/corpus/`) and
-   assert its counts match hand-computed expectations from the same fixtures, not just "the command exits 0".
-3. Pull genre/course counts straight from `blob_classification` (T-P2-10/T-P2-11's output — verify both
-   columns are populated as expected on the fixture corpus first), duplicate counts from dedup's canonical/
-   alias split (T-P2-06), sensitivity counts from T-P2-05's classification, archive counts from T-P2-08's
-   inventory. Consider whether the report should call `repair_relpath_display()` (T-P2-13, already available)
-   when rendering any relpath in the Markdown/CSV output, for readability — check docs/31 for whether the spec
-   expects raw or repaired paths in a manifest report meant for human/citation use.
-4. Write tests, run `tools/check.ps1` equivalent (pytest + mypy strict + ruff check + ruff format --check),
-   confirm only the 4 known pdflatex failures remain.
-5. Run against the real production registry (`config/sbr.toml` against `D:\MBI-BRAIN`) and manually
-   sanity-check the generated report's counts against a few independent spot-checks before claiming
-   completion — this session's established discipline of independently re-verifying against real data has
-   caught a real bug in every P2 task implemented directly so far.
-6. Update `docs/28`/`docs/35` (DONE or IN_PROGRESS with a precise pending note), commit, run
-   `validate_plan.py` / `audit_crossrefs.py`.
-7. Continue the same IMPLEMENT → TEST → VERIFY (real corpus) → UPDATE STATE → VALIDATE → COMMIT → NEXT loop
-   through the rest of P2 (T-P2-07, T-P2-12) toward 14/14 DONE, then reassess Phase 3/5's first eligible tasks
-   (T-P3-01, T-P5-06), until a genuine blocker (owner decision, credentials, destructive action, or an
-   acceptance criterion genuinely impossible to satisfy).
+1. Implement T-P3-01 (select MBI-Gold-Extract sample set) directly: a seeded, reproducible stratified sample
+   of ~120 pages from canonical blobs (T-P2-06's `canonical_obs_id`), stratified across producers (LaTeX/
+   Word/PowerPoint/scanner, per docs/03 §5.1's producer census), genres (T-P2-10), domains/courses (T-P2-11,
+   84.3% coverage — the sample should probably favor mapped courses for now, or explicitly note unmapped-
+   course representation as a limitation), and document shape (scanned/annotated/slides/tables/diagrams —
+   these last few aren't yet computed by any P2 stage and may need a lightweight new probe, or a documented
+   simplification for v1). Read `docs/28`'s full T-P3-01 entry and cross-check `docs/33_TEST_STRATEGY.md`/
+   `docs/34_RESEARCH_AND_SPIKE_REGISTER.md` for how the gold set feeds the extraction spikes before designing
+   the stratification, so the sample actually serves what the spikes need.
+2. Acceptance criterion: "Coverage matrix filled; owner approves list" — this is a genuine owner-approval
+   step (not just "review the output later"): build the coverage matrix and the selection, but the sample is
+   not "accepted" until the owner looks at it. Validation method "selection script reproducible (seeded)" —
+   a deterministic seed like the session's other sampling tools (`tools/validate_genre.py`'s seed 20260925
+   pattern) so a re-run reproduces the exact same sample.
+3. Write tests, run `tools/check.ps1` equivalent (pytest + mypy strict + ruff check + ruff format --check).
+4. Run against the real production registry and sanity-check the selected sample (do the stratification
+   buckets look genuinely representative on real paths, not just internally consistent) before presenting it
+   for owner approval.
+5. Update `docs/28`/`docs/35`, commit, run `validate_plan.py` / `audit_crossrefs.py`.
+6. This is Phase 3's first task and a genuine decision-gate phase (extraction technology spikes come next,
+   gated on this sample) — after T-P3-01, check whether its own acceptance criterion ("owner approves list")
+   is a hard stop before T-P3-02+ can proceed, per the standing instruction to stop for genuine owner-level
+   decisions rather than routing around them.
