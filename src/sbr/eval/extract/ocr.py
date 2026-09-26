@@ -1,0 +1,42 @@
+"""OCR engine evidence-gathering helpers (T-P3-08, SPIKE-OCR, ADR-010). Pure parsing only - the actual
+Tesseract subprocess call lives in ``tools/spike_ocr.py``, which is real-corpus I/O.
+"""
+
+from __future__ import annotations
+
+import csv
+import io
+from dataclasses import dataclass
+
+
+@dataclass(frozen=True, slots=True)
+class OcrWordConfidence:
+    text: str
+    confidence: float  # tesseract's own 0-100 scale; -1 means "no confidence" (e.g. a non-text block)
+
+
+def parse_tesseract_tsv(tsv_output: str) -> list[OcrWordConfidence]:
+    """Parse ``tesseract ... tsv`` output (``-c tessedit_create_tsv=1`` / the ``tsv`` output base) into one
+    :class:`OcrWordConfidence` per recognized word, skipping structural rows (page/block/para/line levels,
+    which carry no text) and blank/whitespace-only words."""
+    reader = csv.DictReader(io.StringIO(tsv_output), delimiter="\t")
+    words: list[OcrWordConfidence] = []
+    for row in reader:
+        text = (row.get("text") or "").strip()
+        if not text:
+            continue
+        try:
+            confidence = float(row["conf"])
+        except (KeyError, ValueError):
+            continue
+        words.append(OcrWordConfidence(text=text, confidence=confidence))
+    return words
+
+
+def mean_word_confidence(words: list[OcrWordConfidence]) -> float | None:
+    """Mean confidence over words tesseract actually scored (conf >= 0; -1 rows are structural, not text)."""
+    scored = [w.confidence for w in words if w.confidence >= 0]
+    return sum(scored) / len(scored) if scored else None
+
+
+__all__ = ["OcrWordConfidence", "mean_word_confidence", "parse_tesseract_tsv"]
