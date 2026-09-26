@@ -721,7 +721,7 @@ Each task is written so that it can be independently verified. Spike tasks link 
 
 ### T-P2-14 — Manifest report command
 - **Phase:** P2
-- **Status:** NOT_STARTED
+- **Status:** DONE
 - **Priority:** medium
 - **Dependencies:** T-P2-06, T-P2-04
 - **Human approval:** none
@@ -730,6 +730,24 @@ Each task is written so that it can be independently verified. Spike tasks link 
 - **Acceptance criteria:** Report generated; matches DB queries.
 - **Validation method:** Snapshot test on fixtures.
 - **Expected artifacts:** src/sbr/reports/manifest.py
+- **Verification (2026-09-26):** `src/sbr/reports/manifest.py` (new package): `build_manifest()` aggregates
+  totals, breakdowns by knowledge_class/format/top-level/level-2 folder, duplicates (groups, redundant bytes,
+  mirror-candidate paths), archive inventory, sensitivity counts (never names/paths, docs/22), genre/course
+  distributions, and change counts since the most recent scan per root — read-only over every earlier P2
+  stage's own output, per docs/31 §3. PDF page census (docs/31's "after the text tier") is reported as
+  explicitly unavailable (`{"available": false, "reason": ...}`) rather than faked, since no `page_count`
+  field exists anywhere in the current schema. New `sbr report manifest` CLI command writes Markdown + CSV,
+  gated by `assert_writable()`. Snapshot test against a small hand-counted fixture tree (an exact-duplicate
+  pair, a genre-matching file, a plain file) verifies every count by hand, matching the task's own "Report
+  generated; matches DB queries" criterion exactly. **Found and fixed a real `.gitignore` bug** while adding
+  this package: the existing `reports/` pattern (no leading slash) matched any directory named `reports`
+  anywhere in the tree, silently swallowing `src/sbr/reports/` as untracked — anchored to `/reports/`.
+  **Real-corpus production run** (`sbr report manifest` against `D:\MBI-BRAIN`): 83,880 files / 558,752,407,625
+  bytes (exact match to the t3 baseline, docs/38), 34,814 distinct blobs, 241,215,454,323 unique bytes,
+  23,326 duplicate groups, 247,197,488,524 redundant bytes — all sections populated and spot-checked for
+  plausibility (byte distribution dominated by media, matching docs/37's own observation that pages and bytes
+  distribute very differently in this corpus). 3 new tests; 307 passed (up from 304), 4 pre-existing
+  pdflatex-only failures (unrelated); mypy strict and ruff clean.
 
 ## P3 — Gold Set & Extraction Spikes (decision gate)
 
