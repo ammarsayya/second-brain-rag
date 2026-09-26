@@ -453,7 +453,7 @@ Each task is written so that it can be independently verified. Spike tasks link 
 
 ### T-P2-07 — Mirror-directory and cleanup-suggestion report
 - **Phase:** P2
-- **Status:** NOT_STARTED
+- **Status:** DONE
 - **Priority:** medium
 - **Dependencies:** T-P2-06
 - **Human approval:** review
@@ -462,6 +462,31 @@ Each task is written so that it can be independently verified. Spike tasks link 
 - **Acceptance criteria:** Report lists mirrored pairs with shared %, bytes reclaimable.
 - **Validation method:** Owner review.
 - **Expected artifacts:** reports/mirrors.md
+- **Verification (2026-09-26):** `src/sbr/reports/mirrors.py`: report-only, no action taken — groups every
+  currently-known blob by level-2 folder (`<domain>\<course-ish>`, same granularity as T-P2-14's manifest),
+  then for every folder pair computes the overlap coefficient `|shared| / min(|A|, |B|)` over their distinct
+  blob_id sets; a pair only qualifies when both the overlap fraction and the absolute shared-blob count clear
+  a minimum, so a tiny folder incidentally sharing a couple of files with a huge one doesn't count as
+  "mirrored". New `sbr report mirrors` CLI command writes the Markdown report the acceptance criterion names
+  (mirrored pairs, shared %, bytes reclaimable). **Found and fixed a real bug in the level-2 folder grouping**
+  (shared with T-P2-14's manifest, both fixed together): `_level2()` took the first two segments of the whole
+  relpath, filename included, so a file sitting directly in a single-depth folder with no subfolder (e.g.
+  `Ckurs\notes.pdf`) was wrongly bucketed as its own distinct "level-2 folder" per file instead of correctly
+  under `Ckurs` — T-P2-14's own tests never asserted on `by_level2_folder`'s actual contents, so it slipped
+  through there; caught here while writing this task's own real-registry test, which surfaces only with this
+  exact shallow-folder shape. Fixed in both modules; added a regression test to `test_manifest.py` (an
+  explicit level-2 assertion, previously missing) in addition to `mirrors.py`'s own. **Real-corpus production
+  run** (`sbr report mirrors` against `D:\MBI-BRAIN`): 44 qualifying mirror pairs, 91.7 GB total reclaimable
+  bytes. Top pairs are highly plausible and independently corroborate this session's own earlier
+  observation (from manually reviewing level-3 folder listings during T-P2-11) of parallel full-tree
+  reimports: `Information\Informatikx` / `Information\vorvorl` share all 3,843 of the smaller side's blobs
+  (100% overlap, ~20 GB); `SoftEng`, `Java_1` and `Vorlesung` are each 77–100% overlapping with the same
+  trees. 8 new tests (qualification/rejection rules including both the low-overlap and the too-few-shared-
+  blobs regressions, a real-registry build test, Markdown rendering, CLI) plus 2 new tests in
+  `test_manifest.py` for the shared level-2 fix; 315 passed (up from 307), 4 pre-existing pdflatex-only
+  failures (unrelated); mypy strict and ruff clean. **Owner follow-up open** (this task's own review tier):
+  review `reports/mirrors.md`'s 44 pairs (not committed — real corpus folder names, gitignored) and decide by
+  hand which side of each is worth removing; no automated action was taken.
 
 ### T-P2-08 — Archive container inventory
 - **Phase:** P2
