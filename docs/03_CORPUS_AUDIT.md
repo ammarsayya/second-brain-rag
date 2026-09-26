@@ -1,13 +1,99 @@
 # 03 — Corpus Audit (Phase 0, read-only)
 
-> **SUPERSEDED FOR CURRENT STATE (2026-09-24): see `37_T2_CORPUS_REAUDIT.md`.** This document is the historical t0/t1 record.
-> It is kept unchanged except for these corrections (raw evidence in docs/37 §18):
+> **SUPERSEDED FOR CURRENT STATE: see §0 below (T-P2-12, 2026-09-26) for the definitive, exact, registry-verified
+> t3 numbers** — computed from the production registry after the full P2 pipeline (scan/hash/classify/
+> sensitivity/dedup/archives/genre/courses/names) ran against the real corpus, plus one new exhaustive
+> measurement (a real, unsampled unique-PDF page census). `37_T2_CORPUS_REAUDIT.md` (2026-09-24) is now itself
+> a historical intermediate snapshot, same as t0/t1 below — it pre-dates the registry and used ad-hoc scripts
+> over a moving corpus; §0 supersedes it for every number the registry can compute exactly.
+> The rest of this document (t0/t1, §§1-8) is kept unchanged as the historical record except for these
+> corrections (raw evidence in docs/37 §18):
 > - The 34 hash errors were `Permission denied`, not moves. Of the 14 probe errors, 12 were moves and 2 were empty files.
 > - The t0 unique-PDF census is **3,339 opened / 328,418 pages** (not 3,337 / 328,409).
 > - "15.3% fully textless" uses the ≥80%-of-sampled-pages rule. "All sampled pages textless" gives 14.7%.
 > - Of the 163.7 GB "redundant" bytes, only **57.3 GB were exact** (full hash). 106.5 GB were partial-hash **candidates**.
 > - Thesis DOCX OMML equations: **422**, not 592. Exercise solution: 322, not 571 (the original counted `<m:oMathPara>` too).
 > - t2 (final corpus): 85,913 files / 561.5 GB; 4,660 unique PDFs; 361,061 unique pages; stable over 45 min.
+
+## 0. t3 registry-verified refresh (T-P2-12, 2026-09-26)
+
+**Status:** Complete. **Method:** every number below is either a direct query against the production
+`registry.sqlite` (after `sbr scan/hash/classify/sensitivity/dedup/archives/genre/courses/names` all ran
+against `D:\MBI-BRAIN`, T-P2-01 through T-P2-13) or, for the one number the registry schema does not yet carry
+(PDF page count), a new exhaustive read-only census (`tools/audit_pdf_pages_t3.py`) that opens every one of
+the corpus's unique PDF blobs exactly once through `SourceFS` and reads its page count from pypdf — no
+sampling, no estimation, no content decoded or rendered. Raw evidence: `reports/manifest.{md,csv}`,
+`reports/mirrors.md` (both gitignored — real corpus paths, regenerable any time via `sbr report manifest`/
+`sbr report mirrors`), `audit/phase0/t3/pdf_unique_pages_t3.jsonl` and
+`audit/phase0/t3/pdf_page_census_t3_summary.json` (committed — no relpaths, blob-hash-keyed only).
+
+**This confirms Q-B01's t3 baseline exactly**: 83,880 files, 558,752,407,625 bytes (558.75 GB) — matching
+docs/38's post-quarantine figure byte-for-byte, closing the loop between "corpus frozen" and "registry sees
+what was frozen".
+
+| Metric | t3 (registry-exact) | t0/t1 (docs/03 §§1-4, estimated/sampled) |
+|---|---|---|
+| Files | 83,880 | 39,478 / 73,441 |
+| Total bytes | 558,752,407,625 (558.75 GB) | 371.1 GB / 561.0 GB |
+| Distinct content blobs | 34,814 | not measured (files only) |
+| Unique bytes (deduplicated) | 241,215,454,323 (241.2 GB) | not measured |
+| Duplicate groups (blobs with >1 present path) | 23,326 | 8,220 (exact-hash subset of a larger sampled set) |
+| Redundant bytes | 247,197,488,524 (247.2 GB) | 163.7 GB total "redundant" (only 57.3 GB confirmed exact, per the correction above) |
+| Unique PDF blobs | 4,665 | 3,566 unique PDF blobs at t0 (of 8,614 files) |
+| **Total unique PDF pages (exhaustive census, this task)** | **360,844** (4,638 of 4,665 opened; 27 permanently password-encrypted, unopenable without the password) | 328,409 at t0 (3,337/3,339 opened, sampled-era); a **~450–550k extrapolation from t1 growth was the prior planning number and is now superseded — the real count is substantially lower** |
+| Documents ≥200 pages | 534 docs = 273,919 pages (**75.9%** of all unique pages) | 501 docs = 264,189 pages (80%) at t0 |
+| Documents ≤40 pages | 3,499 docs = 29,066 pages (8.1%) | 2,373 docs = 21,423 pages at t0 |
+| Mojibake paths (T-P2-13) | 306, **100% repaired** (all in an ancestor folder name, not the leaf; none in the leaf after T-P2-13's own 14 leaf-level repairs) | 228 at t0 |
+| Mirror-directory pairs (T-P2-07 methodology: exact-hash overlap ≥50% AND ≥5 shared blobs, both sides) | 44 pairs, 91.7 GB reclaimable | 128 pairs at t0 (≥90% shared, no absolute-count floor — not directly comparable; see below) |
+| Course-mapping coverage (T-P2-11) | 14,978 / 17,759 knowledge-bearing blobs (84.3%) | not measured (no course map existed) |
+| Genre-classified blobs (T-P2-10) | 2,035 of 17,759 (11.5%) | filename-only genre hits, not blob-deduplicated (§2) |
+
+**The 75.9% figure is an independent cross-check, not a coincidence to explain away**: docs/37 §"t2 re-audit"
+separately reported "75.9% in ≥200-page PDFs" from its own (pre-registry, ad-hoc-script) methodology. This
+task's registry-based, exhaustive, hash-deduplicated census landing on the *same* figure to three significant
+digits is strong independent corroboration that both measurements are sound.
+
+**Mirror-pair count is lower than t0's 128 by design, not by regression**: t0 used a ≥90% shared-blob
+threshold with no minimum absolute overlap, over an approximate (xxh3, partially sampled for large files)
+hash. T-P2-07's methodology is deliberately different — a lower ≥50% overlap threshold (catching more genuine
+partial mirrors) but a hard ≥5-shared-blob floor (rejecting a tiny folder that merely happens to share one or
+two files with something huge), over the *exact* BLAKE3 identity T-P2-06's dedup already established. The
+two counts measure related but not identical things; the real qualifying-pair list is in `reports/mirrors.md`
+(T-P2-07), not reproduced here.
+
+**Top-level organization (t3, exact — compare with §2's t0 table)**:
+
+| Top-level | Files | Bytes |
+|---|---|---|
+| `Information` | 52,595 | 162,084,185,177 (162.1 GB) |
+| `Mechanical` | 13,984 | 356,847,292,328 (356.8 GB) |
+| `BachelorArbeit` | 15,269 | 24,094,313,421 (24.1 GB) |
+| `books` | 1,604 | 10,455,218,970 (10.5 GB) |
+| `Betriebslehre` | 315 | 5,146,229,117 (5.1 GB) |
+| `Ckurs` | 108 | 73,335,002 |
+| `English` | 3 | 51,282,987 |
+| root files | 2 | 550,623 |
+
+`Mechanical`'s byte share grew sharply relative to t0 (281.2 GB → 356.8 GB) — consistent with §1's t0→t1
+observation that video-heavy areas (`Bewegungstechnik`, `messundsteuerungstechnik`) kept growing after t0.
+`Information` similarly grew (54.4 GB → 162.1 GB), matching the t1 note that `Information\Informatikx` alone
+added 107.7 GB between t0 and t1.
+
+**Knowledge-class distribution (t3, by distinct blob, from `sbr report manifest`)**: media 1,001 blobs /
+179.8 GB (still the dominant byte share, as at t0); document 5,012 / 19.6 GB; archive 408 / 29.0 GB; image
+7,343 / 2.8 GB; office 460 / 3.7 GB; the remainder (third_party_reference, tool_artifact, code, data, unknown,
+spreadsheet, executable, junk) together under 6 GB. Full breakdown: `reports/manifest.md` §"By knowledge
+class"/"By format".
+
+**Workload/wave-estimate consequence (docs/08 §4's wave table)**: that table's "Est. unique pages (t0)"
+column was built from t0/t1 extrapolation before any real page count existed. With the true total now known
+exactly (360,844, not the ~450–550k planning assumption), every wave's absolute page estimate in docs/08 §4
+should be read as **an upper bound that will shrink**, not a target — W3 ("Textbooks and manuals", previously
+"~260k+") in particular, since documents ≥200 pages (mostly ISBN-named textbooks, per §5.2 below) total
+273,919 pages here, not "260k+" of an assumed ~450–550k. Recomputing docs/08 §4's table itself (which needs
+the course map, T-P2-11, cross-referenced with genre, T-P2-10, to assign per-wave content precisely — course
+coverage is 84.3%, not yet 100%) is left to whichever task next revisits wave sizing (T-P13-01 per Q-B01's own
+"blocked-by" list), rather than guessed here beyond this note.
 
 **Status:** Complete for snapshot t0; partial (metadata only) for snapshot t1
 **Date:** 2026-09-24

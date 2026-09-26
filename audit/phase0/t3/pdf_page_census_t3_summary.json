@@ -1,0 +1,35 @@
+{
+  "unique_pdf_blobs": 4665,
+  "opened": 4638,
+  "errored": 27,
+  "total_unique_pages": 360844,
+  "page_count_percentiles": {
+    "p10": 1,
+    "p25": 2,
+    "p50": 7,
+    "p75": 39,
+    "p90": 251,
+    "p99": 932
+  },
+  "max_page_count": 2281,
+  "documents_ge_200_pages": {
+    "count": 534,
+    "pages": 273919
+  },
+  "documents_le_40_pages": {
+    "count": 3499,
+    "pages": 29066
+  },
+  "errors_sample": [
+    "FileNotDecryptedError: File has not been decrypted",
+    "FileNotDecryptedError: File has not been decrypted",
+    "FileNotDecryptedError: File has not been decrypted",
+    "FileNotDecryptedError: File has not been decrypted",
+    "FileNotDecryptedError: File has not been decrypted",
+    "FileNotDecryptedError: File has not been decrypted",
+    "FileNotDecryptedError: File has not been decrypted",
+    "FileNotDecryptedError: File has not been decrypted",
+    "FileNotDecryptedError: File has not been decrypted",
+    "FileNotDecryptedError: File has not been decrypted"
+  ]
+}
