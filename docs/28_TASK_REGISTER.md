@@ -696,7 +696,7 @@ Each task is written so that it can be independently verified. Spike tasks link 
 
 ### T-P2-12 — Corpus audit refresh on frozen corpus
 - **Phase:** P2
-- **Status:** NOT_STARTED
+- **Status:** DONE
 - **Priority:** high
 - **Dependencies:** T-P2-03, T-P2-06, T-P2-08
 - **Human approval:** review
@@ -705,6 +705,21 @@ Each task is written so that it can be independently verified. Spike tasks link 
 - **Acceptance criteria:** 03 updated; page and wave estimates recomputed.
 - **Validation method:** Numbers reconciled with registry queries.
 - **Expected artifacts:** docs/03_CORPUS_AUDIT.md (updated)
+- **Verification (2026-09-26):** `docs/03_CORPUS_AUDIT.md` §0 added: every corpus statistic (files, bytes,
+  distinct blobs, unique bytes, duplicate groups, redundant bytes, archive inventory, mojibake, mirror pairs,
+  genre/course coverage) reconciled directly against registry queries after the full P2 pipeline ran against
+  `D:\MBI-BRAIN` — confirms Q-B01's t3 baseline (83,880 files, 558,752,407,625 bytes) byte-for-byte against
+  docs/38. **New exhaustive PDF page census** (`tools/audit_pdf_pages_t3.py`, the one number not yet in the
+  registry schema): opened all 4,665 unique PDF blobs once each through SourceFS, read-only; 4,638 opened
+  (27 genuinely password-encrypted), **360,844 total unique pages** — replacing the prior ~450–550k planning
+  extrapolation with a real, exhaustive count that turns out substantially lower. Independently cross-
+  validated: 75.9% of pages fall in documents ≥200 pages here, matching docs/37's own separately-computed
+  "75.9% in ≥200-page PDFs" figure from an unrelated pre-registry methodology to three significant digits.
+  Wave-sizing consequence for docs/08 §4 noted (its t0-based page estimates are now upper bounds, not
+  targets) without redesigning that table here — recomputing it needs the course map (T-P2-11, currently
+  84.3% coverage) cross-referenced with genre (T-P2-10) at fuller coverage, left to whichever task next
+  revisits wave sizing (T-P13-01). 3 new tests; 318 passed, 4 pre-existing pdflatex-only failures (unrelated);
+  mypy strict and ruff clean. **This closes Phase 2: 14/14 tasks DONE.**
 
 ### T-P2-13 — Display-name repair for mojibake paths
 - **Phase:** P2
