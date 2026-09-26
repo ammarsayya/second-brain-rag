@@ -33,6 +33,11 @@ ALLOW: dict[str, str] = {
         "tests/test_archives.py::test_extraction_never_writes_to_the_source_tree under SourceWriteGuard. Never "
         "writes into a source root or the quarantine path; source content is only ever read via SourceFS."
     ),
+    "cli/app.py": (
+        "T-P2-14's `sbr report manifest` command writes its Markdown/CSV report (mkdir + write_text) only after "
+        "assert_writable() on each output path (same safety gate every tools/validate_*.py report writer uses); "
+        "never writes into a source root or the quarantine path, and every other command here only reads."
+    ),
 }
 
 

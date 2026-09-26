@@ -9,6 +9,8 @@ same way against a freshly migrated, empty database.
 
 from __future__ import annotations
 
+import csv
+import io
 import json
 from collections.abc import Callable
 from pathlib import Path
@@ -31,6 +33,8 @@ from sbr.registry.names import repair_names
 from sbr.registry.scan import scan_sources
 from sbr.registry.sensitivity import classify_sensitivity
 from sbr.registry.twins import detect_twin_candidates
+from sbr.reports.manifest import build_manifest, render_csv_rows, render_markdown
+from sbr.safety import assert_writable
 from sbr.schemas import WorkItemState
 
 app = typer.Typer(
@@ -41,6 +45,8 @@ app = typer.Typer(
 )
 config_app = typer.Typer(help="Configuration commands.")
 app.add_typer(config_app, name="config")
+report_app = typer.Typer(help="Read-only reports over the registry.")
+app.add_typer(report_app, name="report")
 
 ConfigOption = typer.Option(
     None, "--config", help="Path to the TOML config file (default: $SBR_CONFIG or config/sbr.toml)."
@@ -50,6 +56,8 @@ ExclusionsOption = typer.Option(None, "--exclusions", help="Owner exclusion-cura
 SensitivityOverridesOption = typer.Option(None, "--overrides", help="Owner sensitivity-override YAML file.")
 CanonicalPathOverridesOption = typer.Option(None, "--overrides", help="Owner canonical-path override YAML file.")
 CourseMapOption = typer.Option(None, "--course-map", help="Owner course-mapping curation YAML file.")
+ManifestMarkdownOption = typer.Option(Path("reports/manifest.md"), "--markdown-output")
+ManifestCsvOption = typer.Option(Path("reports/manifest.csv"), "--csv-output")
 
 
 @app.callback()
@@ -386,6 +394,40 @@ def names_cmd(config: Path | None = ConfigOption) -> None:
         }
 
     _run("names", config, body)
+
+
+@report_app.command("manifest")
+def report_manifest_cmd(
+    markdown_output: Path = ManifestMarkdownOption,
+    csv_output: Path = ManifestCsvOption,
+    config: Path | None = ConfigOption,
+) -> None:
+    """Aggregate totals/breakdowns/duplicates/archives/sensitivity/genre/course into a Markdown + CSV report."""
+
+    def body(rt: Runtime) -> dict[str, object]:
+        report = build_manifest(rt.config, rt.db)
+        assert_writable(markdown_output.resolve(), rt.config)
+        assert_writable(csv_output.resolve(), rt.config)
+        markdown_output.parent.mkdir(parents=True, exist_ok=True)
+        csv_output.parent.mkdir(parents=True, exist_ok=True)
+        markdown_output.write_text(render_markdown(report), encoding="utf-8")
+        buffer = io.StringIO()
+        writer = csv.writer(buffer)
+        writer.writerow(["section", "key", "files", "bytes"])
+        writer.writerows(render_csv_rows(report))
+        csv_output.write_text(buffer.getvalue(), encoding="utf-8")
+        return {
+            "manifest_version": report.manifest_version,
+            "total_files": report.total_files,
+            "total_bytes": report.total_bytes,
+            "total_blobs": report.total_blobs,
+            "total_unique_bytes": report.total_unique_bytes,
+            "duplicate_groups": report.duplicates.duplicate_groups,
+            "markdown_output": str(markdown_output),
+            "csv_output": str(csv_output),
+        }
+
+    _run("report manifest", config, body)
 
 
 @config_app.command("show")

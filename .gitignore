@@ -24,8 +24,9 @@ audit/phase0/t3/*.csv
 audit/dedup_quarantine/*.csv
 audit/dedup_quarantine/*.jsonl
 
-# Local-only generated reports and gold sets (docs/18, docs/33 §3)
-reports/
+# Local-only generated reports and gold sets (docs/18, docs/33 §3) - anchored to the repo root so it doesn't
+# also match src/sbr/reports/ (T-P2-14's report-building package, which must stay tracked).
+/reports/
 eval/gold/
 
 # Local configuration (the example is tracked)
