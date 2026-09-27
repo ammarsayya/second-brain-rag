@@ -28,19 +28,32 @@ owner's final sign-off to reach DONE.
 
 **Completed during mission (updated as each task is verified DONE):**
 
-(none yet — T-P4-13 is in flight, delegated to codex:rescue in the background; review pending)
+01. T-P4-13 — VaultWriter v1 (ownership protection) — DONE (commit `4ec2f6a`). Codex's first attempt failed
+    partway through with a Codex usage-limit error (retry advertised for ~16:48), but had already left a
+    substantially complete, working-tree diff. Sonnet independently re-ran the full test suite/mypy/ruff (all
+    clean) rather than trusting the failed job's own claims, then did a full manual code read per the "look
+    beyond green tests" mandate and **found and fixed one real bug**: `write_batch` checked the vault's Git
+    tree for cleanliness *before* sweeping stale `.sbr-stage-*` debris that a genuine process kill (not a
+    caught Python exception — those were already handled correctly) can leave behind. A stage file is never
+    `git add`ed, so it always shows as untracked; checking cleanliness first made that debris look exactly
+    like an owner edit and would have permanently refused every future batch with no automatic recovery —
+    reproduced by hand first (planted a stale stage file, confirmed the deadlock), then fixed by reordering
+    the sweep before the dirty check, with a permanent regression test added
+    (`test_stale_stage_file_from_a_real_process_kill_self_heals_instead_of_wedging`).
 
 **Target:** 20
-**Current mission count:** 0 / 20
+**Current mission count:** 1 / 20
 
-**In flight:** T-P4-13 (VaultWriter v1) — delegated to codex:rescue (background job), full brief covers folder
-ownership enforcement, content-hash edit detection + fork, dirty-git-tree abort, user-section marker
-preservation in maps, atomic writes, and a from-scratch git repo for the vault at
-`D:\AgenticAI\second-brain-rag\vault` (separate from the code repo's own git history, gitignored). Awaiting
-Codex's completion notification before Sonnet reviews.
+**Codex usage limit:** the T-P4-13 job hit "You've hit your usage limit... try again at 4:48 PM" partway
+through. If a future session resumes this mission and Codex delegation fails immediately with the same
+message, that's the same account-level limit, not a new problem — wait for the advertised reset time (or a
+later one, if it recurs) rather than assuming something is broken.
 
-**Queued next (in this order, once T-P4-13 is reviewed/committed and eligibility is recomputed):**
-1. Recompute `tools/validate_plan.py` — T-P4-13 DONE should make T-P13-02 (backup/restore) eligible.
+**Queued next (in this order, once eligibility is recomputed after each DONE task):**
+1. `tools/validate_plan.py` now shows next eligible: `T-P13-02` (backup/restore — dependencies T-P4-13+T-P1-12,
+   both DONE, no owner gate), `T-P3-02`, `T-P3-03`, `T-P5-06` (all three still owner-verification-gated at
+   completion, though authorized to start). **T-P13-02 is next** — genuinely eligible, no owner gate, real
+   leverage (durability). Read its full docs/28 entry before delegating.
 2. Prep work for T-P3-02 (MBI-Gold-Math): sample selection from the already-existing 120-page gold-extract
    list (T-P3-01's `eval/gold/extract_sample.yaml`), AI-drafted LaTeX per equation crop, the side-by-side
    verification tool (crop vs. KaTeX render), thesis-OMML-as-ground-truth alignment where available. This
@@ -49,7 +62,8 @@ Codex's completion notification before Sonnet reviews.
    pages plus the verification tooling. Also lands as IN_PROGRESS.
 4. Draft T-P5-06 (Taxonomy v0) from course mapping (T-P2-11, 84.3% coverage) + curriculum/module handbook +
    corpus structure. Lands as IN_PROGRESS/drafted pending owner sign-off.
-5. Whatever T-P4-13 unlocks (T-P13-02 confirmed; recompute for others).
+5. Recompute eligibility after every DONE task — T-P13-02 landing may unlock further tasks depending on what
+   else is gated only on it plus already-DONE dependencies.
 
 ## CURRENT STATE — READ THIS FIRST (2026-09-27, after T-P9-02; ALL REMAINING ELIGIBLE WORK IS OWNER-GATED)
 
