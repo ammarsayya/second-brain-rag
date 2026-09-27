@@ -1032,7 +1032,7 @@ Each task is written so that it can be independently verified. Spike tasks link 
 
 ### T-P4-02 — Content-addressed artifact store
 - **Phase:** P4
-- **Status:** NOT_STARTED
+- **Status:** DONE
 - **Priority:** critical
 - **Dependencies:** T-P4-01, T-P1-09
 - **Human approval:** none
@@ -1042,6 +1042,21 @@ Each task is written so that it can be independently verified. Spike tasks link 
 - **Acceptance criteria:** Interrupted writes leave no partial artifacts; two versions coexist.
 - **Validation method:** TS-ART tests.
 - **Expected artifacts:** src/sbr/artifacts.py
+- **Verification (2026-09-27):** `src/sbr/artifacts.py` implements an append-only `ArtifactStore` keyed by
+  `(blob_id, extractor@version)`, with deterministic per-file BLAKE3/size manifests and the canonical sharded
+  layout from docs/18: `var/artifacts/<b3[:2]>/<b3>/<extractor@ver>/`. (The unsharded path in this task's
+  description and the prior handoff was shorthand; docs/18 is the repository's explicit storage-layout
+  authority.) Artifact names and extractor versions are validated as safe relative path components. Each
+  version is built under `var/artifacts/.staging/`; data files are flushed and fsynced, the manifest is written
+  last, and one same-filesystem directory rename publishes the complete version. Existing identical content is
+  idempotent; different content at the same key raises `ArtifactConflictError` and never mutates the published
+  version. Abandoned staging directories are never removed implicitly: `sbr artifacts gc` is dry-run by default
+  and deletion requires explicit `--apply`; published versions are never GC candidates. TS-SAFE-2's reviewed
+  writer allow-list now covers this module and its mandatory `assert_writable` gates. TS-ART includes a real
+  subprocess terminated at the final rename (exit 73): no partial published directory was visible, the complete
+  staging directory remained inspectable, dry-run GC retained it, and explicit GC removed it. Two extractor
+  versions coexist with their original bytes intact. 11 new tests; full suite 399 passed with only the same four
+  pre-existing `pdflatex`-only fixture-generation failures; strict mypy and ruff check/format clean.
 
 ### T-P4-03 — Text-tier extractor + page quality signals
 - **Phase:** P4
@@ -1533,7 +1548,7 @@ Each task is written so that it can be independently verified. Spike tasks link 
 
 ### T-P7-03 — Answer schema with knowledge-layer basis
 - **Phase:** P7
-- **Status:** NOT_STARTED
+- **Status:** DONE
 - **Priority:** critical
 - **Dependencies:** T-P1-05
 - **Human approval:** none
@@ -1543,6 +1558,17 @@ Each task is written so that it can be independently verified. Spike tasks link 
 - **Acceptance criteria:** Schema + renderer tests.
 - **Validation method:** Tests.
 - **Expected artifacts:** src/sbr/answer/schema.py
+- **Verification (2026-09-27):** Added strict, frozen `AnswerSegment`/`AnswerCitation` models and the closed
+  ADR-034 basis enum (`CORPUS`, `USER`, `AI_NOTE`, `EXTERNAL_APPROVED`, `EXTERNAL_PENDING`, `MODEL`). Citations
+  carry exactly one typed `ku_id` or `external_id`, an exact provenance `Locator`, and an optional quote.
+  Validator policy requires citations for evidence-bearing layers, limits CORPUS to KU citations and external
+  layers to external-source citations, and requires USER/MODEL claims to stay uncited so mixed claims must be
+  split into separately labeled segments. AI-note claims must resolve to underlying KU/external evidence.
+  Deterministic Markdown rendering visibly labels every segment, never merges adjacent bases, renders locator
+  details, and refuses `EXTERNAL_PENDING` unless the caller explicitly opts in. `AnswerSegment` is exported as
+  `schemas/AnswerSegment.json` through the existing deterministic schema pipeline. 12 new tests plus all schema
+  snapshot/round-trip tests pass (55 focused). Full suite: 419 passed plus only the same four pre-existing
+  `pdflatex`-only failures; strict mypy, ruff, and schema export `--check` are clean.
 
 ### T-P7-04 — Baseline grounded RAG pipeline
 - **Phase:** P7
@@ -2155,7 +2181,7 @@ Each task is written so that it can be independently verified. Spike tasks link 
 
 ### T-P13-04 — Schema migration test suite
 - **Phase:** P13
-- **Status:** NOT_STARTED
+- **Status:** DONE
 - **Priority:** high
 - **Dependencies:** T-P1-06
 - **Human approval:** none
@@ -2164,6 +2190,17 @@ Each task is written so that it can be independently verified. Spike tasks link 
 - **Acceptance criteria:** All migrations tested N-1->N.
 - **Validation method:** CI suite.
 - **Expected artifacts:** tests/migrations/*
+- **Verification (2026-09-27):** Added `tests/migrations/` with a five-entry matrix over every actual registry
+  migration currently on disk. For each migration N, the suite builds a real SQLite database at N-1, copies it
+  through SQLite's online-backup API (so WAL state is included), upgrades only the copy to N, checks the exact
+  applied version plus `integrity_check` and retained seed data, runs N's checked-in down script, verifies the
+  schema returns exactly to N-1 with no FK violations, then reapplies N and rechecks integrity/data. Added
+  `tools/validate_migrations.py` for the task's populated-real-DB requirement: it opens the source DB read-only,
+  creates a transactionally consistent disposable copy, rolls the copy back one version and forward again,
+  verifies integrity and all table row counts, confirms source size/mtime are unchanged, and deletes only its
+  own uniquely named scratch directory. The drill ran against the existing 184,885,248-byte production registry:
+  PASS at schema v5, 13 tables / 323,135 rows checked, source unchanged. Seven new CI tests pass (five adjacent
+  transitions plus copy-drill success/refusal); strict ruff checks pass.
 
 ### T-P13-05 — Embedding swap drill
 - **Phase:** P13

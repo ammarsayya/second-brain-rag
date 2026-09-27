@@ -4,14 +4,18 @@ Living handoff for autonomous/continued sessions. Update after every completed o
 lost between sessions. Canonical task state lives in `docs/28_TASK_REGISTER.md` and `docs/35_EXECUTION_STATE.json`;
 this file is a human-readable summary plus session-to-session continuity notes, not a third source of truth.
 
-## CURRENT STATE — READ THIS FIRST (2026-09-27, Sonnet handing off to codex:rescue — Sonnet's context is low)
+## CURRENT STATE — READ THIS FIRST (2026-09-27, Codex handoff after T-P4-02 + T-P13-04 + T-P7-03)
 
 - **Repository is authoritative.** Everything below this line down to "Phase status" is the detailed historical
   log from earlier in this session (2026-09-24 through 2026-09-26) — still accurate, but you do not need to
   read all of it to resume. This block plus `docs/28`/`docs/35` is enough.
 - **Branch:** `p2-source-registry` (all work this whole session, including Phase 3/4, is on this one branch —
   it was never renamed; the name is now stale relative to its content, but do not rename it mid-session).
-- **Working tree: clean.** Every task below is committed. Run `git status` to confirm before doing anything.
+- **Working tree: clean.** Sonnet independently reviewed Codex's T-P4-02/T-P13-04/T-P7-03 work (Codex's sandbox
+  could not create `.git/index.lock`, so it left the diff uncommitted as instructed), found and fixed one real
+  test flakiness (`ArtifactStore.list_orphans`'s zero-tolerance clock-skew edge case — see T-P4-02's own
+  verification note in docs/28), re-ran the full suite 4x clean, then committed as three logical commits
+  (T-P4-02, T-P13-04, T-P7-03) plus this doc update. Run `git status` to confirm before doing anything.
 - **Phase 0: DONE. Phase 1: DONE (13/13). Phase 2: DONE (14/14).**
 - **Phase 3: IN PROGRESS.** T-P3-01 (gold sample, 120/120 selected) DONE. T-P3-04 (eval harness) DONE.
   T-P3-07 (SPIKE-OMML) and T-P3-08 (SPIKE-OCR) are IN_PROGRESS — real evidence gathered and committed, but
@@ -22,21 +26,37 @@ this file is a human-readable summary plus session-to-session continuity notes, 
   MBI-Gold-Math / MBI-Gold-Layout). Do not start them.** T-P3-05/06/09/10/11 are all transitively blocked on
   T-P3-02/03's gold data and must also wait.
 - **Phase 4: STARTED IN PARALLEL with P3** (docs/30 explicitly allows this: "Parallel during P3: T-P4-01
-  DocIR, T-P4-02 artifact store, T-P4-13 VaultWriter once Q-B02 is answered"). T-P4-01 (DocIR schema v1) is
-  DONE — `src/sbr/docir/models.py`, exported to `schemas/DocIR.json`.
-- **Next eligible tasks** (per `docs/35_EXECUTION_STATE.json`, dependency-satisfied): `T-P13-04`, `T-P3-02`
-  (owner-gated, do not start), `T-P3-03` (owner-gated, do not start), `T-P4-02`, `T-P4-13` (owner-gated on
-  Q-B02, do not start), `T-P5-06` (owner-gated), `T-P7-03`, `T-P9-02`.
-- **Recommended next task: T-P4-02 (content-addressed artifact store)** — depends on T-P4-01 (done) + T-P1-09
-  (done), no owner gate, and is the natural continuation of what T-P4-01 just built (DocIR needs somewhere to
-  live). Full spec: `docs/28_TASK_REGISTER.md`, search `### T-P4-02`. Summary: `var/artifacts/<b3>/
-  <extractor@ver>/` layout with manifests, atomic temp+rename writes, GC of orphans only via an explicit
-  command (never automatic). Acceptance: "Interrupted writes leave no partial artifacts; two versions
-  coexist." Validation: "TS-ART tests" — check `docs/33_TEST_STRATEGY.md` for what TS-ART specifically
-  requires before designing the test suite. Expected artifact: `src/sbr/artifacts.py`.
-- **Test baseline right now: 388 passed, 4 known pdflatex-only failures** (`tests/test_fixture_generator.py`
+  DocIR, T-P4-02 artifact store, T-P4-13 VaultWriter once Q-B02 is answered"). T-P4-01 (DocIR schema v1) and
+  T-P4-02 (content-addressed artifact store) are DONE. T-P4-02 added `src/sbr/artifacts.py`, atomic staged
+  directory publication, deterministic manifests, immutable version coexistence, and explicit dry-run-first
+  `sbr artifacts gc`. It follows docs/18's explicit sharded layout
+  `var/artifacts/<b3[:2]>/<b3>/<extractor@ver>/`; docs/28 and the old handoff omitted the shard as shorthand.
+- **Independent downstream tasks completed in this continuation:** T-P13-04 (schema migration test suite) and
+  T-P7-03 (answer schema with knowledge-layer basis) are DONE. T-P13-04 added a pairwise up/down/up matrix for all
+  five actual migrations plus a populated-registry copy drill. T-P7-03 added strict answer/citation models,
+  deterministic visible basis labels, fail-closed pending-external rendering, and `schemas/AnswerSegment.json`.
+- **Next eligible tasks** (per `docs/35_EXECUTION_STATE.json`, dependency-satisfied): `T-P3-02`
+  (owner-gated, do not start), `T-P3-03` (owner-gated, do not start), `T-P4-13` (owner-gated on
+  Q-B02, do not start), `T-P5-06` (owner-gated), and `T-P9-02` (not gated).
+- **Recommended next action: implement T-P9-02 (trace store and viewer).** It is the only remaining
+  dependency-satisfied task without an owner gate.
+  Its scope is `src/sbr/obs/trace.py`: span model for nodes/tools/model calls, SQLite storage, `sbr trace`, optional
+  OTel export; tests must prove a run trace is fully reconstructable. Respect docs/22: trace inputs/outputs are
+  hashes plus bounded/redacted previews, never raw sensitive content. A separate `var/traces` SQLite store is the
+  design direction indicated by docs/21; inspect/decide migrations before coding.
+- **Test baseline right now: 419 passed, 4 known pdflatex-only failures** (`tests/test_fixture_generator.py`
   — pre-existing environment limitation, not a regression; do not try to fix, see "Environment notes" below).
   `mypy strict` and `ruff check`/`format --check` on `src`+`tests` are clean.
+- **T-P4-02 verification:** TS-ART killed a real subprocess at the final publish rename (exit 73); no partial
+  published version appeared, the complete staging tree remained, dry-run GC retained it, and explicit
+  `--apply` GC removed it. Two extractor versions coexist. `tools/validate_plan.py` printed `PLAN CONSISTENT`
+  after every state update (latest: 146 tasks, 42 done) and `tools/audit_crossrefs.py` printed `CROSSREFS CLEAN`.
+- **T-P13-04 real-DB evidence:** `tools/validate_migrations.py` ran on the existing 184,885,248-byte
+  `var/db/registry.sqlite`: schema v5, 13 tables, 323,135 rows, rollback/re-upgrade on the disposable SQLite copy
+  passed, and source size/mtime were unchanged. The five adjacent migration matrix cases and two drill tests pass.
+- **T-P7-03 evidence:** 12 new answer tests plus the expanded schema export/round-trip matrix pass; JSON schema
+  export `--check` is clean. CORPUS/external/AI-note segments cannot omit citations; USER/MODEL mixed citations
+  are rejected; `EXTERNAL_PENDING` requires explicit renderer opt-in.
 - **Real tools installed this session** (not previously on this machine, all via chocolatey/pip, all local,
   no cloud APIs): `pandoc` (OMML→LaTeX, SPIKE-OMML), `tesseract` 5.5.3 + German `deu` language pack
   (SPIKE-OCR), `cryptography` (Python package, for encrypted-PDF page counting), `py7zr`/`rarfile` (archive
