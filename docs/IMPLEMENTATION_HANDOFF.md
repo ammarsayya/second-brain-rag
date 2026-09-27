@@ -40,9 +40,26 @@ owner's final sign-off to reach DONE.
     reproduced by hand first (planted a stale stage file, confirmed the deadlock), then fixed by reordering
     the sweep before the dirty check, with a permanent regression test added
     (`test_stale_stage_file_from_a_real_process_kill_self_heals_instead_of_wedging`).
+02. T-P13-02 — Backup and restore — DONE (commit `058ef90`). A minor Codex-launcher mishap briefly started a
+    second, incomplete-brief job (`task-mujy09un-f1kglu`) concurrently with the correct one — cancelled
+    immediately, confirmed it never wrote any file (working tree stayed clean), no damage. The actual
+    implementation (SQLite online-backup snapshots via the existing `Migrator.backup()`, a full-history git
+    bundle of the vault, checksummed manifest, atomic stage-then-rename publish, a genuine restore drill that
+    deletes the original state before restoring) was thorough and well-tested; **no bugs found** on independent
+    review this time (unlike T-P4-13) — full suite/mypy/ruff/validators all re-verified clean independently.
 
 **Target:** 20
-**Current mission count:** 1 / 20
+**Current mission count:** 2 / 20
+
+**Structural ceiling reached for "free" DONE tasks:** after T-P13-02, `tools/validate_plan.py`'s
+`next_eligible_tasks` is exactly `[T-P3-02, T-P3-03, T-P5-06]` — all three require the owner's own
+verification/sign-off to reach DONE, and nothing else in the 146-task graph has its dependencies satisfied.
+**Mission count will very likely stop climbing past 2/20 unless the owner does real verification work**, or a
+future session finds some other angle. From here on, work shifts to PREP for these three (valuable, but lands
+as IN_PROGRESS, not DONE, matching the T-P3-07/T-P3-08 pattern already established in this codebase) —
+dispatched in this order: T-P3-03 first (no model-gateway dependency, purely heuristic/rule-based structural
+extraction — see the Q-B04 finding above), then T-P3-02's non-AI-drafting layer (thesis-OMML alignment +
+verification tooling), then T-P5-06 (taxonomy draft).
 
 **Codex usage limit:** the T-P4-13 job hit "You've hit your usage limit... try again at 4:48 PM" partway
 through; the T-P13-02 dispatch immediately after hit the identical message again (failed at 6s). If a future
@@ -67,21 +84,22 @@ already-known hand-verification gate. Do not let Codex attempt to fake this with
 scope it explicitly to layer (a), and record layer (b) as blocked on Q-B04 rather than silently working around
 it or leaving it unmentioned.
 
-**Queued next (in this order, once eligibility is recomputed after each DONE task):**
-1. `tools/validate_plan.py` now shows next eligible: `T-P13-02` (backup/restore — dependencies T-P4-13+T-P1-12,
-   both DONE, no owner gate), `T-P3-02`, `T-P3-03`, `T-P5-06` (all three still owner-verification-gated at
-   completion, though authorized to start). **T-P13-02 is next** — genuinely eligible, no owner gate, real
-   leverage (durability). Read its full docs/28 entry before delegating.
-2. Prep work for T-P3-02 (MBI-Gold-Math): sample selection from the already-existing 120-page gold-extract
-   list (T-P3-01's `eval/gold/extract_sample.yaml`), AI-drafted LaTeX per equation crop, the side-by-side
-   verification tool (crop vs. KaTeX render), thesis-OMML-as-ground-truth alignment where available. This
-   will land as IN_PROGRESS (owner verification log does not exist yet) — do not mark DONE.
-3. Prep work for T-P3-03 (MBI-Gold-Layout): reading-order/heading/figure-caption/table annotation for ~40
-   pages plus the verification tooling. Also lands as IN_PROGRESS.
-4. Draft T-P5-06 (Taxonomy v0) from course mapping (T-P2-11, 84.3% coverage) + curriculum/module handbook +
-   corpus structure. Lands as IN_PROGRESS/drafted pending owner sign-off.
-5. Recompute eligibility after every DONE task — T-P13-02 landing may unlock further tasks depending on what
-   else is gated only on it plus already-DONE dependencies.
+**Queued next:**
+1. **T-P3-03 (MBI-Gold-Layout) prep — dispatched to codex:rescue, in flight.** Brief: seeded ~40-page
+   layout-diversity selection (reusing T-P3-01's `BlobDescriptor`/bucket-quota machinery from
+   `src/sbr/eval/gold_extract.py`), heuristic (non-AI) draft annotations in `load_gold_samples()`'s exact
+   schema, a verification tool for the owner. Explicitly told NOT to mark DONE — IN_PROGRESS only, same
+   pattern as T-P3-07/T-P3-08.
+2. Next after that: T-P3-02 (MBI-Gold-Math) prep, scoped to ONLY the non-AI-drafting layer: sample selection,
+   the crop-vs-KaTeX-render verification tool, and thesis-OMML-as-exact-ground-truth alignment (422 equations
+   already known from T-P3-07's spike, zero drafting needed for those). Do NOT attempt AI-drafted LaTeX for
+   equations without an OMML match — that needs a model call and Q-B04/the model gateway don't exist yet;
+   scope the brief to explicitly exclude that layer and record it as its own blocked sub-item.
+3. Then T-P5-06 (Taxonomy v0) draft from course mapping (T-P2-11, 84.3% coverage) + curriculum/module handbook
+   + corpus structure. Lands as IN_PROGRESS/drafted pending owner sign-off.
+4. Recompute eligibility after every landed task regardless — a DONE is what unlocks the graph further, but
+   none of these three can reach DONE without the owner, so don't expect eligibility to change until the
+   owner actually reviews one.
 
 ## CURRENT STATE — READ THIS FIRST (2026-09-27, after T-P9-02; ALL REMAINING ELIGIBLE WORK IS OWNER-GATED)
 
