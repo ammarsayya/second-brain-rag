@@ -306,13 +306,13 @@
       "ADR-032",
       "ADR-034",
       "ADR-035",
-      "ADR-037"
+      "ADR-037",
+      "ADR-015"
     ],
     "proposed": [
       "ADR-008",
       "ADR-009(recognizer)",
       "ADR-010",
-      "ADR-015",
       "ADR-016",
       "ADR-017",
       "ADR-018",
