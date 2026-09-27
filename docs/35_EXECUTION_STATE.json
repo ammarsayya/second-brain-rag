@@ -2,25 +2,25 @@
   "schema_version": "1.0",
   "project": "second-brain-rag",
   "last_updated": "2026-09-27",
-  "updated_by": "Codex (T-P13-02 DONE: verified backup and clean-path restore)",
+  "updated_by": "Codex (T-P3-03 IN_PROGRESS: 40 layout drafts await owner verification)",
   "authoritative_docs": "docs/28_TASK_REGISTER.md (tasks), docs/24_DECISION_LOG.md (decisions), docs/25_OPEN_QUESTIONS.md, docs/34_RESEARCH_AND_SPIKE_REGISTER.md",
   "current_phase": "P3/P4/P13",
-  "current_phase_status": "P3 in_progress (T-P3-01, T-P3-04 DONE; T-P3-07/T-P3-08 IN_PROGRESS - evidence gathered, owner review pending; T-P3-02/T-P3-03 require owner approval to start); P4 in progress (T-P4-01, T-P4-02, T-P4-13 DONE); P13 in progress (T-P13-02, T-P13-04 DONE)",
+  "current_phase_status": "P3 in_progress (T-P3-01, T-P3-04 DONE; T-P3-03/T-P3-07/T-P3-08 IN_PROGRESS - evidence or drafts gathered, owner review pending; T-P3-02 requires owner approval to start); P4 in progress (T-P4-01, T-P4-02, T-P4-13 DONE); P13 in progress (T-P13-02, T-P13-04 DONE)",
   "last_task_verification": {
-    "task": "T-P13-02",
+    "task": "T-P3-03",
     "date": "2026-09-27",
-    "status": "DONE",
-    "summary": "Portable, fail-closed durability packages combine SQLite online-backup snapshots, a full-history vault Git bundle, and all validated curation files; restore verifies and functionally reconstructs the canonical layout on a fresh path.",
+    "status": "IN_PROGRESS",
+    "summary": "A seeded 40-page layout-diverse sample, deterministic pypdf candidate annotations, and a one-page-PDF owner review workflow are built; the task remains open until the owner verifies every page.",
     "files": [
-      "src/sbr/ops/__init__.py",
-      "src/sbr/ops/backup.py",
-      "src/sbr/cli/app.py",
-      "tests/ops/test_backup.py",
-      "docs/39_BACKUP_AND_RESTORE.md",
+      "src/sbr/eval/gold_layout.py",
+      "tools/select_gold_layout_sample.py",
+      "tools/draft_gold_layout.py",
+      "tools/gold_verify_layout.py",
+      "tests/test_gold_layout.py",
       "docs/28_TASK_REGISTER.md",
       "docs/35_EXECUTION_STATE.json"
     ],
-    "verification": "The clean-machine drill writes a real VaultWriter note and Git commit, registry row, trace span, and non-empty curation record; backs them up; deletes the original live var/vault/curation trees and Migrator side snapshots; restores into a non-existent directory; then verifies RegistryDB.open() schema/readability, trace readability, vault HEAD/log/content, and curation loader round-trip. Eight focused tests pass; full suite is 451 passed plus only the four known pdflatex-unavailable fixture-generator failures. Strict mypy, ruff check/format, tools/validate_plan.py, and tools/audit_crossrefs.py are clean."
+    "verification": "Reused the existing 120-page extract sample and persisted registry without a corpus-wide scan; all 98 eligible PDF pages were probed through SourceFS with zero failures, and 40/40 were selected across all 11 requested diversity buckets. Deterministic no-model drafts were produced for 40/40, loaded unchanged through load_gold_samples(), and paired with 40 exported one-page PDFs in the review index. Eight focused tests pass; the full suite is 459 passed plus only the four known pdflatex-only failures. Strict mypy, scoped ruff check/format, plan validation, and cross-reference audit are clean. Owner verification remains required; T-P3-03 is not DONE."
   },
   "phases": {
     "P0": {
@@ -72,8 +72,8 @@
   "task_totals": {
     "total": 146,
     "DONE": 45,
-    "NOT_STARTED": 95,
-    "IN_PROGRESS": 2,
+    "NOT_STARTED": 94,
+    "IN_PROGRESS": 3,
     "BLOCKED": 1,
     "DEFERRED": 3
   },
@@ -116,7 +116,7 @@
     "T-P2-14": "DONE",
     "T-P3-01": "DONE",
     "T-P3-02": "NOT_STARTED",
-    "T-P3-03": "NOT_STARTED",
+    "T-P3-03": "IN_PROGRESS",
     "T-P3-04": "DONE",
     "T-P3-05": "NOT_STARTED",
     "T-P3-06": "NOT_STARTED",
@@ -273,6 +273,7 @@
     "T-P13-02"
   ],
   "in_progress_tasks": [
+    "T-P3-03",
     "T-P3-07",
     "T-P3-08"
   ],
@@ -281,7 +282,6 @@
   ],
   "next_eligible_tasks": [
     "T-P3-02",
-    "T-P3-03",
     "T-P5-06"
   ],
   "first_implementation_task_after_approval": "T-P1-01",

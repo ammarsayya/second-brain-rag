@@ -835,7 +835,7 @@ Each task is written so that it can be independently verified. Spike tasks link 
 
 ### T-P3-03 — Build MBI-Gold-Layout (~40 pages)
 - **Phase:** P3
-- **Status:** NOT_STARTED
+- **Status:** IN_PROGRESS
 - **Priority:** high
 - **Dependencies:** T-P3-01
 - **Human approval:** required
@@ -844,6 +844,26 @@ Each task is written so that it can be independently verified. Spike tasks link 
 - **Acceptance criteria:** 40 pages labeled and verified.
 - **Validation method:** Owner verification.
 - **Expected artifacts:** eval/gold/layout/*
+- **Verification (2026-09-27):** IN_PROGRESS, not DONE: the acceptance criterion's own validation method
+  (owner verification of 40 labeled pages) genuinely requires the owner's judgment, so this remains open
+  until all drafts are reviewed — not something to route around or approximate. `src/sbr/eval/gold_layout.py`
+  provides pure, seeded, quota-based selection across 11 layout-diversity buckets; the real-corpus
+  orchestrator reused `eval/gold/extract_sample.yaml` and the persisted registry instead of rescanning or
+  reclassifying the corpus, excluded non-active/restricted/third-party-personal blobs before any source read,
+  and accessed every source only through `SourceFS`. **Real-corpus run**: all 98 PDF pages in the existing
+  120-page extract sample were probed with no failures; **40 of 40 target pages selected**, with quotas filled
+  for unusual reading order (4), multi-column (5), scanned (4), annotated (4), slide-like (4), table-heavy
+  (4), figures with captions (4), lists (3), headers/footers/page numbers (3), headings/paragraphs (3), and
+  plain-text controls (2). `tools/draft_gold_layout.py` produced deterministic, no-model candidate annotations
+  for all 40 pages in the exact `load_gold_samples()` schema (blocks/kinds/reading order/text, table rows,
+  figure boxes/captions/knowledge-bearing flags); the real loader round-trip loaded 40/40 unchanged.
+  `tools/gold_verify_layout.py --prepare` exported 40 one-page PDFs plus a Markdown review index and supports
+  explicit per-page `accept`/`correct`/`reject` decisions. Local artifacts live under `eval/gold/`, remain
+  git-ignored, and contain no tracked corpus content. 8 focused tests passed; full suite: 459 passed with only
+  the 4 pre-existing pdflatex-only failures; strict mypy, scoped ruff check/format, plan validation, and
+  cross-reference audit are clean. **Owner action needed to close this task**: compare every draft with its
+  exported source page, correct any heuristic errors in the aggregate annotation YAML, record one decision
+  for each of the 40 pages, resolve every rejection, and thereby verify all 40 labels.
 
 ### T-P3-04 — Extraction evaluation harness
 - **Phase:** P3
