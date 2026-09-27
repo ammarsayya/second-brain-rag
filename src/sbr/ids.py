@@ -34,7 +34,7 @@ _BLOB_RE: Final = re.compile(r"^b3:[0-9a-f]{64}$")
 ID_PREFIXES: Final = frozenset(
     {
         "doc", "sec", "blk", "ku", "eq", "fig", "tbl", "ann", "con", "rel", "clm", "evd", "cfl", "gap", "rp", "act",
-        "run", "obs", "scan", "job", "man", "ext", "chk", "note", "ref", "sym",
+        "run", "span", "obs", "scan", "job", "man", "ext", "chk", "note", "ref", "sym",
     }
 )  # fmt: skip
 

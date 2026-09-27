@@ -1,0 +1,306 @@
+{
+  "$defs": {
+    "RedactedValue": {
+      "additionalProperties": false,
+      "description": "A content fingerprint plus a bounded, credential-scrubbed preview.",
+      "properties": {
+        "char_count": {
+          "minimum": 0,
+          "title": "Char Count",
+          "type": "integer"
+        },
+        "content_hash": {
+          "pattern": "^b3:[0-9a-f]{64}$",
+          "title": "Content Hash",
+          "type": "string"
+        },
+        "preview": {
+          "maxLength": 160,
+          "title": "Preview",
+          "type": "string"
+        },
+        "truncated": {
+          "title": "Truncated",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "content_hash",
+        "preview",
+        "char_count",
+        "truncated"
+      ],
+      "title": "RedactedValue",
+      "type": "object"
+    },
+    "SpanKind": {
+      "description": "The three event families required by docs/07 section 8.",
+      "enum": [
+        "node",
+        "tool_call",
+        "model_call"
+      ],
+      "title": "SpanKind",
+      "type": "string"
+    },
+    "SpanStatus": {
+      "enum": [
+        "running",
+        "ok",
+        "error",
+        "interrupted"
+      ],
+      "title": "SpanStatus",
+      "type": "string"
+    },
+    "TraceToolCall": {
+      "additionalProperties": false,
+      "description": "Structured summary of a tool selected by a node/model span.",
+      "properties": {
+        "inputs": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/RedactedValue"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "name": {
+          "maxLength": 128,
+          "minLength": 1,
+          "title": "Name",
+          "type": "string"
+        }
+      },
+      "required": [
+        "name"
+      ],
+      "title": "TraceToolCall",
+      "type": "object"
+    }
+  },
+  "$id": "sbr/1.0.0/Span.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "description": "One reconstructable node, tool-call, or model-call event.",
+  "properties": {
+    "cost_usd": {
+      "anyOf": [
+        {
+          "minimum": 0,
+          "type": "number"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Cost Usd"
+    },
+    "decision": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/RedactedValue"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null
+    },
+    "duration_ms": {
+      "anyOf": [
+        {
+          "minimum": 0,
+          "type": "number"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Duration Ms"
+    },
+    "ended_at": {
+      "anyOf": [
+        {
+          "format": "date-time",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Ended At"
+    },
+    "error_class": {
+      "anyOf": [
+        {
+          "maxLength": 128,
+          "minLength": 1,
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Error Class"
+    },
+    "input_tokens": {
+      "anyOf": [
+        {
+          "minimum": 0,
+          "type": "integer"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Input Tokens"
+    },
+    "inputs": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/RedactedValue"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null
+    },
+    "kind": {
+      "$ref": "#/$defs/SpanKind"
+    },
+    "model": {
+      "anyOf": [
+        {
+          "maxLength": 128,
+          "minLength": 1,
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Model"
+    },
+    "name": {
+      "maxLength": 128,
+      "minLength": 1,
+      "title": "Name",
+      "type": "string"
+    },
+    "output_tokens": {
+      "anyOf": [
+        {
+          "minimum": 0,
+          "type": "integer"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Output Tokens"
+    },
+    "parent_span_id": {
+      "anyOf": [
+        {
+          "pattern": "^span_[0-7][0-9A-HJKMNP-TV-Z]{25}$",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Parent Span Id"
+    },
+    "parsed_output": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/RedactedValue"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null
+    },
+    "prompt_version": {
+      "anyOf": [
+        {
+          "maxLength": 128,
+          "minLength": 1,
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Prompt Version"
+    },
+    "raw_output": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/RedactedValue"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null
+    },
+    "run_id": {
+      "pattern": "^run_[0-7][0-9A-HJKMNP-TV-Z]{25}$",
+      "title": "Run Id",
+      "type": "string"
+    },
+    "sequence": {
+      "minimum": 0,
+      "title": "Sequence",
+      "type": "integer"
+    },
+    "span_id": {
+      "pattern": "^span_[0-7][0-9A-HJKMNP-TV-Z]{25}$",
+      "title": "Span Id",
+      "type": "string"
+    },
+    "started_at": {
+      "format": "date-time",
+      "title": "Started At",
+      "type": "string"
+    },
+    "status": {
+      "$ref": "#/$defs/SpanStatus",
+      "default": "running"
+    },
+    "tool_calls": {
+      "items": {
+        "$ref": "#/$defs/TraceToolCall"
+      },
+      "title": "Tool Calls",
+      "type": "array"
+    }
+  },
+  "required": [
+    "span_id",
+    "run_id",
+    "sequence",
+    "kind",
+    "name",
+    "started_at"
+  ],
+  "title": "Span",
+  "type": "object",
+  "x-sbr-schema-version": "1.0.0"
+}

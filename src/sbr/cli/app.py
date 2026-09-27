@@ -28,6 +28,7 @@ from sbr.eval.extract.contracts import Extractor
 from sbr.eval.extract.dummy import DummyTextExtractor
 from sbr.eval.extract.goldfile import load_gold_samples
 from sbr.eval.extract.harness import run_harness
+from sbr.obs.trace import TraceDB, TraceNotFoundError, render_run_trace
 from sbr.registry.archives import inventory_archives
 from sbr.registry.changes import detect_changes
 from sbr.registry.classify import DEFAULT_RULES_PATH, classify_pending
@@ -156,6 +157,22 @@ def runs_cmd(
         }
 
     _run("runs", config, body)
+
+
+@app.command("trace")
+def trace_cmd(run_id: str, config: Path | None = ConfigOption) -> None:
+    """Render the complete stored span tree for one run."""
+
+    def body(rt: Runtime) -> dict[str, object]:
+        with TraceDB.open(rt.config) as trace_db:
+            trace_db.migrate()
+            return render_run_trace(trace_db, run_id)
+
+    try:
+        _run("trace", config, body)
+    except TraceNotFoundError as exc:
+        typer.echo(str(exc), err=True)
+        raise typer.Exit(code=1) from None
 
 
 @app.command("doctor")

@@ -1763,7 +1763,7 @@ Each task is written so that it can be independently verified. Spike tasks link 
 
 ### T-P9-02 — Trace store and viewer
 - **Phase:** P9
-- **Status:** NOT_STARTED
+- **Status:** DONE
 - **Priority:** high
 - **Dependencies:** T-P1-08
 - **Human approval:** none
@@ -1773,6 +1773,14 @@ Each task is written so that it can be independently verified. Spike tasks link 
 - **Acceptance criteria:** Trace of a run fully reconstructable.
 - **Validation method:** Tests.
 - **Expected artifacts:** src/sbr/obs/trace.py
+- **Verification (2026-09-27):** Added a standalone, migrated `var/traces/traces.sqlite` store with one immutable
+  span row per node/tool/model-call event, stable per-run sequence ordering, same-run parent linkage, UTC timing,
+  outcomes, error class, model/prompt metadata, structured tool-call summaries, token/cost accounting, and
+  hash-plus-160-character-preview redaction before SQLite receives content. `span_scope()` inherits run/span context
+  and closes spans on success, `SystemExit`, `KeyboardInterrupt`, or any `BaseException`. `sbr trace <run_id>` renders
+  the complete nested tree as JSON and reports unknown runs without a traceback. Seven focused trace/migration/CLI
+  tests pass; full suite is 427 passed plus only the four known pdflatex-only failures. Strict mypy and ruff
+  check/format are clean; schema export check, plan validation, and cross-reference audit are clean.
 
 ### T-P9-03 — Orchestrator state machine
 - **Phase:** P9

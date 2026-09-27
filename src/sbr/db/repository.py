@@ -27,6 +27,8 @@ def _is_json_field(annotation: Any) -> bool:
     origin = get_origin(annotation)
     if origin in (list, dict, tuple):
         return True
+    if isinstance(annotation, type) and issubclass(annotation, BaseModel):
+        return True
     return any(_is_json_field(a) for a in get_args(annotation) if a is not type(None))
 
 

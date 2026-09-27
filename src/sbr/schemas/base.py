@@ -42,6 +42,7 @@ def prefixed(prefix: str) -> StringConstraints:
 
 ActivityId = Annotated[str, prefixed("act")]
 RunId = Annotated[str, prefixed("run")]
+SpanId = Annotated[str, prefixed("span")]
 ScanId = Annotated[str, prefixed("scan")]
 ObsId = Annotated[str, prefixed("obs")]
 BlockId = Annotated[str, prefixed("blk")]

@@ -2,23 +2,25 @@
   "schema_version": "1.0",
   "project": "second-brain-rag",
   "last_updated": "2026-09-27",
-  "updated_by": "Codex (T-P7-03 DONE after T-P13-04 and T-P4-02: strict answer basis/citation schema and fail-closed renderer)",
+  "updated_by": "Codex (T-P9-02 DONE: standalone privacy-bounded trace store, span lifecycle API, and trace viewer)",
   "authoritative_docs": "docs/28_TASK_REGISTER.md (tasks), docs/24_DECISION_LOG.md (decisions), docs/25_OPEN_QUESTIONS.md, docs/34_RESEARCH_AND_SPIKE_REGISTER.md",
   "current_phase": "P3/P4",
   "current_phase_status": "P3 in_progress (T-P3-01, T-P3-04 DONE; T-P3-07/T-P3-08 IN_PROGRESS - evidence gathered, owner review pending; T-P3-02/T-P3-03 require owner approval to start); P4 started in parallel (T-P4-01 and T-P4-02 DONE)",
   "last_task_verification": {
-    "task": "T-P7-03",
+    "task": "T-P9-02",
     "date": "2026-09-27",
     "status": "DONE",
-    "summary": "Strict AnswerSegment and AnswerCitation contracts enforce ADR-034's knowledge-layer basis per segment, typed exactly-one-target citations with locators, evidence requirements by basis, and split mixed claims. Deterministic Markdown rendering labels every segment and refuses EXTERNAL_PENDING unless explicitly enabled. AnswerSegment.json is exported through the schema pipeline.",
+    "summary": "Standalone traces.sqlite stores reconstructable node, tool-call, and model-call trees correlated by run_id, with stable sequence ordering, timing, outcomes, bounded redacted content envelopes, and a read-only sbr trace viewer.",
     "files": [
-      "src/sbr/answer/__init__.py",
-      "src/sbr/answer/schema.py",
-      "src/sbr/answer/render.py",
-      "schemas/AnswerSegment.json",
-      "tests/test_answer_schema.py"
+      "src/sbr/obs/trace.py",
+      "src/sbr/schemas/trace.py",
+      "migrations/traces/0001_traces.sql",
+      "migrations/traces/0001_traces.down.sql",
+      "schemas/Span.json",
+      "tests/test_trace.py",
+      "tests/migrations/test_trace_migrations.py"
     ],
-    "verification": "12 new answer tests and all schema round-trip/snapshot tests pass (55 focused). Full suite: 419 passed plus only the same four pre-existing pdflatex-only failures. mypy strict, ruff check/format, tools/export_schemas.py --check, tools/validate_plan.py, and tools/audit_crossrefs.py are clean."
+    "verification": "Seven focused trace tests pass. Full suite: 427 passed plus only the same four pre-existing pdflatex-only failures. mypy strict, ruff check/format, tools/export_schemas.py --check, tools/validate_plan.py, and tools/audit_crossrefs.py are clean."
   },
   "phases": {
     "P0": {
@@ -69,8 +71,8 @@
   },
   "task_totals": {
     "total": 146,
-    "DONE": 39,
-    "NOT_STARTED": 101,
+    "DONE": 43,
+    "NOT_STARTED": 97,
     "IN_PROGRESS": 2,
     "BLOCKED": 1,
     "DEFERRED": 3
@@ -179,7 +181,7 @@
     "T-P8-08": "NOT_STARTED",
     "T-P8-09": "NOT_STARTED",
     "T-P9-01": "NOT_STARTED",
-    "T-P9-02": "NOT_STARTED",
+    "T-P9-02": "DONE",
     "T-P9-03": "NOT_STARTED",
     "T-P9-04": "NOT_STARTED",
     "T-P9-05": "NOT_STARTED",
@@ -265,7 +267,8 @@
     "T-P4-01",
     "T-P4-02",
     "T-P13-04",
-    "T-P7-03"
+    "T-P7-03",
+    "T-P9-02"
   ],
   "in_progress_tasks": [
     "T-P3-07",
@@ -278,8 +281,7 @@
     "T-P3-02",
     "T-P3-03",
     "T-P4-13",
-    "T-P5-06",
-    "T-P9-02"
+    "T-P5-06"
   ],
   "first_implementation_task_after_approval": "T-P1-01",
   "decisions": {

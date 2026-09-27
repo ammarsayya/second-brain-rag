@@ -271,6 +271,10 @@ class SbrConfig(BaseSettings):
     def logs_dir(self) -> Path:
         return self.var_path / "logs"
 
+    @property
+    def traces_dir(self) -> Path:
+        return self.var_path / "traces"
+
     def source_root(self, root_id: str) -> SourceRootConfig:
         for s in self.roots.sources:
             if s.id == root_id:

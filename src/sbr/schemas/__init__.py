@@ -16,6 +16,7 @@ from sbr.schemas.registry import (
     ScanRecord,
     SourceRootRecord,
 )
+from sbr.schemas.trace import RedactedValue, Span, SpanKind, SpanStatus, TraceToolCall
 
 EXPORTED_MODELS: tuple[type[StrictModel], ...] = (
     Activity,
@@ -30,6 +31,7 @@ EXPORTED_MODELS: tuple[type[StrictModel], ...] = (
     BlobRelation,
     ChangeEvent,
     RunRecord,
+    Span,
     WorkItem,
     WorkOutput,
 )
@@ -49,11 +51,16 @@ __all__ = [
     "Locator",
     "PathObservation",
     "ProvenanceClass",
+    "RedactedValue",
     "RunRecord",
     "RunStatus",
     "ScanRecord",
     "SourceRootRecord",
+    "Span",
+    "SpanKind",
+    "SpanStatus",
     "StrictModel",
+    "TraceToolCall",
     "WorkItem",
     "WorkItemState",
     "WorkOutput",
