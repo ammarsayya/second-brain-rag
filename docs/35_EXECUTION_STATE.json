@@ -2,26 +2,25 @@
   "schema_version": "1.0",
   "project": "second-brain-rag",
   "last_updated": "2026-09-27",
-  "updated_by": "Codex (T-P4-13 DONE: ownership-safe atomic VaultWriter with independent Git history)",
+  "updated_by": "Codex (T-P13-02 DONE: verified backup and clean-path restore)",
   "authoritative_docs": "docs/28_TASK_REGISTER.md (tasks), docs/24_DECISION_LOG.md (decisions), docs/25_OPEN_QUESTIONS.md, docs/34_RESEARCH_AND_SPIKE_REGISTER.md",
-  "current_phase": "P3/P4",
-  "current_phase_status": "P3 in_progress (T-P3-01, T-P3-04 DONE; T-P3-07/T-P3-08 IN_PROGRESS - evidence gathered, owner review pending; T-P3-02/T-P3-03 require owner approval to start); P4 in progress (T-P4-01, T-P4-02, T-P4-13 DONE)",
+  "current_phase": "P3/P4/P13",
+  "current_phase_status": "P3 in_progress (T-P3-01, T-P3-04 DONE; T-P3-07/T-P3-08 IN_PROGRESS - evidence gathered, owner review pending; T-P3-02/T-P3-03 require owner approval to start); P4 in progress (T-P4-01, T-P4-02, T-P4-13 DONE); P13 in progress (T-P13-02, T-P13-04 DONE)",
   "last_task_verification": {
-    "task": "T-P4-13",
+    "task": "T-P13-02",
     "date": "2026-09-27",
     "status": "DONE",
-    "summary": "VaultWriter is the sole ownership-safe vault mutation path: seven-folder policy enforcement, notes refusal, body-hash edit detection and forks, preserved map user sections, atomic rollback-capable batches, provenance Activities, and one commit per clean-tree batch in the vault's independent Git repository.",
+    "summary": "Portable, fail-closed durability packages combine SQLite online-backup snapshots, a full-history vault Git bundle, and all validated curation files; restore verifies and functionally reconstructs the canonical layout on a fresh path.",
     "files": [
-      "src/sbr/vault/__init__.py",
-      "src/sbr/vault/writer.py",
-      "src/sbr/config.py",
-      "tests/vault/test_writer.py",
-      "tests/safety/test_static_mutators.py",
-      ".gitignore",
-      "config/sbr.example.toml",
-      "docs/19_OBSIDIAN_INTEGRATION.md"
+      "src/sbr/ops/__init__.py",
+      "src/sbr/ops/backup.py",
+      "src/sbr/cli/app.py",
+      "tests/ops/test_backup.py",
+      "docs/39_BACKUP_AND_RESTORE.md",
+      "docs/28_TASK_REGISTER.md",
+      "docs/35_EXECUTION_STATE.json"
     ],
-    "verification": "Sonnet's review found and fixed a real crash-recovery bug (dirty-check ran before stale-stage sweep, wedging every future batch after a real process kill) before accepting this task. Sixteen focused TS-VAULT tests pass (fifteen from Codex plus one regression test for the fix). Full suite: 443 passed plus only the same four pre-existing pdflatex-only failures. mypy strict, ruff check/format, tools/validate_plan.py, and tools/audit_crossrefs.py are clean."
+    "verification": "The clean-machine drill writes a real VaultWriter note and Git commit, registry row, trace span, and non-empty curation record; backs them up; deletes the original live var/vault/curation trees and Migrator side snapshots; restores into a non-existent directory; then verifies RegistryDB.open() schema/readability, trace readability, vault HEAD/log/content, and curation loader round-trip. Eight focused tests pass; full suite is 451 passed plus only the four known pdflatex-unavailable fixture-generator failures. Strict mypy, ruff check/format, tools/validate_plan.py, and tools/audit_crossrefs.py are clean."
   },
   "phases": {
     "P0": {
@@ -72,8 +71,8 @@
   },
   "task_totals": {
     "total": 146,
-    "DONE": 43,
-    "NOT_STARTED": 97,
+    "DONE": 45,
+    "NOT_STARTED": 95,
     "IN_PROGRESS": 2,
     "BLOCKED": 1,
     "DEFERRED": 3
@@ -213,7 +212,7 @@
     "T-P12-06": "NOT_STARTED",
     "T-P12-07": "NOT_STARTED",
     "T-P13-01": "NOT_STARTED",
-    "T-P13-02": "NOT_STARTED",
+    "T-P13-02": "DONE",
     "T-P13-03": "NOT_STARTED",
     "T-P13-04": "DONE",
     "T-P13-05": "NOT_STARTED",
@@ -270,7 +269,8 @@
     "T-P13-04",
     "T-P7-03",
     "T-P9-02",
-    "T-P4-13"
+    "T-P4-13",
+    "T-P13-02"
   ],
   "in_progress_tasks": [
     "T-P3-07",
@@ -282,8 +282,7 @@
   "next_eligible_tasks": [
     "T-P3-02",
     "T-P3-03",
-    "T-P5-06",
-    "T-P13-02"
+    "T-P5-06"
   ],
   "first_implementation_task_after_approval": "T-P1-01",
   "decisions": {

@@ -36,3 +36,4 @@ config/sbr.toml
 # Session tooling
 .remember/
 pytest-*/
+/.tmp-*/

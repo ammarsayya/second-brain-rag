@@ -35,6 +35,11 @@ ALLOW: dict[str, str] = {
         "writes are staged beside their target, atomically replaced, Git-committed per clean-tree batch, and "
         "restored from exact pre-batch bytes if publication or commit fails"
     ),
+    "ops/backup.py": (
+        "T-P13-02's reviewed durability writer: destinations and fresh restore targets pass assert_writable and "
+        "protected-root checks; backup/restore staging is atomically renamed only after manifest, hash, SQLite, "
+        "Git-bundle, and curation validation; rollback removes only its own random staging directory"
+    ),
     "registry/archives.py": (
         "creates var/archive_extract/<container>/ (mkdir, and Path.open('wb') writes this detector's positional-"
         "arg open() check does not see, since Path.open(mode) takes mode as its first arg, not open(file, mode)'s "

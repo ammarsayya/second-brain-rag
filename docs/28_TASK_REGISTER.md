@@ -2184,7 +2184,7 @@ Each task is written so that it can be independently verified. Spike tasks link 
 
 ### T-P13-02 — Backup and restore
 - **Phase:** P13
-- **Status:** NOT_STARTED
+- **Status:** DONE
 - **Priority:** critical
 - **Dependencies:** T-P4-13, T-P1-12
 - **Human approval:** none
@@ -2193,6 +2193,20 @@ Each task is written so that it can be independently verified. Spike tasks link 
 - **Acceptance criteria:** Restore drill succeeds on a clean machine path.
 - **Validation method:** Drill log.
 - **Expected artifacts:** src/sbr/ops/backup.py, docs runbook
+- **Verification (2026-09-27):** Added a fail-closed, atomic backup package containing online SQLite snapshots of
+  registry and traces through the existing `Migrator.backup("p13")` path, a verified full-history `git bundle
+  create --all` of the independent vault, and byte-preserving copies of all eight production-loader-validated
+  curation files. Every payload has manifest size/SHA-256 integrity metadata. Restore accepts only a non-existent,
+  protected-root-safe target; validates the manifest, hashes, SQLite integrity/schema versions, Git bundle and
+  curation schemas; stages the canonical `var`/vault/curation layout; clones and verifies full vault history; and
+  publishes with one rename. The automated clean-machine drill writes real state, creates a backup, deletes the
+  original live state and Migrator side snapshots, restores into a brand-new path, then opens the restored registry
+  via `RegistryDB.open()` and reads its row/schema version, reads the restored trace, verifies vault HEAD/log/content,
+  and round-trips restored curation YAML. Seven focused backup/restore tests pass. The artifact store is explicitly
+  deferred because it is optional and rebuildable; `sbr backup --dest` is the create-side CLI and restore remains a
+  tested Python API. Eight focused tests and 451 full-suite tests pass; the only four failures are the known
+  `pdflatex`-unavailable fixture-generator tests. Strict mypy, ruff check/format, plan validation, and cross-reference
+  audit are clean. See `docs/39_BACKUP_AND_RESTORE.md` for the procedure and drill log.
 
 ### T-P13-03 — Rebuild-from-scratch drill
 - **Phase:** P13

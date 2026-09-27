@@ -29,6 +29,7 @@ from sbr.eval.extract.dummy import DummyTextExtractor
 from sbr.eval.extract.goldfile import load_gold_samples
 from sbr.eval.extract.harness import run_harness
 from sbr.obs.trace import TraceDB, TraceNotFoundError, render_run_trace
+from sbr.ops.backup import create_backup
 from sbr.registry.archives import inventory_archives
 from sbr.registry.changes import detect_changes
 from sbr.registry.classify import DEFAULT_RULES_PATH, classify_pending
@@ -80,6 +81,11 @@ ManifestCsvOption = typer.Option(Path("reports/manifest.csv"), "--csv-output")
 MirrorsMarkdownOption = typer.Option(Path("reports/mirrors.md"), "--markdown-output")
 MirrorsMinOverlapOption = typer.Option(MIN_OVERLAP, "--min-overlap")
 MirrorsMinSharedOption = typer.Option(MIN_SHARED_BLOBS, "--min-shared-blobs")
+BackupDestinationOption = typer.Option(
+    None,
+    "--dest",
+    help="Parent directory for the timestamped backup (default: <var>/backups/system).",
+)
 
 
 @app.callback()
@@ -187,6 +193,28 @@ def doctor_cmd(config: Path | None = ConfigOption) -> None:
         }
 
     _run("doctor", config, body)
+
+
+@app.command("backup")
+def backup_cmd(
+    destination: Path | None = BackupDestinationOption,
+    config: Path | None = ConfigOption,
+) -> None:
+    """Snapshot the databases, full vault Git history, and curation ledger into one verified package."""
+
+    def body(rt: Runtime) -> dict[str, object]:
+        result = create_backup(rt.config, destination, registry_db=rt.db)
+        return {
+            "backup_id": result.manifest.backup_id,
+            "backup_dir": str(result.backup_dir),
+            "manifest": str(result.manifest_path),
+            "registry_schema_version": result.manifest.registry_schema_version,
+            "traces_schema_version": result.manifest.traces_schema_version,
+            "vault_head": result.manifest.vault_head,
+            "files": len(result.manifest.files),
+        }
+
+    _run("backup", config, body)
 
 
 @artifacts_app.command("gc")
