@@ -92,19 +92,30 @@ it or leaving it unmentioned.
     real `load_gold_samples()` unmodified" and "never claims owner_verified", both independently confirmed);
     no bugs found. All corpus content confirmed gitignored, nothing tracked.
 
+04. T-P3-02 — MBI-Gold-Math non-AI-layer prep — landed IN_PROGRESS (commit `43b01e5`, not DONE). Codex first
+    paused to confirm its design (hit an internal confirmation gate before touching any file, zero files
+    changed) — reviewed its proposed design, approved, resumed. Real run: 300/300 selected (180 OMML-exact
+    with genuine pandoc-derived ground truth, 120 PDF-native with explicitly null LaTeX and
+    `status: pending_ai_draft`, never fabricated). Fails closed on any pandoc/OMML-XML count or
+    display/inline disagreement (9 whole files + 52 individual equations excluded rather than risk a
+    mismatched pairing) — careful, conservative engineering. Reviewed the pairing-order assumption between
+    `extract_latex_equations()`'s grouped (display-then-inline) output and the new code's own XML ordering;
+    confirmed it's grounded in the same already-documented pandoc behavior T-P3-07 established, not a new
+    unverified assumption. No bugs found requiring a fix.
+
 **Queued next:**
-1. **T-P3-02 (MBI-Gold-Math) prep — dispatched to codex:rescue, in flight.** Scoped strictly to the non-AI
-   layer: ~300-equation selection stratified by source kind/difficulty, real (non-fabricated) ground-truth
-   LaTeX for every OMML-sourced equation (reusing T-P3-07's already-proven `extract_latex_equations()` — no
-   drafting needed, it's exact), the crop-vs-KaTeX verification tool, and an explicit `pending_ai_draft`
-   marker (not a fabricated guess) for every equation that genuinely needs a model call to draft. Told
-   explicitly NOT to call any model/LLM and NOT to fake AI-drafting with a rule-based guesser — that's a
-   second, distinct gate on Q-B04 (no model gateway exists yet), separate from the owner-verification gate.
-2. Then T-P5-06 (Taxonomy v0) draft from course mapping (T-P2-11, 84.3% coverage) + curriculum/module handbook
-   + corpus structure. Lands as IN_PROGRESS/drafted pending owner sign-off.
-3. Recompute eligibility after every landed task regardless — a DONE is what unlocks the graph further, but
-   none of these three can reach DONE without the owner, so don't expect eligibility to change until the
-   owner actually reviews one.
+1. **T-P5-06 (Taxonomy v0) — dispatched to codex:rescue, in flight.** This is the LAST of the three
+   currently-eligible-but-owner-gated tasks — after this lands, everything buildable without further owner
+   input will be exhausted. Brief: populate `curation/taxonomy.yaml` (schema already exists —
+   `TaxonomyConcept` in `src/sbr/curation.py`, unused until now) with a real, curriculum-grounded SKOS-like
+   domain taxonomy from the 42 already-curated courses in `curation/course_map.yaml`, map every course to
+   ≥1 domain (flagged a genuine schema gap for Codex to resolve: neither `TaxonomyConcept` nor
+   `CourseMapEntry` currently has a course<->domain link field — recommended adding an additive `domains`
+   field to `CourseMapEntry`, but left the final call to Codex with reasoning required either way). Told
+   explicitly not to mark DONE.
+2. Once T-P5-06 lands, recompute eligibility — likely nothing else becomes buildable without the owner
+   actually reviewing/approving one of the three IN_PROGRESS gold-set/taxonomy tasks. At that point this
+   mission session has done everything it structurally can; further progress requires the owner's time.
 
 ## CURRENT STATE — READ THIS FIRST (2026-09-27, after T-P9-02; ALL REMAINING ELIGIBLE WORK IS OWNER-GATED)
 
