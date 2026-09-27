@@ -45,9 +45,27 @@ owner's final sign-off to reach DONE.
 **Current mission count:** 1 / 20
 
 **Codex usage limit:** the T-P4-13 job hit "You've hit your usage limit... try again at 4:48 PM" partway
-through. If a future session resumes this mission and Codex delegation fails immediately with the same
-message, that's the same account-level limit, not a new problem — wait for the advertised reset time (or a
-later one, if it recurs) rather than assuming something is broken.
+through; the T-P13-02 dispatch immediately after hit the identical message again (failed at 6s). If a future
+session resumes this mission and Codex delegation fails immediately with the same message, that's the same
+account-level limit, not a new problem — wait for the advertised reset time (or a later one, if it recurs)
+rather than assuming something is broken. **T-P13-02 has not actually been attempted yet** — it was dispatched,
+hit the limit instantly, and needs re-dispatching once Codex is available again (the same brief is fine to
+reuse verbatim).
+
+**New finding while waiting on the Codex reset (evidence-gathering per the standing "gather evidence, record
+the gate, continue other independent work" instruction):** T-P3-02's own description says "**AI-drafted**
+LaTeX per equation crop" — producing that draft needs a real model call. No model gateway exists yet
+(T-P7-01/T-P7-02 are NOT_STARTED, gated on Q-B04, which is still an OPEN question — "which OpenCode models and
+how are they accessed"). So T-P3-02's prep work has TWO distinct layers, not one: (a) selection, cropping, the
+side-by-side crop-vs-KaTeX-render verification tool, and thesis-OMML-as-exact-ground-truth alignment (all of
+this is real, buildable, model-free work — the thesis's 422 OMML equations are already exactly known from
+T-P3-07's spike, no drafting needed for those); (b) AI-drafted candidate LaTeX for every equation that does
+NOT have an aligned OMML source (almost certainly most of the ~300 target) — this genuinely cannot be built
+without a model call, which is a **second, distinct owner/architecture gate** (Q-B04) beyond the
+already-known hand-verification gate. Do not let Codex attempt to fake this with a hardcoded/rule-based
+"drafter" — that would misrepresent unverified guesses as AI drafts. When dispatching T-P3-02 prep work,
+scope it explicitly to layer (a), and record layer (b) as blocked on Q-B04 rather than silently working around
+it or leaving it unmentioned.
 
 **Queued next (in this order, once eligibility is recomputed after each DONE task):**
 1. `tools/validate_plan.py` now shows next eligible: `T-P13-02` (backup/restore — dependencies T-P4-13+T-P1-12,
