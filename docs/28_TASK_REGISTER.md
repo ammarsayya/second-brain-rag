@@ -823,7 +823,7 @@ Each task is written so that it can be independently verified. Spike tasks link 
 
 ### T-P3-02 — Build MBI-Gold-Math (~300 equations)
 - **Phase:** P3
-- **Status:** NOT_STARTED
+- **Status:** IN_PROGRESS
 - **Priority:** critical
 - **Dependencies:** T-P3-01
 - **Human approval:** required
@@ -832,6 +832,30 @@ Each task is written so that it can be independently verified. Spike tasks link 
 - **Acceptance criteria:** ≥300 equations verified; each has crop, LaTeX, source kind, difficulty tag.
 - **Validation method:** Owner verification log; double-check 10%.
 - **Expected artifacts:** eval/gold/math/*, tools/gold_verify (local web page or CLI)
+- **Verification (2026-09-27):** IN_PROGRESS, not DONE: the acceptance criterion's own validation method
+  (owner verification of every equation plus a 10% double-check) genuinely requires the owner's judgment, so
+  the generated candidates remain explicitly unverified — not something to route around or approximate.
+  `src/sbr/eval/gold_math.py` provides pure, seeded source-group × difficulty quota selection using a documented
+  inline/display + simple/complex structural heuristic. The real-corpus orchestrator queried the persisted
+  registry instead of rescanning/re-hashing/reclassifying, excluded non-active/restricted/third-party-personal
+  blobs before source reads, accessed sources only through `SourceFS`, and reused T-P3-01's 98 already-selected
+  PDF pages. **Real-corpus run:** 340 fail-closed, ordinal-aligned DOCX OMML candidates and 163 PDF-native
+  candidates were available; **300 total selected: 180 OMML-exact equations with real pandoc-derived LaTeX and
+  120 PDF-native crops with `latex: null`, `source_kind: null`, and `status: pending_ai_draft`**. Nine DOCX files
+  whose main-document OMML count differed from pandoc output were excluded wholesale; 52 further equations with
+  a display/inline disagreement were excluded individually rather than risk a mismatched source substitute.
+  OMML entries use their exact raw OMML subtree as a clearly labeled source-context substitute because no DOCX
+  pixel renderer is available; PDF entries use original-content one-page PDFs clipped to the detected equation
+  bounds. `tools/gold_verify_math.py --prepare` generated one offline 300-entry side-by-side HTML review page and
+  supports explicit `accept`/`correct`/`reject` logging; local KaTeX assets were unavailable, so this run uses a
+  clearly labeled embedded pandoc-MathML offline fallback instead of claiming KaTeX. All real corpus artifacts
+  remain under git-ignored `eval/gold/`; the aggregate loaded 300/300 through `load_gold_samples()` and every crop
+  exists. Nine focused tests pass; full suite: 468 passed with only the 4 pre-existing pdflatex-only failures;
+  strict mypy, canonical/new-tool ruff check/format, plan validation, and cross-reference audit are clean.
+  **Owner action needed to close this task**: review/correct/reject all 300 entries, resolve every rejection,
+  and independently double-check 10%. **Separate Q-B04/model-gateway gate**: the 120 `pending_ai_draft` PDF crops
+  need real model-produced LaTeX after model access is decided and implemented; no model/API was called and no
+  rule-based LaTeX guess was fabricated in this prep pass.
 
 ### T-P3-03 — Build MBI-Gold-Layout (~40 pages)
 - **Phase:** P3
