@@ -22,6 +22,10 @@ METHOD_MUTATORS = {"unlink", "rmdir", "rename", "touch", "write_text", "write_by
 
 # module (relative to src/sbr) -> reviewed reason
 ALLOW: dict[str, str] = {
+    "artifacts.py": (
+        "writes only below configured var/artifacts after assert_writable(); publishes a complete staged directory "
+        "with one Path.rename and removes abandoned staging directories only through explicit gc_orphans(apply=True)"
+    ),
     "sourcefs.py": "os.open with read-only flags only (asserted below)",
     "safety.py": "the runtime guard wraps mutators; it never calls them itself on its own behalf",
     "db/connection.py": "creates var/db and backup directories after assert_outside(protected roots)",

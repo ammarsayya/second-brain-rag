@@ -20,6 +20,7 @@ from typing import NoReturn
 import typer
 
 from sbr import __version__
+from sbr.artifacts import ArtifactStore
 from sbr.cli.runtime import Runtime, command_runtime
 from sbr.config import ConfigError
 from sbr.db import registry as reg
@@ -57,6 +58,8 @@ report_app = typer.Typer(help="Read-only reports over the registry.")
 app.add_typer(report_app, name="report")
 eval_app = typer.Typer(help="Extraction/retrieval evaluation harnesses (P3+).")
 app.add_typer(eval_app, name="eval")
+artifacts_app = typer.Typer(help="Inspect and explicitly maintain the rebuildable artifact store.")
+app.add_typer(artifacts_app, name="artifacts")
 
 EXTRACTORS: dict[str, Extractor] = {"dummy_text_layer": DummyTextExtractor()}
 GoldFileOption = typer.Option(..., "--gold", help="Gold-file YAML (sbr.eval.extract.goldfile schema).")
@@ -167,6 +170,24 @@ def doctor_cmd(config: Path | None = ConfigOption) -> None:
         }
 
     _run("doctor", config, body)
+
+
+@artifacts_app.command("gc")
+def artifacts_gc_cmd(
+    older_than_seconds: float = typer.Option(0, "--older-than-seconds", min=0),
+    apply: bool = typer.Option(False, "--apply", help="Delete listed staging orphans; default is a dry run."),
+    config: Path | None = ConfigOption,
+) -> None:
+    """List or remove abandoned staging writes; published versions are never candidates."""
+
+    def body(rt: Runtime) -> dict[str, object]:
+        orphans = ArtifactStore(rt.config).gc_orphans(
+            apply=apply,
+            older_than_seconds=older_than_seconds,
+        )
+        return {"apply": apply, "orphans": len(orphans)}
+
+    _run("artifacts gc", config, body)
 
 
 @app.command("scan")
