@@ -305,7 +305,8 @@
       "ADR-031",
       "ADR-032",
       "ADR-034",
-      "ADR-035"
+      "ADR-035",
+      "ADR-037"
     ],
     "proposed": [
       "ADR-008",
@@ -322,7 +323,6 @@
       "ADR-026",
       "ADR-027",
       "ADR-033",
-      "ADR-037",
       "ADR-038"
     ],
     "deferred": [
@@ -335,14 +335,6 @@
     "superseded": []
   },
   "unresolved_blockers": [
-    {
-      "id": "Q-B02",
-      "summary": "Vault location and relation to the Brain",
-      "blocks": [
-        "T-P4-13",
-        "T-P10-01"
-      ]
-    },
     {
       "id": "Q-B03",
       "summary": "Compute/privacy policy (cloud APIs, GPU rental, budget)",
@@ -564,6 +556,12 @@
       "answer": "closed; t3 is the implementation-source baseline",
       "date": "2026-09-24",
       "evidence": "docs/38; audit/phase0/t3/t2_to_t3_comparison.json"
+    },
+    {
+      "id": "Q-B02",
+      "answer": "vault lives at D:\\AgenticAI\\second-brain-rag\\vault as its own independent git repository, gitignored from the code repo; Brain gets only the registry record (ADR-037 accepted)",
+      "date": "2026-09-27",
+      "evidence": "owner's implementation-authorization message 2026-09-27; docs/24 ADR-037 and Owner decisions"
     }
   ],
   "implementation_log": [
