@@ -5,6 +5,7 @@ from __future__ import annotations
 import json
 from typing import Any
 
+from sbr.answer.schema import AnswerSegment
 from sbr.docir import DocIR
 from sbr.schemas import EXPORTED_MODELS, SCHEMA_VERSION
 from sbr.schemas.base import StrictModel
@@ -13,7 +14,7 @@ from sbr.schemas.base import StrictModel
 # sbr.schemas.base, so sbr/schemas/__init__.py importing sbr.docir at module scope would be a genuine import
 # cycle (loading sbr.docir triggers sbr.schemas.base, which requires sbr/schemas/__init__.py to finish first).
 # This module is a leaf that nothing in sbr.schemas imports, so it can safely depend on both.
-ALL_EXPORTED_MODELS: tuple[type[StrictModel], ...] = (*EXPORTED_MODELS, DocIR)
+ALL_EXPORTED_MODELS: tuple[type[StrictModel], ...] = (*EXPORTED_MODELS, DocIR, AnswerSegment)
 
 
 def render_schemas() -> dict[str, str]:

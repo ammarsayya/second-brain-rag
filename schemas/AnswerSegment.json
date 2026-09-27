@@ -1,0 +1,254 @@
+{
+  "$defs": {
+    "AnswerBasis": {
+      "description": "ADR-034's complete, closed set of answer knowledge layers.",
+      "enum": [
+        "CORPUS",
+        "USER",
+        "AI_NOTE",
+        "EXTERNAL_APPROVED",
+        "EXTERNAL_PENDING",
+        "MODEL"
+      ],
+      "title": "AnswerBasis",
+      "type": "string"
+    },
+    "AnswerCitation": {
+      "additionalProperties": false,
+      "description": "One resolvable KU or external-source citation with an exact locator.",
+      "properties": {
+        "external_id": {
+          "anyOf": [
+            {
+              "pattern": "^ext_[0-7][0-9A-HJKMNP-TV-Z]{25}$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "External Id"
+        },
+        "ku_id": {
+          "anyOf": [
+            {
+              "pattern": "^ku_[0-7][0-9A-HJKMNP-TV-Z]{25}$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Ku Id"
+        },
+        "locator": {
+          "$ref": "#/$defs/Locator"
+        },
+        "quote": {
+          "anyOf": [
+            {
+              "minLength": 1,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Quote"
+        }
+      },
+      "required": [
+        "locator"
+      ],
+      "title": "AnswerCitation",
+      "type": "object"
+    },
+    "Locator": {
+      "additionalProperties": false,
+      "description": "Points evidence into exact source bytes (docs/05 §3). All positions are optional refinements of the blob.",
+      "properties": {
+        "bbox": {
+          "anyOf": [
+            {
+              "maxItems": 4,
+              "minItems": 4,
+              "prefixItems": [
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "number"
+                }
+              ],
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Bbox"
+        },
+        "blob_id": {
+          "pattern": "^b3:[0-9a-f]{64}$",
+          "title": "Blob Id",
+          "type": "string"
+        },
+        "block_id": {
+          "anyOf": [
+            {
+              "pattern": "^blk_[0-7][0-9A-HJKMNP-TV-Z]{25}$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Block Id"
+        },
+        "char_span": {
+          "anyOf": [
+            {
+              "maxItems": 2,
+              "minItems": 2,
+              "prefixItems": [
+                {
+                  "minimum": 0,
+                  "type": "integer"
+                },
+                {
+                  "minimum": 0,
+                  "type": "integer"
+                }
+              ],
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Char Span"
+        },
+        "equation_label": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Equation Label"
+        },
+        "figure_label": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Figure Label"
+        },
+        "page_index": {
+          "anyOf": [
+            {
+              "minimum": 0,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Page Index"
+        },
+        "page_label": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Page Label"
+        },
+        "representation": {
+          "pattern": "^[a-z0-9]{1,16}$",
+          "title": "Representation",
+          "type": "string"
+        },
+        "timestamp_s": {
+          "anyOf": [
+            {
+              "minimum": 0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Timestamp S"
+        }
+      },
+      "required": [
+        "blob_id",
+        "representation"
+      ],
+      "title": "Locator",
+      "type": "object"
+    }
+  },
+  "$id": "sbr/1.0.0/AnswerSegment.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "description": "A contiguous answer claim whose provenance layer and citations are unambiguous.",
+  "properties": {
+    "basis": {
+      "$ref": "#/$defs/AnswerBasis"
+    },
+    "citations": {
+      "items": {
+        "$ref": "#/$defs/AnswerCitation"
+      },
+      "title": "Citations",
+      "type": "array"
+    },
+    "confidence": {
+      "maximum": 1.0,
+      "minimum": 0.0,
+      "title": "Confidence",
+      "type": "number"
+    },
+    "text": {
+      "minLength": 1,
+      "title": "Text",
+      "type": "string"
+    }
+  },
+  "required": [
+    "text",
+    "basis",
+    "confidence"
+  ],
+  "title": "AnswerSegment",
+  "type": "object",
+  "x-sbr-schema-version": "1.0.0"
+}

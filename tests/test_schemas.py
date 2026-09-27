@@ -12,6 +12,7 @@ from typing import Any
 import pytest
 from pydantic import BaseModel, ValidationError
 
+from sbr.answer.schema import AnswerBasis, AnswerCitation, AnswerSegment
 from sbr.docir import DocIR, DocumentInfo, ExtractorRef, Page
 from sbr.ids import hash_bytes, new_id
 from sbr.schemas import (
@@ -142,6 +143,12 @@ def samples() -> list[BaseModel]:
             updated_at=T0,
         ),
         WorkOutput(manifest_id=new_id("man"), job_id=new_id("job"), artifacts={"docir": B2}, created_at=T0),
+        AnswerSegment(
+            text="A corpus-grounded answer segment.",
+            basis=AnswerBasis.CORPUS,
+            citations=[AnswerCitation(ku_id=new_id("ku"), locator=loc, quote="supporting span")],
+            confidence=0.95,
+        ),
         RunRecord(
             run_id=new_id("run"),
             command="scan",
