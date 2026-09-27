@@ -4,6 +4,59 @@ Living handoff for autonomous/continued sessions. Update after every completed o
 lost between sessions. Canonical task state lives in `docs/28_TASK_REGISTER.md` and `docs/35_EXECUTION_STATE.json`;
 this file is a human-readable summary plus session-to-session continuity notes, not a third source of truth.
 
+## NEXT-30 MISSION (started 2026-09-27, immediately after NEXT-20 closed)
+
+**BASELINE:** 45 / 146 DONE (re-verified independently: `tools/validate_plan.py` → `PLAN CONSISTENT: 146 tasks,
+45 done, next eligible: —`; `tools/audit_crossrefs.py` → `CROSSREFS CLEAN`; `docs/35_EXECUTION_STATE.json`
+`next_eligible_tasks: []`). No discrepancy found with the NEXT-20 closing report.
+
+**MISSION COMPLETED: 0 / 30.** Re-verified the "zero eligible" claim from scratch rather than trusting the prior
+session's report (dependency-graph re-derivation, not just re-reading prose): every one of the 101 remaining
+non-DONE tasks funnels through one or more of T-P3-02, T-P3-03, T-P5-06 (all three `Human approval: required`,
+IN_PROGRESS, not delegable) or Q-B04 (open owner decision, blocks T-P7-01/T-P7-02 and the 120 `pending_ai_draft`
+MBI-Gold-Math entries). T-P3-07/T-P3-08 are also IN_PROGRESS but for different reasons: T-P3-07 has a genuine
+open engineering question (ADR-009, PPTX-native OMML alignment method undecided) plus an owner review gate;
+T-P3-08 is blocked transitively on T-P3-03's owner sign-off plus missing OCR engines. Neither is one of this
+mission's three named gates, and neither was advanced this session (out of scope — the mission named T-P3-02/
+T-P3-03/T-P5-06 specifically).
+
+**This session's work (all non-owner-gated, none counts toward the 30):**
+1. Confirmed both `tools/gold_verify_math.py --prepare` (300-card self-contained HTML, `eval/gold/math/review/
+   index.html`) and `tools/gold_verify_layout.py --prepare` (40 one-page PDFs + Markdown index, `eval/gold/
+   layout/review/README.md`) were already generated and are ready for the owner to page through — no rebuild
+   needed, decisions not yet recorded (no decisions YAML present under either review dir).
+2. Found the one genuine gap: **Taxonomy v0 (T-P5-06) had no render/review tool** — the owner's only option was
+   reading raw `curation/taxonomy.yaml` (212 lines) + `curation/course_map.yaml` side by side. Dispatched
+   `codex:rescue` to build `tools/render_taxonomy_review.py --prepare` (read-only, validates through the
+   canonical `sbr.curation` loaders, writes only `eval/gold/taxonomy/review/index.html`, never touches
+   `curation/`). Independently re-verified (not just trusted Codex's report): `pytest tests/
+   test_render_taxonomy_review.py` (1 passed), `ruff check`/`ruff format --check`/`mypy` on the new file all
+   clean, and the generated HTML's own summary block matches the reported findings exactly (43 concepts / 42
+   courses / 10 top-level domains / 5 cross-disciplinary flags). Real findings for the owner: zero unmapped
+   courses; 8 concepts with no *directly* mapped course (`mathematical_and_physical_foundations`,
+   `mechanical_engineering`, `automation_and_control`, `computational_engineering`, `systems_modeling`,
+   `materials_engineering`, `business_and_law`, `project_research_and_practice` — these read as the 8 of the 10
+   top-level domain concepts that only aggregate their children rather than being directly assigned to a course,
+   which looks like intentional taxonomy structure, not a gap, but is the owner's call); no courses over the
+   3-domain ambiguity threshold; 5 concepts flagged cross-disciplinary (`machine_dynamics`,
+   `sensor_actuator_bus_systems`, `industrial_automation`, `robotics`, `project_work`).
+3. Drafted the Q-B04 decision packet from the project's own already-documented options (`docs/17_MODEL_
+   STRATEGY.md` §2 already enumerates exactly three access paths — this mission did not invent new ones) —
+   delivered directly to the owner in-conversation, not fabricated or pre-decided.
+
+**OWNER GATES (unchanged from NEXT-20 closing; this is the standing stop condition):**
+- T-P3-02 (MBI-Gold-Math): 180/300 entries have real OMML ground truth ready to review now; 120/300 are
+  `pending_ai_draft` and additionally need Q-B04 resolved before any draft can even be produced.
+- T-P3-03 (MBI-Gold-Layout): 40/40 pages drafted, ready to review now.
+- T-P5-06 (Taxonomy v0): 43 concepts / 42 courses, ready to review (now with a render tool, once Codex's build
+  is verified).
+- Q-B04 (model gateway access path): pure owner decision among three project-documented options; blocks
+  T-P7-01, T-P7-02, and the 120 pending math drafts.
+
+**NEXT ELIGIBLE:** none, until the owner clears at least one gate. Clearing T-P3-02+T-P3-03 together is the
+single highest-leverage unlock (confirmed against the real dependency graph, not assumed): it makes T-P3-05,
+T-P3-06, T-P3-09, T-P3-10, T-P3-11 eligible (the extraction-technology spike cluster).
+
 ## NEXT-20 MISSION (started 2026-09-27, after the previous "all eligible work owner-gated" stop point)
 
 The owner returned and: (1) authorized starting T-P3-02 (MBI-Gold-Math) and T-P3-03 (MBI-Gold-Layout) — but their
