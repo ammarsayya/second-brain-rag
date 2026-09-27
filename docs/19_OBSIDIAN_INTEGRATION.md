@@ -55,7 +55,9 @@ Old claims that disappear are listed in the changelog, not silently dropped.
 5. Knowledge strength (coverage table)
 6. Known gaps (from 15) and open research proposals
 7. Unresolved questions and conflicts
-8. `## Owner notes` (a USER section: the VaultWriter preserves anything between the `%% user-section %%` markers verbatim)
+8. `## Owner notes` (a USER section: the VaultWriter preserves anything between a matched
+   `%% user-section %%` / `%% end-user-section %%` marker pair verbatim; marker interiors are excluded from the
+   edit-detection body hash, so edits inside the block do not cause a fork while edits outside it still do)
 
 ## 6. Relationship to the owner's existing Brain
 

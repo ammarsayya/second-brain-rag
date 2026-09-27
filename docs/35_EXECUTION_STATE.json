@@ -2,25 +2,26 @@
   "schema_version": "1.0",
   "project": "second-brain-rag",
   "last_updated": "2026-09-27",
-  "updated_by": "Codex (T-P9-02 DONE: standalone privacy-bounded trace store, span lifecycle API, and trace viewer)",
+  "updated_by": "Codex (T-P4-13 DONE: ownership-safe atomic VaultWriter with independent Git history)",
   "authoritative_docs": "docs/28_TASK_REGISTER.md (tasks), docs/24_DECISION_LOG.md (decisions), docs/25_OPEN_QUESTIONS.md, docs/34_RESEARCH_AND_SPIKE_REGISTER.md",
   "current_phase": "P3/P4",
-  "current_phase_status": "P3 in_progress (T-P3-01, T-P3-04 DONE; T-P3-07/T-P3-08 IN_PROGRESS - evidence gathered, owner review pending; T-P3-02/T-P3-03 require owner approval to start); P4 started in parallel (T-P4-01 and T-P4-02 DONE)",
+  "current_phase_status": "P3 in_progress (T-P3-01, T-P3-04 DONE; T-P3-07/T-P3-08 IN_PROGRESS - evidence gathered, owner review pending; T-P3-02/T-P3-03 require owner approval to start); P4 in progress (T-P4-01, T-P4-02, T-P4-13 DONE)",
   "last_task_verification": {
-    "task": "T-P9-02",
+    "task": "T-P4-13",
     "date": "2026-09-27",
     "status": "DONE",
-    "summary": "Standalone traces.sqlite stores reconstructable node, tool-call, and model-call trees correlated by run_id, with stable sequence ordering, timing, outcomes, bounded redacted content envelopes, and a read-only sbr trace viewer.",
+    "summary": "VaultWriter is the sole ownership-safe vault mutation path: seven-folder policy enforcement, notes refusal, body-hash edit detection and forks, preserved map user sections, atomic rollback-capable batches, provenance Activities, and one commit per clean-tree batch in the vault's independent Git repository.",
     "files": [
-      "src/sbr/obs/trace.py",
-      "src/sbr/schemas/trace.py",
-      "migrations/traces/0001_traces.sql",
-      "migrations/traces/0001_traces.down.sql",
-      "schemas/Span.json",
-      "tests/test_trace.py",
-      "tests/migrations/test_trace_migrations.py"
+      "src/sbr/vault/__init__.py",
+      "src/sbr/vault/writer.py",
+      "src/sbr/config.py",
+      "tests/vault/test_writer.py",
+      "tests/safety/test_static_mutators.py",
+      ".gitignore",
+      "config/sbr.example.toml",
+      "docs/19_OBSIDIAN_INTEGRATION.md"
     ],
-    "verification": "Seven focused trace tests pass. Full suite: 427 passed plus only the same four pre-existing pdflatex-only failures. mypy strict, ruff check/format, tools/export_schemas.py --check, tools/validate_plan.py, and tools/audit_crossrefs.py are clean."
+    "verification": "Sonnet's review found and fixed a real crash-recovery bug (dirty-check ran before stale-stage sweep, wedging every future batch after a real process kill) before accepting this task. Sixteen focused TS-VAULT tests pass (fifteen from Codex plus one regression test for the fix). Full suite: 443 passed plus only the same four pre-existing pdflatex-only failures. mypy strict, ruff check/format, tools/validate_plan.py, and tools/audit_crossrefs.py are clean."
   },
   "phases": {
     "P0": {
@@ -137,7 +138,7 @@
     "T-P4-10": "NOT_STARTED",
     "T-P4-11": "NOT_STARTED",
     "T-P4-12": "NOT_STARTED",
-    "T-P4-13": "NOT_STARTED",
+    "T-P4-13": "DONE",
     "T-P4-14": "NOT_STARTED",
     "T-P4-15": "NOT_STARTED",
     "T-P4-16": "NOT_STARTED",
@@ -268,7 +269,8 @@
     "T-P4-02",
     "T-P13-04",
     "T-P7-03",
-    "T-P9-02"
+    "T-P9-02",
+    "T-P4-13"
   ],
   "in_progress_tasks": [
     "T-P3-07",
@@ -280,8 +282,8 @@
   "next_eligible_tasks": [
     "T-P3-02",
     "T-P3-03",
-    "T-P4-13",
-    "T-P5-06"
+    "T-P5-06",
+    "T-P13-02"
   ],
   "first_implementation_task_after_approval": "T-P1-01",
   "decisions": {

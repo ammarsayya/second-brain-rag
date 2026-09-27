@@ -1,5 +1,6 @@
 # Rebuildable runtime state (ADR-001, docs/18)
 var/
+/vault/
 
 # Environments and caches
 .venv/

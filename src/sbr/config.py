@@ -129,7 +129,7 @@ class SourceRootConfig(_Strict):
 
 
 class RootsConfig(_Strict):
-    """Filesystem roots (ADR-001). ``vault`` stays optional until Q-B02 is answered."""
+    """Filesystem roots (ADR-001). ``vault`` is optional for commands that never use the VaultWriter."""
 
     sources: Annotated[list[SourceRootConfig], Field(min_length=1)]
     var: str
@@ -274,6 +274,13 @@ class SbrConfig(BaseSettings):
     @property
     def traces_dir(self) -> Path:
         return self.var_path / "traces"
+
+    @property
+    def vault_path(self) -> Path:
+        """Configured Obsidian vault root; unavailable until the owner selects one."""
+        if self.roots.vault is None:
+            raise ConfigError("roots.vault must be configured before opening the VaultWriter")
+        return Path(self.roots.vault)
 
     def source_root(self, root_id: str) -> SourceRootConfig:
         for s in self.roots.sources:

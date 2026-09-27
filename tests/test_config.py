@@ -34,7 +34,7 @@ def test_example_config_is_valid() -> None:
     cfg = load_config(EXAMPLE)
     assert cfg.roots.sources[0].id == "mbi"
     assert cfg.roots.sources[0].read_only is True
-    assert cfg.roots.vault is None  # Q-B02 open
+    assert cfg.roots.vault == r"D:\AgenticAI\second-brain-rag\vault"  # Q-B02 resolved by ADR-037
     assert cfg.models.roles["reason"].primary is None  # Q-B04 open
     assert cfg.config_hash().startswith("sha256:")
 

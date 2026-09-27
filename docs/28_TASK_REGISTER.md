@@ -1188,7 +1188,7 @@ Each task is written so that it can be independently verified. Spike tasks link 
 
 ### T-P4-13 — VaultWriter v1 (ownership protection)
 - **Phase:** P4
-- **Status:** NOT_STARTED
+- **Status:** DONE
 - **Priority:** critical
 - **Dependencies:** T-P1-07, T-P1-12
 - **Human approval:** required
@@ -1198,6 +1198,26 @@ Each task is written so that it can be independently verified. Spike tasks link 
 - **Acceptance criteria:** All TS-VAULT tests pass (edit detection, fork, notes/ untouched, dirty-tree abort); owner approves vault location (Q-B02).
 - **Validation method:** TS-VAULT tests.
 - **Expected artifacts:** src/sbr/vault/writer.py
+- **Verification (2026-09-27):** Added the sole reviewed vault mutation path with seven-folder ownership and
+  provenance enforcement, unconditional refusal of `notes/`, protected-root checks, frontmatter body hashes,
+  owner-edit forks, explicit USER_AUTHORED reclassification, append-only `research/`, inbox-only deletion, and
+  source orphan moves. Matched `%% user-section %%` / `%% end-user-section %%` blocks are preserved verbatim and
+  excluded only from edit-detection hashing, so map-owner edits do not fork while edits elsewhere do. Each
+  clean-tree batch stages durable files beside their targets, publishes with atomic replacement, rolls back exact
+  pre-batch bytes on failure, records one provenance Activity, and creates one commit in the vault's independent
+  Git repository. Q-B02 is satisfied by accepted ADR-037.
+  **Sonnet's independent review found and fixed one real crash-recovery bug before accepting this task**: Codex's
+  `write_batch` checked the vault's Git tree for cleanliness *before* sweeping stale `.sbr-stage-*` debris left by
+  a genuine process kill (as opposed to an in-process Python exception, which the existing crash-simulation test
+  already handled correctly via its own `except` cleanup). A stage file is never `git add`ed, so it always shows
+  as untracked — checking cleanliness first meant that debris looked exactly like an owner edit, and the writer
+  would refuse *every subsequent batch forever* with no automatic recovery path, defeating the very purpose of
+  the stale-stage sweep. Reproduced independently (planted a stale stage file by hand, confirmed the deadlock),
+  fixed by reordering the sweep before the dirty check, and added
+  `test_stale_stage_file_from_a_real_process_kill_self_heals_instead_of_wedging` as a permanent regression test.
+  Sixteen focused TS-VAULT tests pass (fifteen from Codex plus the one above); full suite is 443 passed plus only
+  the four known pdflatex-only failures. Strict mypy and ruff check/format are clean; plan validation and
+  cross-reference audit are clean.
 
 ### T-P4-14 — Uncertainty and reprocessing queue
 - **Phase:** P4

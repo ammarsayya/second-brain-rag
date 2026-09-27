@@ -30,6 +30,11 @@ ALLOW: dict[str, str] = {
     "safety.py": "the runtime guard wraps mutators; it never calls them itself on its own behalf",
     "db/connection.py": "creates var/db and backup directories after assert_outside(protected roots)",
     "obs/logging.py": "creates var/logs after assert_outside(protected roots)",
+    "vault/writer.py": (
+        "the sole reviewed vault mutator: every target is ownership-validated and passed through assert_writable; "
+        "writes are staged beside their target, atomically replaced, Git-committed per clean-tree batch, and "
+        "restored from exact pre-batch bytes if publication or commit fails"
+    ),
     "registry/archives.py": (
         "creates var/archive_extract/<container>/ (mkdir, and Path.open('wb') writes this detector's positional-"
         "arg open() check does not see, since Path.open(mode) takes mode as its first arg, not open(file, mode)'s "

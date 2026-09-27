@@ -6,7 +6,7 @@
 sources = [{ id = "mbi", path = 'D:\MBI-BRAIN', kind = "university" }]
 var = 'D:\AgenticAI\second-brain-rag\var'
 curation = 'D:\AgenticAI\second-brain-rag\curation'
-# vault = 'D:\MBI-VAULT'          # open question Q-B02; leave unset until answered
+vault = 'D:\AgenticAI\second-brain-rag\vault'  # separate Git repository (ADR-037)
 # Never read or written by sbr, and never a source root (docs/24 "Owner decisions").
 protected = ['D:\studium_duplicated']
 
