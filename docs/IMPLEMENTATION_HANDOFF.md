@@ -103,16 +103,24 @@ it or leaving it unmentioned.
     confirmed it's grounded in the same already-documented pandoc behavior T-P3-07 established, not a new
     unverified assumption. No bugs found requiring a fix.
 
+**Codex usage limit hit a second time (2026-09-27 ~19:12), reset advertised for 9:57 PM.** The T-P5-06 dispatch
+was never actually forwarded to Codex — the launcher subagent's own attempt hit a shell-quoting bug on its
+side (apostrophes in the brief text broke a Bash heredoc-less quoting attempt) before it even reached the
+usage-limit wall; separately, Codex itself is rate-limited until ~21:57. **Working tree confirmed clean —
+zero files touched by either failed attempt.** T-P5-06 has NOT been implemented at all yet; the original
+brief (see the prior mission-log entry / conversation history) is still valid and safe to resend verbatim
+once Codex is available again. When retrying, consider having the launcher write the prompt to a temp file
+rather than inlining it in a shell command, to avoid the same apostrophe-quoting failure mode.
+
 **Queued next:**
-1. **T-P5-06 (Taxonomy v0) — dispatched to codex:rescue, in flight.** This is the LAST of the three
+1. **Retry T-P5-06 (Taxonomy v0) once Codex is available (~21:57 or later).** This is the LAST of the three
    currently-eligible-but-owner-gated tasks — after this lands, everything buildable without further owner
-   input will be exhausted. Brief: populate `curation/taxonomy.yaml` (schema already exists —
+   input will be exhausted. Brief summary: populate `curation/taxonomy.yaml` (schema already exists —
    `TaxonomyConcept` in `src/sbr/curation.py`, unused until now) with a real, curriculum-grounded SKOS-like
    domain taxonomy from the 42 already-curated courses in `curation/course_map.yaml`, map every course to
-   ≥1 domain (flagged a genuine schema gap for Codex to resolve: neither `TaxonomyConcept` nor
-   `CourseMapEntry` currently has a course<->domain link field — recommended adding an additive `domains`
-   field to `CourseMapEntry`, but left the final call to Codex with reasoning required either way). Told
-   explicitly not to mark DONE.
+   ≥1 domain (flagged a genuine schema gap: neither `TaxonomyConcept` nor `CourseMapEntry` currently has a
+   course<->domain link field — recommended adding an additive `domains` field to `CourseMapEntry`, final
+   call left to the implementer with reasoning required either way). Must NOT be marked DONE.
 2. Once T-P5-06 lands, recompute eligibility — likely nothing else becomes buildable without the owner
    actually reviewing/approving one of the three IN_PROGRESS gold-set/taxonomy tasks. At that point this
    mission session has done everything it structurally can; further progress requires the owner's time.
