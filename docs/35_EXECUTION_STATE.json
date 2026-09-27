@@ -2,24 +2,24 @@
   "schema_version": "1.0",
   "project": "second-brain-rag",
   "last_updated": "2026-09-27",
-  "updated_by": "Codex (T-P3-02 IN_PROGRESS: 180 exact OMML candidates and 120 PDF drafts pending)",
+  "updated_by": "Codex (T-P5-06 IN_PROGRESS: taxonomy draft complete; owner approval pending)",
   "authoritative_docs": "docs/28_TASK_REGISTER.md (tasks), docs/24_DECISION_LOG.md (decisions), docs/25_OPEN_QUESTIONS.md, docs/34_RESEARCH_AND_SPIKE_REGISTER.md",
-  "current_phase": "P3/P4/P13",
-  "current_phase_status": "P3 in_progress (T-P3-01, T-P3-04 DONE; T-P3-02/T-P3-03/T-P3-07/T-P3-08 IN_PROGRESS - evidence or drafts gathered, owner review pending; T-P3-02 also has 120 PDF-native equations gated on Q-B04/model access); P4 in progress (T-P4-01, T-P4-02, T-P4-13 DONE); P13 in progress (T-P13-02, T-P13-04 DONE)",
+  "current_phase": "P3/P4/P5/P13",
+  "current_phase_status": "P3 in_progress (T-P3-01, T-P3-04 DONE; T-P3-02/T-P3-03/T-P3-07/T-P3-08 IN_PROGRESS - evidence or drafts gathered, owner review pending; T-P3-02 also has 120 PDF-native equations gated on Q-B04/model access); P4 in progress (T-P4-01, T-P4-02, T-P4-13 DONE); P5 in progress (T-P5-06 taxonomy drafted, owner approval pending); P13 in progress (T-P13-02, T-P13-04 DONE)",
   "last_task_verification": {
-    "task": "T-P3-02",
+    "task": "T-P5-06",
     "date": "2026-09-27",
     "status": "IN_PROGRESS",
-    "summary": "A seeded 300-equation candidate set and offline owner-review workflow are built: 180 exact OMML transcriptions and 120 PDF-native crops with explicitly null LaTeX; the task remains open on owner verification and the separate Q-B04/model-drafting gate.",
+    "summary": "Taxonomy v0 is drafted as 43 bilingual SKOS-like concepts under 10 curriculum-level domains, and all 42 curated courses map to at least one valid concept; the task remains open on the acceptance criterion's required owner review and approval.",
     "files": [
-      "src/sbr/eval/gold_math.py",
-      "tools/select_gold_math_sample.py",
-      "tools/gold_verify_math.py",
-      "tests/test_gold_math.py",
+      "curation/taxonomy.yaml",
+      "curation/course_map.yaml",
+      "src/sbr/curation.py",
+      "tests/test_curation.py",
       "docs/28_TASK_REGISTER.md",
       "docs/35_EXECUTION_STATE.json"
     ],
-    "verification": "Queried the persisted registry without rescanning and reused T-P3-01's 98 PDF pages; every source read used SourceFS after active/sensitivity gates. The real run selected 180 exact pandoc OMML-to-LaTeX equations plus 120 original-content cropped-PDF candidates whose latex/source_kind fields remain null and status remains pending_ai_draft. Count-mismatched DOCX files and display-kind mismatches were excluded fail-closed. All 300 entries and crops exist and load through load_gold_samples(); the offline review page uses a clearly labeled embedded pandoc-MathML fallback because local KaTeX assets are unavailable. Nine focused tests pass; full suite 468 passed with only the four known pdflatex-only failures; strict mypy, scoped ruff check/format, plan validation, and cross-reference audit are clean. Owner verification of all 300 plus a 10 percent double-check remains required. Separately, the 120 PDF-native entries remain gated on Q-B04/model access for real AI drafting; no model call or rule-based LaTeX guess occurred. T-P3-02 is not DONE."
+    "verification": "curation/taxonomy.yaml loads through load_taxonomy() with 43 unique bilingual concepts and 10 roots. Every broader/narrower/related reference resolves; broader/narrower and related relationships are reciprocal, including intentional poly-hierarchy. The additive defaulted CourseMapEntry.domains field preserves existing consumers, while every one of the 42 real course_map.yaml rows carries at least one valid taxonomy concept. Focused curation/course tests: 31 passed. Full suite: 470 passed with only the four known pdflatex-only fixture-generation failures. Strict mypy, ruff check/format, plan validation, and cross-reference audit are clean. The owner must still review and approve or correct the domain structure, bilingual labels, relationships, and all 42 course assignments; T-P5-06 is not DONE."
   },
   "phases": {
     "P0": {
@@ -71,8 +71,8 @@
   "task_totals": {
     "total": 146,
     "DONE": 45,
-    "NOT_STARTED": 94,
-    "IN_PROGRESS": 3,
+    "NOT_STARTED": 92,
+    "IN_PROGRESS": 5,
     "BLOCKED": 1,
     "DEFERRED": 3
   },
@@ -145,7 +145,7 @@
     "T-P5-03": "NOT_STARTED",
     "T-P5-04": "NOT_STARTED",
     "T-P5-05": "NOT_STARTED",
-    "T-P5-06": "NOT_STARTED",
+    "T-P5-06": "IN_PROGRESS",
     "T-P5-07": "NOT_STARTED",
     "T-P5-08": "NOT_STARTED",
     "T-P5-09": "NOT_STARTED",
@@ -275,14 +275,13 @@
     "T-P3-02",
     "T-P3-03",
     "T-P3-07",
-    "T-P3-08"
+    "T-P3-08",
+    "T-P5-06"
   ],
   "blocked_tasks": [
     "T-P7-02"
   ],
-  "next_eligible_tasks": [
-    "T-P5-06"
-  ],
+  "next_eligible_tasks": [],
   "first_implementation_task_after_approval": "T-P1-01",
   "decisions": {
     "accepted": [

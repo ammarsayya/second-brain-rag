@@ -36,9 +36,9 @@ T0 = datetime(2026, 9, 24, 12, 0, tzinfo=UTC)
 # -- the real, git-tracked seed files load cleanly -----------------------------------------------------------
 
 
-def test_the_seeded_curation_files_all_load_empty() -> None:
+def test_the_seeded_curation_files_all_load_cleanly() -> None:
     root = Path(__file__).resolve().parent.parent / "curation"
-    assert load_taxonomy(root / "taxonomy.yaml").records == ()
+    assert len(load_taxonomy(root / "taxonomy.yaml").records) > 0
     assert load_canonical_overrides(root / "canonical_overrides.yaml").records == ()
     assert load_canonical_path_overrides(root / "canonical_path_overrides.yaml").records == ()
     assert load_exclusions(root / "exclusions.yaml").records == ()
@@ -82,6 +82,7 @@ def test_course_map_allows_mixed_case_owner_abbreviations(tmp_path: Path) -> Non
     [course] = load_course_map(p).records
     assert course.course_id == "Reg1"
     assert course.aliases == ["RGT", "Reg1"]
+    assert course.domains == []
 
 
 def test_the_seeded_course_map_is_populated_and_ids_are_unique() -> None:
@@ -97,6 +98,35 @@ def test_the_seeded_course_map_is_populated_and_ids_are_unique() -> None:
     # observed folder match yet (flagged in the YAML's own comments as "owner review") - not every entry needs one.
     with_matchers = sum(1 for c in courses if c.aliases or c.folder_patterns)
     assert with_matchers / len(courses) > 0.8
+
+
+def test_real_taxonomy_references_resolve_and_relationships_are_reciprocal() -> None:
+    root = Path(__file__).resolve().parent.parent / "curation"
+    concepts = load_taxonomy(root / "taxonomy.yaml").records
+    by_id = {concept.concept_id: concept for concept in concepts}
+    assert len(by_id) == len(concepts)
+
+    for concept in concepts:
+        for broader_id in concept.broader:
+            assert broader_id in by_id
+            assert concept.concept_id in by_id[broader_id].narrower
+        for narrower_id in concept.narrower:
+            assert narrower_id in by_id
+            assert concept.concept_id in by_id[narrower_id].broader
+        for related_id in concept.related:
+            assert related_id in by_id
+            assert concept.concept_id in by_id[related_id].related
+
+
+def test_all_42_real_courses_map_to_at_least_one_valid_domain() -> None:
+    root = Path(__file__).resolve().parent.parent / "curation"
+    concepts = load_taxonomy(root / "taxonomy.yaml").records
+    concept_ids = {concept.concept_id for concept in concepts}
+    courses = load_course_map(root / "course_map.yaml").records
+
+    assert len(courses) == 42
+    assert all(course.domains for course in courses)
+    assert all(domain_id in concept_ids for course in courses for domain_id in course.domains)
 
 
 def test_canonical_override_requires_at_least_one_alias() -> None:

@@ -1368,7 +1368,7 @@ Each task is written so that it can be independently verified. Spike tasks link 
 
 ### T-P5-06 — Taxonomy v0
 - **Phase:** P5
-- **Status:** NOT_STARTED
+- **Status:** IN_PROGRESS
 - **Priority:** high
 - **Dependencies:** T-P2-11, T-P1-12
 - **Human approval:** required
@@ -1378,6 +1378,20 @@ Each task is written so that it can be independently verified. Spike tasks link 
 - **Acceptance criteria:** Owner approves v0; every course maps to ≥1 domain.
 - **Validation method:** Owner review.
 - **Expected artifacts:** curation/taxonomy.yaml
+- **Verification (2026-09-27):** IN_PROGRESS, not DONE: the acceptance criterion's own validation method
+  requires the owner to approve Taxonomy v0, so this implementation is an explicitly unapproved draft rather
+  than a delegated sign-off. `curation/taxonomy.yaml` now loads through `load_taxonomy()` with 43 bilingual,
+  SKOS-like concepts organized under 10 curriculum-level domains. Broader/narrower links are reciprocal,
+  `related` links are symmetric, every relationship resolves to a defined concept, and intentional poly-hierarchy
+  covers finite-element methods, simulation technology, robotics, and sensor/actuator/bus systems. The additive,
+  backward-compatible `CourseMapEntry.domains` field keeps course ownership in `course_map.yaml` without changing
+  folder matching; all 42 real curated courses have at least one valid domain assignment. Real-file tests load both
+  committed YAML files and enforce unique/resolved taxonomy references plus 42/42 course coverage. Focused curation
+  and course tests: 31 passed. Full suite: 470 passed with only the four pre-existing `pdflatex`-only fixture-
+  generation failures; strict mypy and ruff check/format are clean. Plan validation and cross-reference audit are
+  clean. **Owner action needed to close this task**: review and approve, correct, or reject the complete domain
+  structure, both bilingual labels, every broader/narrower/related edge, and every one of the 42 course-to-domain
+  assignments. Until that review is recorded, T-P5-06 remains IN_PROGRESS and Taxonomy v0 is not approved.
 
 ### T-P5-07 — Document/KU topic classification
 - **Phase:** P5

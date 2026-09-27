@@ -87,6 +87,7 @@ class CourseMapEntry(CurationModel):
     name: Annotated[str, StringConstraints(min_length=1, max_length=200)]
     aliases: list[str] = Field(default_factory=list)
     folder_patterns: list[str] = Field(default_factory=list)
+    domains: list[CurationId] = Field(default_factory=list)
 
 
 class CanonicalOverride(CurationModel):

@@ -1,4 +1,212 @@
 # Curation ledger: bilingual, poly-hierarchical taxonomy (ADR-029, docs/12 §1; git-tracked, authoritative).
-# AI proposes concepts and edges; the owner is authoritative here. Loaded/validated by sbr.curation.load_taxonomy.
-# Seeded from the module handbook and curriculum is T-P4-15 (curation/taxonomy.yaml v0); this file starts empty.
-concepts: []
+# Drafted for T-P5-06 from the 42 curriculum/module-handbook-derived courses in course_map.yaml. This file contains
+# organizational metadata only, not source-corpus content. The owner remains authoritative: these concepts, labels,
+# edges, and all course-to-domain assignments require owner review before Taxonomy v0 can be approved.
+# broader/narrower and related links are recorded reciprocally; poly-hierarchy is intentional where a subject spans
+# established disciplines (FEM, simulation, robotics, and sensor/actuator/bus systems).
+concepts:
+  - concept_id: mathematical_and_physical_foundations
+    label_en: Mathematical and Physical Foundations
+    label_de: Mathematisch-naturwissenschaftliche Grundlagen
+    narrower: [mathematics, physics]
+  - concept_id: mathematics
+    label_en: Mathematics
+    label_de: Mathematik
+    broader: [mathematical_and_physical_foundations]
+    related: [numerical_mathematics]
+  - concept_id: physics
+    label_en: Physics
+    label_de: Physik
+    broader: [mathematical_and_physical_foundations]
+    related: [engineering_mechanics]
+
+  - concept_id: mechanical_engineering
+    label_en: Mechanical Engineering
+    label_de: Maschinenbau
+    narrower: [engineering_mechanics, machine_design, machine_dynamics, piston_machinery, robotics]
+  - concept_id: engineering_mechanics
+    label_en: Engineering Mechanics
+    label_de: Technische Mechanik
+    broader: [mechanical_engineering]
+    narrower: [statics, kinematics_and_kinetics, finite_element_methods]
+    related: [physics]
+  - concept_id: statics
+    label_en: Statics
+    label_de: Statik
+    broader: [engineering_mechanics]
+  - concept_id: kinematics_and_kinetics
+    label_en: Kinematics and Kinetics
+    label_de: Kinematik und Kinetik
+    broader: [engineering_mechanics]
+  - concept_id: machine_design
+    label_en: Machine Design
+    label_de: Konstruktionslehre
+    broader: [mechanical_engineering]
+    narrower: [machine_elements]
+    related: [materials_science]
+  - concept_id: machine_elements
+    label_en: Machine Elements
+    label_de: Maschinenelemente
+    broader: [machine_design]
+  - concept_id: machine_dynamics
+    label_en: Machine Dynamics
+    label_de: Maschinendynamik
+    broader: [mechanical_engineering]
+    related: [robotics]
+  - concept_id: piston_machinery
+    label_en: Reciprocating Machines
+    label_de: Kolbenmaschinen
+    broader: [mechanical_engineering]
+
+  - concept_id: automation_and_control
+    label_en: Automation and Control Engineering
+    label_de: Automatisierungs- und Regelungstechnik
+    narrower: [measurement_engineering, control_engineering, sensor_actuator_bus_systems, industrial_automation, robotics]
+  - concept_id: measurement_engineering
+    label_en: Measurement Engineering
+    label_de: Messtechnik
+    broader: [automation_and_control]
+    related: [electrical_engineering]
+  - concept_id: control_engineering
+    label_en: Control Engineering
+    label_de: Regelungstechnik
+    broader: [automation_and_control]
+    related: [technical_system_modeling]
+  - concept_id: sensor_actuator_bus_systems
+    label_en: Sensor, Actuator, and Bus Systems
+    label_de: Sensor-Aktor-Bus-Systeme
+    broader: [automation_and_control, electrical_engineering]
+    related: [industrial_automation]
+  - concept_id: industrial_automation
+    label_en: Industrial Automation and Process Control
+    label_de: Industrielle Automatisierung und Prozessleittechnik
+    broader: [automation_and_control]
+    related: [sensor_actuator_bus_systems]
+  - concept_id: robotics
+    label_en: Robotics
+    label_de: Robotik
+    broader: [automation_and_control, mechanical_engineering]
+    related: [machine_dynamics]
+
+  - concept_id: computer_science
+    label_en: Computer Science
+    label_de: Informatik
+    narrower: [computer_science_foundations, algorithms_and_data_structures, programming, software_engineering, systems_programming, database_systems, it_systems_engineering]
+  - concept_id: computer_science_foundations
+    label_en: Computer Science Foundations
+    label_de: Grundlagen der Informatik
+    broader: [computer_science]
+  - concept_id: algorithms_and_data_structures
+    label_en: Algorithms and Data Structures
+    label_de: Algorithmen und Datenstrukturen
+    broader: [computer_science]
+  - concept_id: programming
+    label_en: Programming
+    label_de: Programmierung
+    broader: [computer_science]
+  - concept_id: software_engineering
+    label_en: Software Engineering
+    label_de: Softwaretechnik
+    broader: [computer_science]
+    related: [project_work]
+  - concept_id: systems_programming
+    label_en: Systems Programming
+    label_de: Systemprogrammierung
+    broader: [computer_science]
+    narrower: [operating_systems]
+  - concept_id: operating_systems
+    label_en: Operating Systems
+    label_de: Betriebssysteme
+    broader: [systems_programming]
+  - concept_id: database_systems
+    label_en: Database Systems
+    label_de: Datenbanksysteme
+    broader: [computer_science]
+    related: [it_systems_engineering]
+  - concept_id: it_systems_engineering
+    label_en: IT Systems Engineering
+    label_de: IT-Systemtechnik
+    broader: [computer_science]
+    related: [database_systems]
+
+  - concept_id: computational_engineering
+    label_en: Computational Engineering
+    label_de: Computergestützte Ingenieurwissenschaften
+    narrower: [numerical_mathematics, finite_element_methods, simulation_technology]
+  - concept_id: numerical_mathematics
+    label_en: Numerical Mathematics
+    label_de: Numerische Mathematik
+    broader: [computational_engineering]
+    related: [mathematics]
+  - concept_id: finite_element_methods
+    label_en: Finite Element Methods
+    label_de: Finite-Elemente-Methoden
+    broader: [computational_engineering, engineering_mechanics]
+  - concept_id: simulation_technology
+    label_en: Simulation Technology
+    label_de: Simulationstechnik
+    broader: [computational_engineering, systems_modeling]
+
+  - concept_id: systems_modeling
+    label_en: Systems Modeling
+    label_de: Systemmodellierung
+    narrower: [technical_system_modeling, simulation_technology]
+  - concept_id: technical_system_modeling
+    label_en: Modeling of Technical Systems
+    label_de: Modellbildung technischer Systeme
+    broader: [systems_modeling]
+    related: [control_engineering]
+
+  - concept_id: materials_engineering
+    label_en: Materials Engineering
+    label_de: Werkstofftechnik
+    narrower: [materials_science]
+  - concept_id: materials_science
+    label_en: Materials Science
+    label_de: Werkstoffkunde
+    broader: [materials_engineering]
+    related: [machine_design]
+
+  - concept_id: electrical_engineering
+    label_en: Electrical Engineering
+    label_de: Elektrotechnik
+    narrower: [sensor_actuator_bus_systems]
+    related: [measurement_engineering]
+
+  - concept_id: business_and_law
+    label_en: Business and Law
+    label_de: Betriebswirtschaft und Recht
+    narrower: [business_administration, engineering_law]
+  - concept_id: business_administration
+    label_en: Business Administration
+    label_de: Betriebswirtschaftslehre
+    broader: [business_and_law]
+  - concept_id: engineering_law
+    label_en: Law for Engineering Practice
+    label_de: Rechtskunde für die Ingenieurpraxis
+    broader: [business_and_law]
+
+  - concept_id: project_research_and_practice
+    label_en: Project Work, Research, and Professional Practice
+    label_de: Projektarbeit, Forschung und Berufspraxis
+    narrower: [project_work, professional_practice, academic_research, scientific_communication]
+  - concept_id: project_work
+    label_en: Engineering Project Work
+    label_de: Ingenieurprojektarbeit
+    broader: [project_research_and_practice]
+    related: [software_engineering, professional_practice]
+  - concept_id: professional_practice
+    label_en: Professional Practice
+    label_de: Berufspraxis
+    broader: [project_research_and_practice]
+    related: [project_work]
+  - concept_id: academic_research
+    label_en: Academic Research and Thesis Work
+    label_de: Wissenschaftliches Arbeiten und Abschlussarbeit
+    broader: [project_research_and_practice]
+    related: [scientific_communication]
+  - concept_id: scientific_communication
+    label_en: Scientific Writing and Presentation
+    label_de: Wissenschaftliches Schreiben und Präsentieren
+    broader: [project_research_and_practice]
+    related: [academic_research]
