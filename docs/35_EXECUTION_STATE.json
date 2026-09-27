@@ -2,10 +2,10 @@
   "schema_version": "1.0",
   "project": "second-brain-rag",
   "last_updated": "2026-09-25",
-  "updated_by": "Claude (T-P3-08 IN_PROGRESS: SPIKE-OCR real-corpus evidence gathered via Tesseract-deu, key rotated-page defect found; owner review pending)",
+  "updated_by": "Claude (T-P4-01 DONE: DocIR schema v1 implemented, matches docs/09 SS2 field-for-field; built in parallel with P3 per docs/30's own sequencing note)",
   "authoritative_docs": "docs/28_TASK_REGISTER.md (tasks), docs/24_DECISION_LOG.md (decisions), docs/25_OPEN_QUESTIONS.md, docs/34_RESEARCH_AND_SPIKE_REGISTER.md",
-  "current_phase": "P3",
-  "current_phase_status": "in_progress (T-P3-01, T-P3-04 DONE; T-P3-07/T-P3-08 IN_PROGRESS - evidence gathered, owner review pending; T-P3-02/T-P3-03 require owner approval to start - not begun)",
+  "current_phase": "P3/P4",
+  "current_phase_status": "P3 in_progress (T-P3-01, T-P3-04 DONE; T-P3-07/T-P3-08 IN_PROGRESS - evidence gathered, owner review pending; T-P3-02/T-P3-03 require owner approval to start); P4 started in parallel (T-P4-01 DONE)",
   "phases": {
     "P0": {
       "tasks": 9
@@ -55,8 +55,8 @@
   },
   "task_totals": {
     "total": 146,
-    "DONE": 38,
-    "NOT_STARTED": 102,
+    "DONE": 39,
+    "NOT_STARTED": 101,
     "IN_PROGRESS": 2,
     "BLOCKED": 1,
     "DEFERRED": 3
@@ -109,7 +109,7 @@
     "T-P3-09": "NOT_STARTED",
     "T-P3-10": "NOT_STARTED",
     "T-P3-11": "NOT_STARTED",
-    "T-P4-01": "NOT_STARTED",
+    "T-P4-01": "DONE",
     "T-P4-02": "NOT_STARTED",
     "T-P4-03": "NOT_STARTED",
     "T-P4-04": "NOT_STARTED",
@@ -247,7 +247,8 @@
     "T-P2-07",
     "T-P2-12",
     "T-P3-01",
-    "T-P3-04"
+    "T-P3-04",
+    "T-P4-01"
   ],
   "in_progress_tasks": [
     "T-P3-07",
@@ -260,7 +261,7 @@
     "T-P13-04",
     "T-P3-02",
     "T-P3-03",
-    "T-P4-01",
+    "T-P4-02",
     "T-P4-13",
     "T-P5-06",
     "T-P7-03",

@@ -1008,7 +1008,7 @@ Each task is written so that it can be independently verified. Spike tasks link 
 
 ### T-P4-01 — DocIR schema v1
 - **Phase:** P4
-- **Status:** NOT_STARTED
+- **Status:** DONE
 - **Priority:** critical
 - **Dependencies:** T-P1-05
 - **Human approval:** none
@@ -1018,6 +1018,17 @@ Each task is written so that it can be independently verified. Spike tasks link 
 - **Acceptance criteria:** Schema validates fixture DocIRs; versioned.
 - **Validation method:** Unit tests.
 - **Expected artifacts:** src/sbr/docir/*
+- **Verification (2026-09-26):** `src/sbr/docir/models.py` implements Document/Page/Block/Equation/Figure/
+  Table/Section/Annotation/Reference/Quality matching docs/09 §2's JSON shape field-for-field; Equation
+  follows docs/10 §1/§3's priority-ordered `source_kind` and V1–V5 validation naming; Figure's `kind` enum
+  follows docs/11 §1. Referential integrity enforced at the top-level `DocIR` model (every block/page/section
+  cross-reference must resolve within the same document). Exported to `schemas/DocIR.json` via
+  `sbr.schemas.export.ALL_EXPORTED_MODELS` (kept separate from `sbr.schemas.EXPORTED_MODELS` itself to avoid
+  a genuine import cycle — `docir` needs `schemas.base`, so `schemas/__init__.py` importing `docir` at module
+  scope would cycle back). Relocated `Confidence`/`NonNeg` from `schemas.registry` to `schemas.base` (generic
+  primitives docir needs too; verified no other module imported them from registry directly). 15 new tests,
+  including a fixture DocIR matching docs/09 §2's own worked example (the Maschinendynamik equation) that
+  round-trips through JSON exactly. 388 passed (up from 373); mypy strict and ruff clean.
 
 ### T-P4-02 — Content-addressed artifact store
 - **Phase:** P4
