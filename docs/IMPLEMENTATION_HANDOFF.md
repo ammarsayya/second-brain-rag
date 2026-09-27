@@ -4,18 +4,34 @@ Living handoff for autonomous/continued sessions. Update after every completed o
 lost between sessions. Canonical task state lives in `docs/28_TASK_REGISTER.md` and `docs/35_EXECUTION_STATE.json`;
 this file is a human-readable summary plus session-to-session continuity notes, not a third source of truth.
 
-## CURRENT STATE — READ THIS FIRST (2026-09-27, Codex handoff after T-P4-02 + T-P13-04 + T-P7-03)
+## CURRENT STATE — READ THIS FIRST (2026-09-27, after T-P9-02; ALL REMAINING ELIGIBLE WORK IS OWNER-GATED)
 
 - **Repository is authoritative.** Everything below this line down to "Phase status" is the detailed historical
   log from earlier in this session (2026-09-24 through 2026-09-26) — still accurate, but you do not need to
   read all of it to resume. This block plus `docs/28`/`docs/35` is enough.
-- **Branch:** `p2-source-registry` (all work this whole session, including Phase 3/4, is on this one branch —
+- **Branch:** `p2-source-registry` (all work this whole session, including Phase 3/4/9, is on this one branch —
   it was never renamed; the name is now stale relative to its content, but do not rename it mid-session).
-- **Working tree: clean.** Sonnet independently reviewed Codex's T-P4-02/T-P13-04/T-P7-03 work (Codex's sandbox
-  could not create `.git/index.lock`, so it left the diff uncommitted as instructed), found and fixed one real
-  test flakiness (`ArtifactStore.list_orphans`'s zero-tolerance clock-skew edge case — see T-P4-02's own
-  verification note in docs/28), re-ran the full suite 4x clean, then committed as three logical commits
-  (T-P4-02, T-P13-04, T-P7-03) plus this doc update. Run `git status` to confirm before doing anything.
+- **Working tree: clean.** T-P9-02 (trace store and viewer) was delegated to `codex:rescue`, independently
+  reviewed by Sonnet (full diff read, redaction/crash-safety/reconstructability logic traced by hand, the
+  `_is_json_field` repository change checked against every existing schema for behavior change — none found),
+  re-ran `pytest -q`/`ruff check`/`ruff format --check`/`mypy strict`/`export_schemas.py --check` independently
+  rather than trusting Codex's report, then committed as `da9e1a2`. Run `git status` to confirm before doing
+  anything.
+- **STOP CONDITION REACHED: `tools/validate_plan.py` reports next eligible tasks are exactly `T-P3-02`,
+  `T-P3-03`, `T-P4-13`, `T-P5-06` — every one of them is `Human approval: required` in `docs/28_TASK_REGISTER.md`
+  (verified by reading each entry directly, not just trusting the summary line). No task in the dependency graph
+  is both dependency-satisfied and startable without the owner. This is a genuine stop point per the standing
+  orchestration mission (owner gates preventing all independent eligible work) — do not start any of these four,
+  and do not invent other work to route around the gate. If the owner answers one of the gates below, re-run
+  `tools/validate_plan.py` — that alone may unlock several transitively-blocked tasks (e.g. T-P3-02/03 gate
+  T-P3-05/06/09/10/11).**
+- **The four open owner gates, plainly stated:**
+  1. **T-P3-02** — owner must approve building `MBI-Gold-Math` (~300 hand-verified equations) before work starts.
+  2. **T-P3-03** — owner must approve building `MBI-Gold-Layout` (~40 hand-verified pages) before work starts.
+  3. **T-P4-13** (VaultWriter v1) — gated on **Q-B02** (vault location decision, still open in
+     `docs/25_OPEN_QUESTIONS.md`) plus explicit owner approval of the vault location once chosen.
+  4. **T-P5-06** (Taxonomy v0) — owner must approve the seeded SKOS-like taxonomy once drafted; can't start
+     without that sign-off per its own acceptance criterion.
 - **Phase 0: DONE. Phase 1: DONE (13/13). Phase 2: DONE (14/14).**
 - **Phase 3: IN PROGRESS.** T-P3-01 (gold sample, 120/120 selected) DONE. T-P3-04 (eval harness) DONE.
   T-P3-07 (SPIKE-OMML) and T-P3-08 (SPIKE-OCR) are IN_PROGRESS — real evidence gathered and committed, but
@@ -31,20 +47,23 @@ this file is a human-readable summary plus session-to-session continuity notes, 
   directory publication, deterministic manifests, immutable version coexistence, and explicit dry-run-first
   `sbr artifacts gc`. It follows docs/18's explicit sharded layout
   `var/artifacts/<b3[:2]>/<b3>/<extractor@ver>/`; docs/28 and the old handoff omitted the shard as shorthand.
-- **Independent downstream tasks completed in this continuation:** T-P13-04 (schema migration test suite) and
-  T-P7-03 (answer schema with knowledge-layer basis) are DONE. T-P13-04 added a pairwise up/down/up matrix for all
-  five actual migrations plus a populated-registry copy drill. T-P7-03 added strict answer/citation models,
-  deterministic visible basis labels, fail-closed pending-external rendering, and `schemas/AnswerSegment.json`.
-- **Next eligible tasks** (per `docs/35_EXECUTION_STATE.json`, dependency-satisfied): `T-P3-02`
-  (owner-gated, do not start), `T-P3-03` (owner-gated, do not start), `T-P4-13` (owner-gated on
-  Q-B02, do not start), `T-P5-06` (owner-gated), and `T-P9-02` (not gated).
-- **Recommended next action: implement T-P9-02 (trace store and viewer).** It is the only remaining
-  dependency-satisfied task without an owner gate.
-  Its scope is `src/sbr/obs/trace.py`: span model for nodes/tools/model calls, SQLite storage, `sbr trace`, optional
-  OTel export; tests must prove a run trace is fully reconstructable. Respect docs/22: trace inputs/outputs are
-  hashes plus bounded/redacted previews, never raw sensitive content. A separate `var/traces` SQLite store is the
-  design direction indicated by docs/21; inspect/decide migrations before coding.
-- **Test baseline right now: 419 passed, 4 known pdflatex-only failures** (`tests/test_fixture_generator.py`
+- **Independent downstream tasks completed in this continuation:** T-P13-04 (schema migration test suite),
+  T-P7-03 (answer schema with knowledge-layer basis), and **T-P9-02 (trace store and viewer)** are DONE.
+  T-P13-04 added a pairwise up/down/up matrix for all five actual migrations plus a populated-registry copy
+  drill. T-P7-03 added strict answer/citation models, deterministic visible basis labels, fail-closed
+  pending-external rendering, and `schemas/AnswerSegment.json`. **T-P9-02** added a standalone
+  `var/traces/traces.sqlite` store (never `registry.sqlite`), `src/sbr/obs/trace.py`'s `span_scope()`/`TraceDB`
+  API mirroring `run_scope`'s exception-safety exactly, hash-plus-160-char-preview redaction before anything
+  reaches SQLite (docs/22 §3), and `sbr trace <run_id>`. Fixed a pre-existing drift in `docs/35`'s
+  `task_totals` summary (39 vs. the authoritative 42 from the per-task status map) as a side effect of this
+  update — the per-task map was always right, only the derived summary had gone stale.
+- **Next eligible tasks** (per `docs/35_EXECUTION_STATE.json`, dependency-satisfied): `T-P3-02`, `T-P3-03`,
+  `T-P4-13`, `T-P5-06` — **all four require owner approval to even start.** There is currently no
+  dependency-satisfied, non-owner-gated task left in the plan. `T-P9-03` (orchestrator state machine, the
+  natural next P9 task) is still blocked on `T-P9-01` (SPIKE-AGENTFW) and `T-P7-05`, both of which are in turn
+  blocked on `T-P7-04`, which needs `T-P7-01`/`T-P6-13` — none of that chain is done yet, so it is genuinely
+  not eligible, not merely unlisted.
+- **Test baseline right now: 427 passed, 4 known pdflatex-only failures** (`tests/test_fixture_generator.py`
   — pre-existing environment limitation, not a regression; do not try to fix, see "Environment notes" below).
   `mypy strict` and `ruff check`/`format --check` on `src`+`tests` are clean.
 - **T-P4-02 verification:** TS-ART killed a real subprocess at the final publish rename (exit 73); no partial
@@ -509,26 +528,24 @@ sample/coverage matrix afterward — not a pre-start gate.
 
 ## Exact next action
 
-1. Implement T-P3-01 (select MBI-Gold-Extract sample set) directly: a seeded, reproducible stratified sample
-   of ~120 pages from canonical blobs (T-P2-06's `canonical_obs_id`), stratified across producers (LaTeX/
-   Word/PowerPoint/scanner, per docs/03 §5.1's producer census), genres (T-P2-10), domains/courses (T-P2-11,
-   84.3% coverage — the sample should probably favor mapped courses for now, or explicitly note unmapped-
-   course representation as a limitation), and document shape (scanned/annotated/slides/tables/diagrams —
-   these last few aren't yet computed by any P2 stage and may need a lightweight new probe, or a documented
-   simplification for v1). Read `docs/28`'s full T-P3-01 entry and cross-check `docs/33_TEST_STRATEGY.md`/
-   `docs/34_RESEARCH_AND_SPIKE_REGISTER.md` for how the gold set feeds the extraction spikes before designing
-   the stratification, so the sample actually serves what the spikes need.
-2. Acceptance criterion: "Coverage matrix filled; owner approves list" — this is a genuine owner-approval
-   step (not just "review the output later"): build the coverage matrix and the selection, but the sample is
-   not "accepted" until the owner looks at it. Validation method "selection script reproducible (seeded)" —
-   a deterministic seed like the session's other sampling tools (`tools/validate_genre.py`'s seed 20260925
-   pattern) so a re-run reproduces the exact same sample.
-3. Write tests, run `tools/check.ps1` equivalent (pytest + mypy strict + ruff check + ruff format --check).
-4. Run against the real production registry and sanity-check the selected sample (do the stratification
-   buckets look genuinely representative on real paths, not just internally consistent) before presenting it
-   for owner approval.
-5. Update `docs/28`/`docs/35`, commit, run `validate_plan.py` / `audit_crossrefs.py`.
-6. This is Phase 3's first task and a genuine decision-gate phase (extraction technology spikes come next,
-   gated on this sample) — after T-P3-01, check whether its own acceptance criterion ("owner approves list")
-   is a hard stop before T-P3-02+ can proceed, per the standing instruction to stop for genuine owner-level
-   decisions rather than routing around them.
+**There is no more independently-executable implementation work left in the plan right now.** Every
+dependency-satisfied NOT_STARTED task (`T-P3-02`, `T-P3-03`, `T-P4-13`, `T-P5-06`) requires owner approval
+before it may even start (see the four gates listed at the top of this file). This was verified directly:
+`tools/validate_plan.py` printed `next eligible: T-P3-02, T-P3-03, T-P4-13, T-P5-06`, and every one of those
+task's own `docs/28_TASK_REGISTER.md` entries reads `**Human approval:** required`.
+
+1. **Do not start T-P3-02, T-P3-03, T-P4-13, or T-P5-06** without the owner's explicit go-ahead on the gate
+   listed for each above.
+2. If/when the owner clears one of these gates, re-run `tools/validate_plan.py` first — clearing T-P3-02/03
+   in particular will make T-P3-05/06/09/10/11 eligible too (they're transitively blocked on the gold data),
+   so re-check `next_eligible_tasks` rather than assuming only the newly-cleared task became available.
+   Q-B02 (vault location, `docs/25_OPEN_QUESTIONS.md`) still needs an answer before T-P4-13 specifically.
+3. In the meantime, the only legitimately useful autonomous work is **evidence-gathering that doesn't require
+   starting the gated task itself** — e.g., re-reading `eval/reports/spike_omml.md`/`spike_ocr.md` (T-P3-07/08,
+   already IN_PROGRESS pending owner manual review, not this session's to advance further) or drafting
+   deeper analysis of the vault-location tradeoffs (Q-B02) if genuinely new information exists — but do not
+   fabricate busywork merely to appear productive, and do not touch `D:\MBI-BRAIN`/`D:\studium_duplicated` or
+   make any owner-level technology/location decision unilaterally.
+4. This is a correctly-identified stop point per the standing orchestration mission (Section 38: "owner gates
+   preventing all independent eligible work" is one of the few conditions that should stop autonomous
+   continuation) — surface the four gates to the owner rather than routing around them.
