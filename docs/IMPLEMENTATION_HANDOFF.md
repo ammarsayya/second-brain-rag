@@ -4,6 +4,53 @@ Living handoff for autonomous/continued sessions. Update after every completed o
 lost between sessions. Canonical task state lives in `docs/28_TASK_REGISTER.md` and `docs/35_EXECUTION_STATE.json`;
 this file is a human-readable summary plus session-to-session continuity notes, not a third source of truth.
 
+## NEXT-20 MISSION (started 2026-09-27, after the previous "all eligible work owner-gated" stop point)
+
+The owner returned and: (1) authorized starting T-P3-02 (MBI-Gold-Math) and T-P3-03 (MBI-Gold-Layout) — but their
+acceptance criteria still require the owner's own hand-verification, so they will land as IN_PROGRESS prep work,
+not DONE, same pattern as the existing T-P3-07/T-P3-08; (2) answered Q-B02 (vault location + relationship to the
+Brain) — see docs/24 ADR-037 (ACCEPTED) and ADR-015 (ACCEPTED, resolving an internal contradiction in T-P4-13's
+own text — see that ADR's rationale); (3) authorized drafting T-P5-06 (Taxonomy v0), which also needs the
+owner's final sign-off to reach DONE.
+
+- **Baseline:** 43 / 146 DONE (verified via `tools/validate_plan.py` before starting: `PLAN CONSISTENT`).
+- **Target:** 20 additional genuinely-DONE tasks (63/146), but **correctness takes precedence over the number** —
+  do not count IN_PROGRESS prep work, and do not weaken any acceptance criterion to force a DONE.
+- **Structural finding, recorded up front so a future session doesn't have to re-derive it:** before this
+  mission started, `tools/validate_plan.py`'s `next_eligible_tasks` was EXACTLY `[T-P3-02, T-P3-03, T-P4-13,
+  T-P5-06]` — i.e. the entire remaining 103-task graph funnels through only these four tasks; nothing else in
+  the plan had its dependencies satisfied. Of those four, three (T-P3-02, T-P3-03, T-P5-06) cannot reach DONE
+  without the owner personally spending real hours verifying content (≥300 equations, ~40 pages, or a taxonomy
+  sign-off) — none of that is delegable to Codex or Sonnet. **T-P4-13 (VaultWriter) was therefore the only
+  task in the entire plan that could legitimately convert the owner's message into a genuine DONE this
+  session**, and it also unlocks T-P13-02 (backup/restore) once it lands. This is why T-P4-13 was dispatched
+  first, ahead of the gold-set prep work, even though the owner's message discussed T-P3-02/03 first.
+
+**Completed during mission (updated as each task is verified DONE):**
+
+(none yet — T-P4-13 is in flight, delegated to codex:rescue in the background; review pending)
+
+**Target:** 20
+**Current mission count:** 0 / 20
+
+**In flight:** T-P4-13 (VaultWriter v1) — delegated to codex:rescue (background job), full brief covers folder
+ownership enforcement, content-hash edit detection + fork, dirty-git-tree abort, user-section marker
+preservation in maps, atomic writes, and a from-scratch git repo for the vault at
+`D:\AgenticAI\second-brain-rag\vault` (separate from the code repo's own git history, gitignored). Awaiting
+Codex's completion notification before Sonnet reviews.
+
+**Queued next (in this order, once T-P4-13 is reviewed/committed and eligibility is recomputed):**
+1. Recompute `tools/validate_plan.py` — T-P4-13 DONE should make T-P13-02 (backup/restore) eligible.
+2. Prep work for T-P3-02 (MBI-Gold-Math): sample selection from the already-existing 120-page gold-extract
+   list (T-P3-01's `eval/gold/extract_sample.yaml`), AI-drafted LaTeX per equation crop, the side-by-side
+   verification tool (crop vs. KaTeX render), thesis-OMML-as-ground-truth alignment where available. This
+   will land as IN_PROGRESS (owner verification log does not exist yet) — do not mark DONE.
+3. Prep work for T-P3-03 (MBI-Gold-Layout): reading-order/heading/figure-caption/table annotation for ~40
+   pages plus the verification tooling. Also lands as IN_PROGRESS.
+4. Draft T-P5-06 (Taxonomy v0) from course mapping (T-P2-11, 84.3% coverage) + curriculum/module handbook +
+   corpus structure. Lands as IN_PROGRESS/drafted pending owner sign-off.
+5. Whatever T-P4-13 unlocks (T-P13-02 confirmed; recompute for others).
+
 ## CURRENT STATE — READ THIS FIRST (2026-09-27, after T-P9-02; ALL REMAINING ELIGIBLE WORK IS OWNER-GATED)
 
 - **Repository is authoritative.** Everything below this line down to "Phase status" is the detailed historical
