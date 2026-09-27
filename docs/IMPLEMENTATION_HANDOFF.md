@@ -84,20 +84,25 @@ already-known hand-verification gate. Do not let Codex attempt to fake this with
 scope it explicitly to layer (a), and record layer (b) as blocked on Q-B04 rather than silently working around
 it or leaving it unmentioned.
 
+03. T-P3-03 — MBI-Gold-Layout prep — landed IN_PROGRESS (commit `c6c6809`, not DONE, owner verification
+    pending). Pure seeded 11-bucket layout-diversity selection, real-corpus run (40/40 pages selected, 98
+    probed with 0 failures), deterministic pypdf heuristic drafts (font/position/image-XObject rules, zero
+    model calls), a review tool exporting one-page PDFs + Markdown index. Reviewed lightly (this is
+    review-pending draft tooling, not production infrastructure — the correctness bar is "loads through the
+    real `load_gold_samples()` unmodified" and "never claims owner_verified", both independently confirmed);
+    no bugs found. All corpus content confirmed gitignored, nothing tracked.
+
 **Queued next:**
-1. **T-P3-03 (MBI-Gold-Layout) prep — dispatched to codex:rescue, in flight.** Brief: seeded ~40-page
-   layout-diversity selection (reusing T-P3-01's `BlobDescriptor`/bucket-quota machinery from
-   `src/sbr/eval/gold_extract.py`), heuristic (non-AI) draft annotations in `load_gold_samples()`'s exact
-   schema, a verification tool for the owner. Explicitly told NOT to mark DONE — IN_PROGRESS only, same
-   pattern as T-P3-07/T-P3-08.
-2. Next after that: T-P3-02 (MBI-Gold-Math) prep, scoped to ONLY the non-AI-drafting layer: sample selection,
-   the crop-vs-KaTeX-render verification tool, and thesis-OMML-as-exact-ground-truth alignment (422 equations
-   already known from T-P3-07's spike, zero drafting needed for those). Do NOT attempt AI-drafted LaTeX for
-   equations without an OMML match — that needs a model call and Q-B04/the model gateway don't exist yet;
-   scope the brief to explicitly exclude that layer and record it as its own blocked sub-item.
-3. Then T-P5-06 (Taxonomy v0) draft from course mapping (T-P2-11, 84.3% coverage) + curriculum/module handbook
+1. **T-P3-02 (MBI-Gold-Math) prep — dispatched to codex:rescue, in flight.** Scoped strictly to the non-AI
+   layer: ~300-equation selection stratified by source kind/difficulty, real (non-fabricated) ground-truth
+   LaTeX for every OMML-sourced equation (reusing T-P3-07's already-proven `extract_latex_equations()` — no
+   drafting needed, it's exact), the crop-vs-KaTeX verification tool, and an explicit `pending_ai_draft`
+   marker (not a fabricated guess) for every equation that genuinely needs a model call to draft. Told
+   explicitly NOT to call any model/LLM and NOT to fake AI-drafting with a rule-based guesser — that's a
+   second, distinct gate on Q-B04 (no model gateway exists yet), separate from the owner-verification gate.
+2. Then T-P5-06 (Taxonomy v0) draft from course mapping (T-P2-11, 84.3% coverage) + curriculum/module handbook
    + corpus structure. Lands as IN_PROGRESS/drafted pending owner sign-off.
-4. Recompute eligibility after every landed task regardless — a DONE is what unlocks the graph further, but
+3. Recompute eligibility after every landed task regardless — a DONE is what unlocks the graph further, but
    none of these three can reach DONE without the owner, so don't expect eligibility to change until the
    owner actually reviews one.
 
