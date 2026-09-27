@@ -4,6 +4,61 @@ Living handoff for autonomous/continued sessions. Update after every completed o
 lost between sessions. Canonical task state lives in `docs/28_TASK_REGISTER.md` and `docs/35_EXECUTION_STATE.json`;
 this file is a human-readable summary plus session-to-session continuity notes, not a third source of truth.
 
+## CURRENT STATE — READ THIS FIRST (2026-09-27, Sonnet handing off to codex:rescue — Sonnet's context is low)
+
+- **Repository is authoritative.** Everything below this line down to "Phase status" is the detailed historical
+  log from earlier in this session (2026-09-24 through 2026-09-26) — still accurate, but you do not need to
+  read all of it to resume. This block plus `docs/28`/`docs/35` is enough.
+- **Branch:** `p2-source-registry` (all work this whole session, including Phase 3/4, is on this one branch —
+  it was never renamed; the name is now stale relative to its content, but do not rename it mid-session).
+- **Working tree: clean.** Every task below is committed. Run `git status` to confirm before doing anything.
+- **Phase 0: DONE. Phase 1: DONE (13/13). Phase 2: DONE (14/14).**
+- **Phase 3: IN PROGRESS.** T-P3-01 (gold sample, 120/120 selected) DONE. T-P3-04 (eval harness) DONE.
+  T-P3-07 (SPIKE-OMML) and T-P3-08 (SPIKE-OCR) are IN_PROGRESS — real evidence gathered and committed, but
+  correctly **not** marked DONE because their acceptance criteria need the owner's own manual review (50-
+  equation correctness check; PaddleOCR/VLM benchmarking decision) — see their verification notes in
+  `docs/28_TASK_REGISTER.md` for exactly what's done vs. owner-pending. **T-P3-02 and T-P3-03 have NOT been
+  started — they require "Human approval: required" before starting at all (owner must approve building
+  MBI-Gold-Math / MBI-Gold-Layout). Do not start them.** T-P3-05/06/09/10/11 are all transitively blocked on
+  T-P3-02/03's gold data and must also wait.
+- **Phase 4: STARTED IN PARALLEL with P3** (docs/30 explicitly allows this: "Parallel during P3: T-P4-01
+  DocIR, T-P4-02 artifact store, T-P4-13 VaultWriter once Q-B02 is answered"). T-P4-01 (DocIR schema v1) is
+  DONE — `src/sbr/docir/models.py`, exported to `schemas/DocIR.json`.
+- **Next eligible tasks** (per `docs/35_EXECUTION_STATE.json`, dependency-satisfied): `T-P13-04`, `T-P3-02`
+  (owner-gated, do not start), `T-P3-03` (owner-gated, do not start), `T-P4-02`, `T-P4-13` (owner-gated on
+  Q-B02, do not start), `T-P5-06` (owner-gated), `T-P7-03`, `T-P9-02`.
+- **Recommended next task: T-P4-02 (content-addressed artifact store)** — depends on T-P4-01 (done) + T-P1-09
+  (done), no owner gate, and is the natural continuation of what T-P4-01 just built (DocIR needs somewhere to
+  live). Full spec: `docs/28_TASK_REGISTER.md`, search `### T-P4-02`. Summary: `var/artifacts/<b3>/
+  <extractor@ver>/` layout with manifests, atomic temp+rename writes, GC of orphans only via an explicit
+  command (never automatic). Acceptance: "Interrupted writes leave no partial artifacts; two versions
+  coexist." Validation: "TS-ART tests" — check `docs/33_TEST_STRATEGY.md` for what TS-ART specifically
+  requires before designing the test suite. Expected artifact: `src/sbr/artifacts.py`.
+- **Test baseline right now: 388 passed, 4 known pdflatex-only failures** (`tests/test_fixture_generator.py`
+  — pre-existing environment limitation, not a regression; do not try to fix, see "Environment notes" below).
+  `mypy strict` and `ruff check`/`format --check` on `src`+`tests` are clean.
+- **Real tools installed this session** (not previously on this machine, all via chocolatey/pip, all local,
+  no cloud APIs): `pandoc` (OMML→LaTeX, SPIKE-OMML), `tesseract` 5.5.3 + German `deu` language pack
+  (SPIKE-OCR), `cryptography` (Python package, for encrypted-PDF page counting), `py7zr`/`rarfile` (archive
+  formats, from earlier in P2). None of these need reinstalling; they're already on PATH (`C:\ProgramData\
+  chocolatey\bin`, `C:\Program Files\Tesseract-OCR`) — a **new PowerShell/bash session might not have that
+  PATH update yet**; if `pandoc`/`tesseract` "command not found", add those two paths to `$env:PATH` rather
+  than reinstalling.
+- **Production registry exists and is reusable**: `var/db/registry.sqlite` (gitignored) already has the full
+  P2 pipeline run against the real `D:\MBI-BRAIN` corpus (scan/hash/classify/sensitivity/dedup/archives/
+  genre/courses/names all done). **Do not re-run the full pipeline from scratch** — it's idempotent and
+  expensive (the archive/office-OMML scans alone took several minutes each). Reuse `config/sbr.toml`
+  (gitignored, already points at `D:\MBI-BRAIN`) directly for any further real-corpus work.
+- **Safety, reconfirmed at handoff time**: `D:\MBI-BRAIN` not modified (read-only via SourceFS + read-only
+  file I/O in every audit/spike script — verified by design and by the safety test suite). `D:\studium_
+  duplicated` not touched. No secrets exposed. No destructive git operations.
+- **Owner-only items outstanding** (do not attempt to resolve these yourself — surface them, don't route
+  around them): owner review of `reports/mirrors.md` (T-P2-07, informational only — mission explicitly says
+  do not reclaim/delete/move anything based on it), owner review of `eval/gold/extract_sample.yaml` (T-P3-01,
+  local file, gitignored), owner review of `eval/reports/spike_omml.md` and `spike_ocr.md` (T-P3-07/08),
+  owner approval to even start T-P3-02/T-P3-03/T-P4-13/T-P5-06, and the still-open Q-B02/Q-B03/Q-B04 questions
+  (vault location, cloud/compute policy, model access) that gate several downstream tasks.
+
 ## Orchestration model (this and future sessions)
 
 - Sonnet 5 = architect / orchestrator / reviewer.
