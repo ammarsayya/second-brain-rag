@@ -8,9 +8,9 @@ gap analysis, and approval-gated external research. It is not "PDF â†’ chunks â†
 
 | Path | Role | Rule |
 |---|---|---|
-| `D:\MBI-BRAIN` | Source corpus (authoritative evidence) | **READ-ONLY, always.** Never rename, move, delete, rewrite, convert in place or dedupe. `D:\Studium` is empty and obsolete. Do not use it |
-| `D:\AgenticAI\second-brain-rag` | Code, config, docs, tests, audit, `var/` | `var/` is rebuildable; nothing authoritative may live only there |
-| Vault (proposed `D:\MBI-VAULT`, open question Q-B02) | Obsidian knowledge (user, AI, source-derived notes) | The system never writes `notes/` and never overwrites user-edited files |
+| `/Users/ammar/DriveD/MBI-BRAIN` | Source corpus (authoritative evidence) | **READ-ONLY, always.** Never rename, move, delete, rewrite, convert in place or dedupe. `/Users/ammar/DriveD/Studium` is empty and obsolete. Do not use it |
+| `/Users/ammar/DriveD/AgenticAI/second-brain-rag` | Code, config, docs, tests, audit, `var/` | `var/` is rebuildable; nothing authoritative may live only there |
+| Vault (proposed `/Users/ammar/DriveD/MBI-VAULT`, open question Q-B02) | Obsidian knowledge (user, AI, source-derived notes) | The system never writes `notes/` and never overwrites user-edited files |
 | `curation/` (git) | Human decisions (taxonomy, overrides, approvals) | Authoritative; replayed on rebuild |
 
 ## Critical constraints (the full list is HC-01â€¦HC-25 in docs/02)
@@ -32,7 +32,7 @@ gap analysis, and approval-gated external research. It is not "PDF â†’ chunks â†
   registry, manifest & exact dedup) is next.** See `docs/35_EXECUTION_STATE.json` for task status.
 - **Corpus baselines:** t2 = pre-quarantine historical baseline (85,913 files / 561.5 GB; docs/37). **t3 = post-quarantine implementation-source baseline**
   (83,880 files / 558.75 GB; 2,033 exact copies quarantined; docs/38, `audit/phase0/t3/`). `docs/03` is the historical t0/t1 record.
-- `D:\studium_duplicated` is quarantine/rollback evidence. It is **not a source root**, is never ingested and never written.
+- `/Users/ammar/DriveD/studium_duplicated` is quarantine/rollback evidence. It is **not a source root**, is never ingested and never written.
 - `audit/` (t0/t1/t2/t3, `dedup_quarantine/`) is historical evidence. Never modify it. `.venv-audit/` is disposable audit tooling.
 - Toolchain: uv is installed in the user site (`%APPDATA%\Python\Python314\Scripts\uv.exe`); the project uses Python 3.12 via uv. Run `tools/check.ps1` for lint, types and tests.
 
@@ -41,10 +41,10 @@ gap analysis, and approval-gated external research. It is not "PDF â†’ chunks â†
 1. Read `docs/00_PROJECT_OVERVIEW.md`, then `docs/35_EXECUTION_STATE.json` (`next_eligible_tasks`).
 2. Take the next eligible task from `docs/30_IMPLEMENTATION_SEQUENCE.md`. Its full spec is in `docs/28_TASK_REGISTER.md`.
    Stop and ask the owner for tasks marked `Human approval: required`.
-3. The first implementation task after approval is **T-P1-01** (repository bootstrap). No code may touch `D:\MBI-BRAIN` before T-P1-03 is DONE.
+3. The first implementation task after approval is **T-P1-01** (repository bootstrap). No code may touch `/Users/ammar/DriveD/MBI-BRAIN` before T-P1-03 is DONE.
 4. After each task: update its status in 28 **and** 35, record decisions in 24 and answers in 25, then run
    `python tools/validate_plan.py`. It must print `PLAN CONSISTENT`.
-5. Project documentation belongs in `docs/` only. The Brain (`D:\AgenticAI\My-Knowledge\brain`) holds only the registry record
+5. Project documentation belongs in `docs/` only. The Brain (`/Users/ammar/DriveD/AgenticAI/My-Knowledge/brain`) holds only the registry record
    **PRJ-0030** and, later, distilled cross-project knowledge, per Brain governance.
 
 ## Documentation map

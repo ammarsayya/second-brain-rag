@@ -11,25 +11,25 @@ repos:
     hooks:
       - id: ruff-check
         name: ruff check
-        entry: python -m uv run --frozen ruff check
+        entry: uv run --frozen ruff check
         language: system
         types: [python]
         files: ^(src|tests)/
       - id: ruff-format
         name: ruff format --check
-        entry: python -m uv run --frozen ruff format --check
+        entry: uv run --frozen ruff format --check
         language: system
         types: [python]
         files: ^(src|tests)/
       - id: mypy
         name: mypy (strict, src/sbr)
-        entry: python -m uv run --frozen mypy
+        entry: uv run --frozen mypy
         language: system
         pass_filenames: false
         files: ^src/
       - id: validate-plan
         name: plan consistency
-        entry: python -m uv run --frozen python tools/validate_plan.py
+        entry: uv run --frozen python tools/validate_plan.py
         language: system
         pass_filenames: false
         files: ^docs/

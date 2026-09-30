@@ -67,7 +67,7 @@ def _ram_used_gb() -> float:
     except ImportError:
         return 0.0  # no 'resource' module (e.g. Windows): unknown, so never gate on it
     # ru_maxrss is kibibytes on Linux, bytes on macOS/BSD; kibibytes is the common case for this project's targets.
-    return resource.getrusage(resource.RUSAGE_SELF).ru_maxrss / (1024 * 1024)  # type: ignore[attr-defined,no-any-return]
+    return resource.getrusage(resource.RUSAGE_SELF).ru_maxrss / (1024 * 1024)  # type: ignore[attr-defined,no-any-return,unused-ignore]
 
 
 def set_process_priority(priority: ProcessPriority) -> bool:

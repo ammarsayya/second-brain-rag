@@ -38,3 +38,6 @@ config/sbr.toml
 .remember/
 pytest-*/
 /.tmp-*/
+
+.DS_Store
+**/.DS_Store
