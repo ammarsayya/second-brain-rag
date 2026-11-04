@@ -1,5 +1,7 @@
 # Owner Review Index (2026-11-04)
 
+> **Update (later 2026-11-04):** all four reviews now run through one local page, `tools/review_bundle.py`; see `2026-11-04_phase3_review_preparation.md`. The per-task commands below still work.
+
 Status: **prepared for review. Nothing here is owner-approved.** Every item below stays IN_PROGRESS until the owner
 records decisions. Agent-generated drafts, heuristics and recommendations are inputs, not approvals.
 

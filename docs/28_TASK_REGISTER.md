@@ -872,6 +872,7 @@ Each task is written so that it can be independently verified. Spike tasks link 
   and independently double-check 10%. **Separate Q-B04/model-gateway gate**: the 120 `pending_ai_draft` PDF crops
   need real model-produced LaTeX after model access is decided and implemented; no model/API was called and no
   rule-based LaTeX guess was fabricated in this prep pass.
+- **Addendum (2026-11-04, Linux container, still IN_PROGRESS):** unified owner review (`tools/review_bundle.py`, docs/reports/2026-11-04_phase3_review_preparation.md). Per entry: crop XML well-formedness, one-equation check and comparison with the native conversion of its own crop; the 42 mis-paired entries get an error flag and a medium-confidence native-LaTeX proposal; the 120 PDF crops cannot be accepted (no local formula model, ADR-039/040); a 30-entry double-check pass (own seed, first-pass decision hidden). Decisions import all-or-nothing into an append-only ledger and the existing `math_verification.yaml`. Gold files are not in this container, so no entry was inspected here; nothing approved.
 
 ### T-P3-03 — Build MBI-Gold-Layout (~40 pages)
 - **Phase:** P3
@@ -904,6 +905,7 @@ Each task is written so that it can be independently verified. Spike tasks link 
   cross-reference audit are clean. **Owner action needed to close this task**: compare every draft with its
   exported source page, correct any heuristic errors in the aggregate annotation YAML, record one decision
   for each of the 40 pages, resolve every rejection, and thereby verify all 40 labels.
+- **Addendum (2026-11-04, Linux container, still IN_PROGRESS):** unified owner review (`tools/review_bundle.py`). Deterministic checks on the drafts (reading order, empty or scanned blocks, column and order heuristics, header/footer placement, ragged or missing tables, captions, unannotated math, duplicates). Systematic finding: the draft has one block per text line, so each page gets a `merge_paragraph_lines` proposal (German-aware dehyphenation). The 14 risky-bucket pages sort first. The pages themselves were not available here and were not inspected; nothing approved.
 
 ### T-P3-04 — Extraction evaluation harness
 - **Phase:** P3
@@ -1005,6 +1007,7 @@ Each task is written so that it can be independently verified. Spike tasks link 
   files); this addendum does not rewrite the earlier note. Also: both spike tools now open sources by `relpath_raw`.
   Still open, owner-gated: the 50-equation review and the ADR-009 choice of PPTX path (another converter, or route
   PPTX math to SPIKE-MATH). pandoc is not installed on the current macOS host, so the pandoc pass was not re-run.
+- **Addendum (2026-11-04, Linux container, still IN_PROGRESS):** `tools/spike_pptx_math.py` measured the PPTX options on a synthetic 14-equation deck (`eval/reports/spike_pptx_math_options.md`): A native 14/14; B LibreOffice 24.2.7 0/14 (it imports the fallback, 14/14 markers); pandoc 3.1.3 has no PPTX reader; C not runnable (no local recognizer). Converter fixes from patterns in the real 50-sample: function names inside runs become operators, prose in math zones becomes `\text{}`, and the compare-key row-break bug is fixed. **Re-run `tools/spike_omml.py --native-latex` on the Mac before the owner review.** The 50 equations are review items in the unified bundle (5 with proposals). Recommendation A for PPTX (C as a picture-only fallback, B for legacy containers only) is evidence, not the ADR-009 decision.
 
 ### T-P3-08 — SPIKE-OCR: scanned German pages
 - **Phase:** P3
@@ -1434,6 +1437,7 @@ Each task is written so that it can be independently verified. Spike tasks link 
   clean. **Owner action needed to close this task**: review and approve, correct, or reject the complete domain
   structure, both bilingual labels, every broader/narrower/related edge, and every one of the 42 course-to-domain
   assignments. Until that review is recorded, T-P5-06 remains IN_PROGRESS and Taxonomy v0 is not approved.
+- **Addendum (2026-11-04, still IN_PROGRESS):** the unified review bundle has 86 taxonomy items (43 concepts, 42 courses, 1 overall approval gate); machine checks flag 14. AI review proposals (`eval/reviews/taxonomy_v0_ai_review.yaml`, 8, not applied) question MBI-204/MBI-273-01 (Bewegungslehre), MBI-221 (missing Festigkeitslehre leaf), MBI-127's second domain, and two German labels. An approval can reach `curation/approvals.yaml` only through an explicit owner accept of `taxonomy:approve-v0` imported with `--write-curation-approval --reviewer user:owner`.
 
 ### T-P5-07 — Document/KU topic classification
 - **Phase:** P5

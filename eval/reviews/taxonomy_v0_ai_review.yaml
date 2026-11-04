@@ -1,0 +1,68 @@
+# AI review notes on Taxonomy v0 (T-P5-06), 2026-11-04. Organizational metadata only, no corpus content.
+# These are PROPOSALS by an AI reviewer (Claude), not owner decisions and not applied to curation/*.yaml.
+# tools/review_bundle.py attaches each one to its review item, separate from the original and the machine checks.
+origin: "ai:claude-review@2026-11-04"
+proposals:
+  - target: taxonomy:course:MBI-204
+    proposal_id: kinematics_of_mechanisms
+    field: domains
+    value: [kinematics_and_kinetics]
+    confidence: low
+    rationale: >-
+      "Bewegungslehre" usually means the kinematics of mechanisms and linkages (Getriebelehre), not machine dynamics
+      (vibration, balancing). If the course is mechanism kinematics, a new leaf such as mechanism_kinematics
+      ("Getriebe- und Bewegungstechnik") under machine_design or engineering_mechanics may fit better. Check the
+      Modulhandbuch description.
+  - target: taxonomy:course:MBI-273-01
+    proposal_id: kinematics_of_mechanisms
+    field: domains
+    value: [kinematics_and_kinetics]
+    confidence: low
+    rationale: Same question as MBI-204 ("Bewegungslehre 2 (Bewegungstechnik 2)").
+  - target: taxonomy:course:MBI-221
+    proposal_id: strength_of_materials_leaf
+    field: domains
+    value: [strength_of_materials]
+    confidence: medium
+    rationale: >-
+      MBI-221 maps to the non-leaf engineering_mechanics, which has statics and kinematics_and_kinetics but no
+      leaf for Festigkeitslehre / Elastostatik, the usual content of a further Technische Mechanik course. The corpus
+      has Festigkeit folders. Proposal: add concept strength_of_materials (DE "Festigkeitslehre", EN "Strength of
+      Materials") under engineering_mechanics and map MBI-221 to it, if TM4 is strength of materials.
+  - target: taxonomy:course:MBI-127
+    proposal_id: physics_only
+    field: domains
+    value: [physics]
+    confidence: medium
+    rationale: >-
+      "Naturwissenschaften (Physik 2)" is a physics course. The second domain scientific_communication is only right
+      if the module explicitly teaches lab-report writing; otherwise it adds a misleading edge.
+  - target: taxonomy:concept:sensor_actuator_bus_systems
+    proposal_id: label_matches_module
+    field: label_de
+    value: Sensor-Aktor-Bus-Technik
+    confidence: medium
+    rationale: course_map.yaml's own comment cites the Modulhandbuch name "Sensor-Aktor-Bus-Technik"; using it keeps
+      search terms aligned with the course documents.
+  - target: taxonomy:concept:project_work
+    proposal_id: simpler_label
+    field: label_de
+    value: Projektarbeit
+    confidence: low
+    rationale: '"Ingenieurprojektarbeit" is an unusual compound; "Projektarbeit" is the common German term.'
+  - target: taxonomy:concept:materials_engineering
+    proposal_id: collapse_single_child
+    field: structure
+    value: "merge materials_engineering (Werkstofftechnik) and materials_science (Werkstoffkunde), or keep both on purpose"
+    confidence: low
+    rationale: >-
+      The root has exactly one child with a near-synonymous label, and no course maps to the root. Harmless, but it
+      adds a level without distinguishing anything yet.
+  - target: taxonomy:course:MBI-110
+    proposal_id: leaf_for_applied_cs
+    field: domains
+    value: [programming]
+    confidence: low
+    rationale: >-
+      "Angewandte Informatik" maps to the root computer_science. If the course is mostly programming, the leaf is more
+      useful for retrieval facets; if it is a broad survey, the root is right.
