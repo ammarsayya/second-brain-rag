@@ -2,24 +2,28 @@
   "schema_version": "1.0",
   "project": "second-brain-rag",
   "last_updated": "2026-11-04",
-  "updated_by": "Claude (T-P3-07/T-P3-08 evidence follow-ups; both remain IN_PROGRESS, owner review pending)",
+  "updated_by": "Claude (Q-B03/Q-B04 owner decisions recorded as ADR-039/040; T-P7-01 dependency adjusted per owner decision)",
   "authoritative_docs": "docs/28_TASK_REGISTER.md (tasks), docs/24_DECISION_LOG.md (decisions), docs/25_OPEN_QUESTIONS.md, docs/34_RESEARCH_AND_SPIKE_REGISTER.md",
   "current_phase": "P3/P4/P5/P13",
-  "current_phase_status": "P3 in_progress (T-P3-01, T-P3-04 DONE; T-P3-02/T-P3-03/T-P3-07/T-P3-08 IN_PROGRESS - evidence or drafts gathered, owner review pending; T-P3-02 also has 120 PDF-native equations gated on Q-B04/model access); P4 in progress (T-P4-01, T-P4-02, T-P4-13 DONE); P5 in progress (T-P5-06 taxonomy drafted, owner approval pending); P13 in progress (T-P13-02, T-P13-04 DONE)",
+  "current_phase_status": "P3 in_progress (T-P3-01, T-P3-04 DONE; T-P3-02/T-P3-03/T-P3-07/T-P3-08 IN_PROGRESS - evidence or drafts gathered, owner review pending; T-P3-02 also has 120 PDF-native equations that need a measured local math/vision model, since remote access is not authorized); P4 in progress (T-P4-01, T-P4-02, T-P4-13 DONE); P5 in progress (T-P5-06 taxonomy drafted, owner approval pending); P7 in progress (T-P7-01 gateway DONE, mock/local only; T-P7-03 DONE; T-P7-02 BLOCKED on credentials/activation); P13 in progress (T-P13-02, T-P13-04 DONE)",
   "last_task_verification": {
-    "task": "T-P5-06",
-    "date": "2026-09-27",
-    "status": "IN_PROGRESS",
-    "summary": "Taxonomy v0 is drafted as 43 bilingual SKOS-like concepts under 10 curriculum-level domains, and all 42 curated courses map to at least one valid concept; the task remains open on the acceptance criterion's required owner review and approval.",
+    "task": "T-P7-01",
+    "date": "2026-11-04",
+    "status": "DONE",
+    "summary": "Model gateway implemented for the owner-limited local-only scope (ADR-039/ADR-040): role routing, sensitivity gate, bounded retries, local-only fallbacks, in-memory response cache, structured output, call accounting without content; deterministic mock and loopback OpenAI-compatible adapters; remote providers refused at config, construction and call time.",
     "files": [
-      "curation/taxonomy.yaml",
-      "curation/course_map.yaml",
-      "src/sbr/curation.py",
-      "tests/test_curation.py",
-      "docs/28_TASK_REGISTER.md",
-      "docs/35_EXECUTION_STATE.json"
+      "src/sbr/models/",
+      "src/sbr/egress.py",
+      "src/sbr/config.py",
+      "src/sbr/cli/app.py",
+      "tests/models/",
+      "tests/test_cli_commands.py",
+      "config/sbr.example.toml",
+      "config/sbr.macos.example.toml",
+      "docs/17_MODEL_STRATEGY.md",
+      "docs/22_SECURITY_AND_SAFETY.md"
     ],
-    "verification": "curation/taxonomy.yaml loads through load_taxonomy() with 43 unique bilingual concepts and 10 roots. Every broader/narrower/related reference resolves; broader/narrower and related relationships are reciprocal, including intentional poly-hierarchy. The additive defaulted CourseMapEntry.domains field preserves existing consumers, while every one of the 42 real course_map.yaml rows carries at least one valid taxonomy concept. Focused curation/course tests: 31 passed. Full suite: 470 passed with only the four known pdflatex-only fixture-generation failures. Strict mypy, ruff check/format, plan validation, and cross-reference audit are clean. The owner must still review and approve or correct the domain structure, bilingual labels, relationships, and all 42 course assignments; T-P5-06 is not DONE."
+    "verification": "Linux container only (no macOS run, no real inference server, no corpus). 72 gateway/adapter/egress/config tests incl. loopback HTTP integration; full suite 640 passed, 5 skipped; ruff check/format, strict mypy, validate_plan, audit_crossrefs and export_schemas --check clean."
   },
   "phases": {
     "P0": {
@@ -70,8 +74,8 @@
   },
   "task_totals": {
     "total": 146,
-    "DONE": 45,
-    "NOT_STARTED": 92,
+    "DONE": 46,
+    "NOT_STARTED": 91,
     "IN_PROGRESS": 5,
     "BLOCKED": 1,
     "DEFERRED": 3
@@ -162,7 +166,7 @@
     "T-P6-11": "NOT_STARTED",
     "T-P6-12": "NOT_STARTED",
     "T-P6-13": "NOT_STARTED",
-    "T-P7-01": "NOT_STARTED",
+    "T-P7-01": "DONE",
     "T-P7-02": "BLOCKED",
     "T-P7-03": "DONE",
     "T-P7-04": "NOT_STARTED",
@@ -266,6 +270,7 @@
     "T-P4-01",
     "T-P4-02",
     "T-P13-04",
+    "T-P7-01",
     "T-P7-03",
     "T-P9-02",
     "T-P4-13",
@@ -306,6 +311,8 @@
       "ADR-034",
       "ADR-035",
       "ADR-037",
+      "ADR-039",
+      "ADR-040",
       "ADR-015"
     ],
     "proposed": [
@@ -335,20 +342,10 @@
   },
   "unresolved_blockers": [
     {
-      "id": "Q-B03",
-      "summary": "Compute/privacy policy (cloud APIs, GPU rental, budget)",
+      "id": "Q-B04-activation",
+      "summary": "Q-B04 is answered for architecture only (ADR-040). Provider credentials, remote activation, paid services and remote data transmission are not authorized, so SPIKE-MODELGW cannot meet its acceptance criterion",
       "blocks": [
-        "T-P3-09",
-        "T-P3-11",
-        "T-P13-01"
-      ]
-    },
-    {
-      "id": "Q-B04",
-      "summary": "How OpenCode-configured models are accessed programmatically",
-      "blocks": [
-        "T-P7-02",
-        "T-P7-01"
+        "T-P7-02"
       ]
     }
   ],
@@ -561,6 +558,18 @@
       "answer": "vault lives at D:\\AgenticAI\\second-brain-rag\\vault as its own independent git repository, gitignored from the code repo; Brain gets only the registry record (ADR-037 accepted)",
       "date": "2026-09-27",
       "evidence": "owner's implementation-authorization message 2026-09-27; docs/24 ADR-037 and Owner decisions"
+    },
+    {
+      "id": "Q-B03",
+      "answer": "local-first and local-only for the current phase: all ingestion, extraction, OCR, classification, embeddings, indexing and inference local; no corpus data to remote AI providers; no GPU rental or paid cloud compute; future remote processing needs a separate owner authorization; resource limits and performance measured on the real host (ADR-039)",
+      "date": "2026-11-04",
+      "evidence": "owner's explicit decision message 2026-11-04; docs/24 ADR-039 and Owner decisions"
+    },
+    {
+      "id": "Q-B04",
+      "answer": "architecture only: hybrid-capable gateway with local-only execution initially, remote providers disabled by default, mock backends, credentials outside source control, sensitivity enforced at the gateway (ADR-040). Credentials, provider activation, paid services and remote data transmission NOT approved. T-P7-01 may proceed before T-P7-02 with mock/local backends only",
+      "date": "2026-11-04",
+      "evidence": "owner's explicit decision message 2026-11-04; docs/24 ADR-040 and Owner decisions"
     }
   ],
   "implementation_log": [
@@ -792,6 +801,50 @@
         "tests/test_eval_extract_ocr.py",
         "tests/test_spike_ocr.py",
         "eval/reports/spike_ocr_orientation.md"
+      ]
+    },
+    {
+      "task": "owner-review-prep",
+      "date": "2026-11-04",
+      "status": "IN_PROGRESS",
+      "summary": "Verified state on a Linux session (corpus absent): HEAD d83a6b2 equals origin, tree clean, 566 passed / 5 skipped, full tools/check.py green, zero eligible tasks. Prepared owner review index (T-P3-02/03/07, T-P5-06 with computed taxonomy ambiguity) and Q-B03/Q-B04 decision packages. Recommendations only; no approval recorded, no task status or gate changed. Removed one tracked .pyc from the index.",
+      "files": [
+        "docs/reports/2026-11-04_owner_review_index.md",
+        "docs/reports/2026-11-04_decision_packages_QB03_QB04.md"
+      ]
+    },
+    {
+      "task": "T-P7-01",
+      "date": "2026-11-04",
+      "status": "DONE",
+      "summary": "Model gateway implemented for the owner-limited local-only scope (ADR-039/ADR-040): role routing, sensitivity gate, bounded retries, local-only fallbacks, in-memory response cache, structured output, call accounting without content; deterministic mock and loopback OpenAI-compatible adapters; remote providers refused at config, construction and call time. Owner decisions Q-B03/Q-B04 recorded (ADR-039/ADR-040); T-P7-01 dependency on T-P7-02 removed by owner decision. No further task became eligible: every T-P7-01 dependent also waits on NOT_STARTED or owner-gated tasks.",
+      "files": [
+        "src/sbr/models/",
+        "src/sbr/egress.py",
+        "src/sbr/config.py",
+        "src/sbr/cli/app.py",
+        "tests/models/",
+        "tests/test_cli_commands.py",
+        "config/sbr.example.toml",
+        "config/sbr.macos.example.toml",
+        "docs/17_MODEL_STRATEGY.md",
+        "docs/22_SECURITY_AND_SAFETY.md"
+      ]
+    },
+    {
+      "task": "phase3-review-prep",
+      "date": "2026-11-04",
+      "status": "IN_PROGRESS",
+      "summary": "Unified local owner review (tools/review_bundle.py, sbr.eval.review_bundle/review_html) for T-P3-02, T-P3-03, T-P3-07 and T-P5-06, with deterministic checks, separate machine/AI proposals, an append-only ledger and export to the existing verify logs. tools/spike_pptx_math.py: A 14/14, B LibreOffice 0/14 (reads the fallback), pandoc 3.1.3 has no PPTX reader. OMML converter prose/function fixes and a compare-key fix. Linux container only: no corpus and no gold files here, so the layout and math sections were not built or inspected. No approval recorded, no status changed, no task newly eligible.",
+      "files": [
+        "src/sbr/eval/review_bundle.py",
+        "src/sbr/eval/review_html.py",
+        "tools/review_bundle.py",
+        "tools/spike_pptx_math.py",
+        "src/sbr/eval/extract/omml_latex.py",
+        "eval/reports/spike_pptx_math_options.md",
+        "eval/reviews/taxonomy_v0_ai_review.yaml",
+        "docs/reports/2026-11-04_phase3_review_preparation.md"
       ]
     }
   ]

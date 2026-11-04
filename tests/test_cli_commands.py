@@ -108,3 +108,22 @@ def test_help_and_version_stay_stateless(cfg_file: Path, make_config: Callable[.
     assert runner.invoke(app, ["--help"]).exit_code == 0
     assert runner.invoke(app, ["version"]).exit_code == 0
     assert not (make_config().db_dir / "registry.sqlite").exists()
+
+
+def test_models_status_reports_local_only_roles_without_network(cfg_file: Path) -> None:
+    _, payload = invoke(cfg_file, "models", "status")
+    assert payload["ok"] is True and payload["remote_providers_allowed"] is False
+    assert payload["providers"] == {}
+    assert payload["roles"]["reason"]["configured"] is False
+
+
+def test_models_status_probes_a_mock_provider(cfg_file: Path) -> None:
+    cfg_file.write_text(
+        cfg_file.read_text(encoding="utf-8")
+        + "[models.providers.mock]\nkind = 'mock'\n[models.roles.reason]\nprimary = 'mock/echo'\n",
+        encoding="utf-8",
+    )
+    _, payload = invoke(cfg_file, "models", "status", "--probe")
+    assert payload["providers"]["mock"]["probe"]["ok"] is True
+    assert payload["providers"]["mock"]["locality"] == "local"
+    assert payload["roles"]["reason"]["candidates"] == ["mock/echo"]

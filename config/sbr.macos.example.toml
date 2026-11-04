@@ -26,7 +26,19 @@ time_windows = []
 [logging]
 level = "INFO"
 
-# Model roles (docs/17). Concrete models are decided by SPIKE-MODELGW after Q-B04; leave `primary` unset until then.
+# Model gateway (docs/17 §6, T-P7-01). Local-only (owner decisions Q-B03/Q-B04, ADR-039/ADR-040): every provider must
+# be a loopback URL, `allow_remote` can only be false, and there is no remote fallback. Tokens are never written here:
+# `api_key_env` names an environment variable. Example for a local Ollama or llama.cpp server (uncomment to use):
+#
+# [models.providers.local]
+# kind = "openai_compatible"          # or "mock" (deterministic, in-process; for dry runs)
+# base_url = "http://127.0.0.1:11434/v1"
+# timeout_s = 300
+# max_retries = 1
+# capabilities = ["generate", "embed"] # add "structured" only if the server supports json_schema response_format
+#
+# Then point a role at it: [models.roles.reason] primary = "local/<model-name>"
+# Model roles (docs/17). A role without `primary` is unconfigured and the gateway refuses it.
 # `restricted` is never allowed in allowed_sensitivity.
 [models.roles.reason]
 fallbacks = []

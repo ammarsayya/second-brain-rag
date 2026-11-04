@@ -47,6 +47,12 @@ ALLOW: dict[str, str] = {
         "tests/test_archives.py::test_extraction_never_writes_to_the_source_tree under SourceWriteGuard. Never "
         "writes into a source root or the quarantine path; source content is only ever read via SourceFS."
     ),
+    "eval/review_bundle.py": (
+        "ReviewLedger.record appends owner review decisions to the one ledger file its caller names (git-ignored "
+        "eval/gold/review/review_ledger.jsonl; mkdir of its parent + append-only open), after assert_writable() "
+        "whenever a config is supplied (tools/review_bundle.py always passes it with --config). It never rewrites "
+        "or deletes a record, and never touches a source root: it only reads gold files and crops."
+    ),
     "cli/app.py": (
         "T-P2-14's `sbr report manifest` command writes its Markdown/CSV report (mkdir + write_text) only after "
         "assert_writable() on each output path (same safety gate every tools/validate_*.py report writer uses); "

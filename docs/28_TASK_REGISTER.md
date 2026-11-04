@@ -872,6 +872,7 @@ Each task is written so that it can be independently verified. Spike tasks link 
   and independently double-check 10%. **Separate Q-B04/model-gateway gate**: the 120 `pending_ai_draft` PDF crops
   need real model-produced LaTeX after model access is decided and implemented; no model/API was called and no
   rule-based LaTeX guess was fabricated in this prep pass.
+- **Addendum (2026-11-04, Linux container, still IN_PROGRESS):** unified owner review (`tools/review_bundle.py`, docs/reports/2026-11-04_phase3_review_preparation.md). Per entry: crop XML well-formedness, one-equation check and comparison with the native conversion of its own crop; the 42 mis-paired entries get an error flag and a medium-confidence native-LaTeX proposal; the 120 PDF crops cannot be accepted (no local formula model, ADR-039/040); a 30-entry double-check pass (own seed, first-pass decision hidden). Decisions import all-or-nothing into an append-only ledger and the existing `math_verification.yaml`. Gold files are not in this container, so no entry was inspected here; nothing approved.
 
 ### T-P3-03 — Build MBI-Gold-Layout (~40 pages)
 - **Phase:** P3
@@ -904,6 +905,7 @@ Each task is written so that it can be independently verified. Spike tasks link 
   cross-reference audit are clean. **Owner action needed to close this task**: compare every draft with its
   exported source page, correct any heuristic errors in the aggregate annotation YAML, record one decision
   for each of the 40 pages, resolve every rejection, and thereby verify all 40 labels.
+- **Addendum (2026-11-04, Linux container, still IN_PROGRESS):** unified owner review (`tools/review_bundle.py`). Deterministic checks on the drafts (reading order, empty or scanned blocks, column and order heuristics, header/footer placement, ragged or missing tables, captions, unannotated math, duplicates). Systematic finding: the draft has one block per text line, so each page gets a `merge_paragraph_lines` proposal (German-aware dehyphenation). The 14 risky-bucket pages sort first. The pages themselves were not available here and were not inspected; nothing approved.
 
 ### T-P3-04 — Extraction evaluation harness
 - **Phase:** P3
@@ -1005,6 +1007,7 @@ Each task is written so that it can be independently verified. Spike tasks link 
   files); this addendum does not rewrite the earlier note. Also: both spike tools now open sources by `relpath_raw`.
   Still open, owner-gated: the 50-equation review and the ADR-009 choice of PPTX path (another converter, or route
   PPTX math to SPIKE-MATH). pandoc is not installed on the current macOS host, so the pandoc pass was not re-run.
+- **Addendum (2026-11-04, Linux container, still IN_PROGRESS):** `tools/spike_pptx_math.py` measured the PPTX options on a synthetic 14-equation deck (`eval/reports/spike_pptx_math_options.md`): A native 14/14; B LibreOffice 24.2.7 0/14 (it imports the fallback, 14/14 markers); pandoc 3.1.3 has no PPTX reader; C not runnable (no local recognizer). Converter fixes from patterns in the real 50-sample: function names inside runs become operators, prose in math zones becomes `\text{}`, and the compare-key row-break bug is fixed. **Re-run `tools/spike_omml.py --native-latex` on the Mac before the owner review.** The 50 equations are review items in the unified bundle (5 with proposals). Recommendation A for PPTX (C as a picture-only fallback, B for legacy containers only) is evidence, not the ADR-009 decision.
 
 ### T-P3-08 — SPIKE-OCR: scanned German pages
 - **Phase:** P3
@@ -1063,6 +1066,7 @@ Each task is written so that it can be independently verified. Spike tasks link 
 - **Acceptance criteria:** Table of options (time, cost, privacy) per wave; owner chooses policy.
 - **Validation method:** Owner decision recorded.
 - **Expected artifacts:** eval/reports/spike_compute.md
+- **Note (2026-11-04):** Q-B03 answered (ADR-039): local-only for the current phase. The options table still has to be produced from measured local speeds, with remote/GPU rows marked out of policy; the owner's policy choice for this phase is recorded, the task's dependencies (T-P3-05/06/08) are unchanged.
 
 ### T-P3-10 — SPIKE-FIGURE: knowledge-bearing vs decorative
 - **Phase:** P3
@@ -1433,6 +1437,7 @@ Each task is written so that it can be independently verified. Spike tasks link 
   clean. **Owner action needed to close this task**: review and approve, correct, or reject the complete domain
   structure, both bilingual labels, every broader/narrower/related edge, and every one of the 42 course-to-domain
   assignments. Until that review is recorded, T-P5-06 remains IN_PROGRESS and Taxonomy v0 is not approved.
+- **Addendum (2026-11-04, still IN_PROGRESS):** the unified review bundle has 86 taxonomy items (43 concepts, 42 courses, 1 overall approval gate); machine checks flag 14. AI review proposals (`eval/reviews/taxonomy_v0_ai_review.yaml`, 8, not applied) question MBI-204/MBI-273-01 (Bewegungslehre), MBI-221 (missing Festigkeitslehre leaf), MBI-127's second domain, and two German labels. An approval can reach `curation/approvals.yaml` only through an explicit owner accept of `taxonomy:approve-v0` imported with `--write-curation-approval --reviewer user:owner`.
 
 ### T-P5-07 — Document/KU topic classification
 - **Phase:** P5
@@ -1640,9 +1645,10 @@ Each task is written so that it can be independently verified. Spike tasks link 
 
 ### T-P7-01 — Model gateway
 - **Phase:** P7
-- **Status:** NOT_STARTED
+- **Status:** DONE
 - **Priority:** critical
-- **Dependencies:** T-P7-02, T-P1-02
+- **Dependencies:** T-P1-02
+- **Scope limit (owner decision 2026-11-04, docs/24):** the `T-P7-02` dependency was removed so the gateway can be built before SPIKE-MODELGW, **with mock or local backends only**. Real-provider adapters, credentials and provider acceptance/benchmarking remain T-P7-02's job and need further owner authorization (ADR-040).
 - **Human approval:** none
 - **Traces to:** ADR-025,HC-20,ADR-035
 - **Description:** Role routing, adapters, fallbacks, sensitivity gate, accounting, response cache, structured outputs.
@@ -1650,6 +1656,22 @@ Each task is written so that it can be independently verified. Spike tasks link 
 - **Acceptance criteria:** Fake-model tests; sensitivity gate blocks remote calls for restricted docs; cost logged.
 - **Validation method:** Tests.
 - **Expected artifacts:** src/sbr/models/*
+- **Verification (2026-11-04, Linux container; not run on the owner's Mac):** DONE within the owner-limited scope
+  (mock/local backends only). `src/sbr/models/` provides `Gateway` (role routing over all docs/17 §1 roles,
+  capability checks at construction, sensitivity gate, bounded retries with backoff for retryable errors, local-only
+  fallbacks, in-memory content-addressed response cache, structured output validated against a Pydantic schema,
+  `CallRecord` accounting with cost, tokens, latency and hashes, logged without content), a deterministic
+  `MockProvider`, and an `OpenAICompatibleProvider` for a loopback inference server (stdlib only; proxies ignored,
+  redirects refused, size cap, deadline). `sbr.config` gains `[models.providers]` with loopback-only URLs,
+  `allow_remote` fixed to `false`, `api_key_env` names only, and role/provider reference validation; `sbr.egress`
+  holds the shared predicates. `sbr models status [--probe]` added. **Acceptance:** fake-model tests are in
+  `tests/models/` (72 tests, including the loopback HTTP integration tests); restricted content is refused for
+  every role before any provider call, and remote providers are refused at configuration, construction and call
+  time; cost is logged per call (0.0 locally). Full suite 640 passed, 5 skipped; ruff, strict mypy, plan validation,
+  cross-reference audit and schema export check clean. **Not done (explicitly out of scope):** remote adapters and
+  credentials (T-P7-02, not authorized); `rerank` and local vision adapters (no backend yet; configuring those roles
+  fails validation instead of claiming support); a persistent response cache under `var/`; any measurement against a
+  real local model server (none in this environment).
 
 ### T-P7-02 — SPIKE-MODELGW: access to OpenCode-configured models
 - **Phase:** P7
@@ -1664,6 +1686,7 @@ Each task is written so that it can be independently verified. Spike tasks link 
 - **Validation method:** Spike report.
 - **Expected artifacts:** eval/reports/spike_modelgw.md
 - **Blocked by:** Q-B04 (model access and credentials are owner decisions; recorded 2026-09-24 when T-P0-08 made the task dependency-eligible).
+- **Update (2026-11-04):** Q-B04 is answered at the architecture level (ADR-040), but credentials, provider activation, paid services and remote data transmission are explicitly **not** authorized, so the acceptance criterion (working call to ≥2 roles' models via the chosen access path) cannot be met. Status stays BLOCKED; its requirements are unchanged.
 
 ### T-P7-03 — Answer schema with knowledge-layer basis
 - **Phase:** P7
