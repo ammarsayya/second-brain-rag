@@ -6,7 +6,9 @@ from __future__ import annotations
 
 import csv
 import io
+from collections.abc import Mapping
 from dataclasses import dataclass
+from typing import Any
 
 
 @dataclass(frozen=True, slots=True)
@@ -19,7 +21,7 @@ def parse_tesseract_tsv(tsv_output: str) -> list[OcrWordConfidence]:
     """Parse ``tesseract ... tsv`` output (``-c tessedit_create_tsv=1`` / the ``tsv`` output base) into one
     :class:`OcrWordConfidence` per recognized word, skipping structural rows (page/block/para/line levels,
     which carry no text) and blank/whitespace-only words."""
-    reader = csv.DictReader(io.StringIO(tsv_output), delimiter="\t")
+    reader = csv.DictReader(io.StringIO(tsv_output), delimiter="\t", quoting=csv.QUOTE_NONE)  # TSV is unquoted
     words: list[OcrWordConfidence] = []
     for row in reader:
         text = (row.get("text") or "").strip()
@@ -96,11 +98,72 @@ def summarize_rotations(results: list[OsdResult | None], *, min_confidence: floa
     return counts
 
 
+def confident_word_count(words: list[OcrWordConfidence], threshold: float = 80.0) -> int:
+    """Words Tesseract scored at ``threshold`` or above: the readability score of one OCR pass.
+
+    Mean confidence alone rewards a pass that reads three words well; counting confident words also rewards
+    reading *more* of the page, which is what distinguishes the right orientation from a wrong one.
+    """
+    return sum(1 for w in words if w.confidence >= threshold)
+
+
+@dataclass(frozen=True, slots=True)
+class RotationVerdict:
+    """Which clockwise rotation (0/90/180/270) of a page image reads best, by :func:`confident_word_count`.
+
+    This is an *oracle by readability*, a proxy for ground truth, not ground truth: ``rotate`` is ``None`` when no
+    rotation reads at all, and ``ambiguous`` marks a near tie the evidence cannot separate.
+    """
+
+    rotate: int | None
+    ambiguous: bool
+    best_score: int
+    runner_up_score: int
+
+
+def pick_rotation(scores: Mapping[int, int], *, min_words: int = 5, margin: float = 0.15) -> RotationVerdict:
+    """Pick the best-reading rotation from ``{rotation: confident_word_count}``.
+
+    Exact ties break toward the smaller rotation (so toward "no rotation"). A leader within ``margin`` (relative)
+    of the runner-up is flagged ambiguous. Fewer than ``min_words`` confident words in every rotation yields
+    ``rotate=None``: an unreadable page gives no orientation evidence, so none is invented.
+    """
+    ranked = sorted(scores.items(), key=lambda item: (-item[1], item[0]))
+    (best_rotation, best), runner_up = ranked[0], (ranked[1][1] if len(ranked) > 1 else 0)
+    if best < min_words:
+        return RotationVerdict(None, False, best, runner_up)
+    ambiguous = runner_up >= best * (1 - margin)
+    return RotationVerdict(best_rotation, ambiguous, best, runner_up)
+
+
+def orientation_agreement(pairs: list[tuple[int | None, int | None]]) -> dict[str, Any]:
+    """Compare ``(osd_rotate, oracle_rotate)`` pairs. ``None`` on either side is an abstention, not a miss."""
+    by_osd: dict[str, dict[str, int]] = {str(r): {"agree": 0, "disagree": 0} for r in sorted(_VALID_ROTATIONS)}
+    result: dict[str, Any] = {"compared": 0, "agree": 0, "osd_abstained": 0, "oracle_abstained": 0}
+    for osd, oracle in pairs:
+        if osd is None:
+            result["osd_abstained"] += 1
+            continue
+        if oracle is None:
+            result["oracle_abstained"] += 1
+            continue
+        result["compared"] += 1
+        hit = osd == oracle
+        result["agree"] += int(hit)
+        by_osd[str(osd)]["agree" if hit else "disagree"] += 1
+    result["by_osd"] = by_osd
+    return result
+
+
 __all__ = [
     "OcrWordConfidence",
     "OsdResult",
+    "RotationVerdict",
+    "confident_word_count",
     "mean_word_confidence",
+    "orientation_agreement",
     "parse_tesseract_osd",
     "parse_tesseract_tsv",
+    "pick_rotation",
     "summarize_rotations",
 ]

@@ -28,24 +28,33 @@ own report and leaves the sampled-run report alone.
 from __future__ import annotations
 
 import argparse
+import functools
+import io
 import json
+import os
 import random
 import subprocess
 import tempfile
 import time
+from collections.abc import Callable
+from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 from typing import Any
 
 import pypdf
+from PIL import Image
 
 from sbr.config import load_config
 from sbr.db import registry as reg
 from sbr.db.registry import RegistryDB
 from sbr.eval.extract.ocr import (
     OsdResult,
+    confident_word_count,
     mean_word_confidence,
+    orientation_agreement,
     parse_tesseract_osd,
     parse_tesseract_tsv,
+    pick_rotation,
     summarize_rotations,
 )
 from sbr.eval.gold_extract import representative_page
@@ -58,6 +67,11 @@ Candidate = tuple[str, str, str, str, int]
 
 DEFAULT_OUTPUT = Path("eval/reports/spike_ocr.md")
 DEFAULT_ORIENTATION_OUTPUT = Path("eval/reports/spike_ocr_orientation.md")
+DEFAULT_ROTATION_ORACLE_OUTPUT = Path("eval/reports/spike_ocr_rotation_oracle.md")
+DEFAULT_ORACLE_WORKERS = 8
+ORACLE_ROTATIONS = (0, 90, 180, 270)
+# OSD confidence cut-offs at which the "apply OSD" policy is scored; 0.0 means "always trust OSD".
+ORACLE_OSD_THRESHOLDS = (0.0, 1.0, 2.0, 5.0, 10.0)
 DEFAULT_CONTROL_SIZE = 15
 # Reported alongside the raw distribution, never used to drop a page: Tesseract's orientation confidence is an
 # unbounded score, and this spike's job is to show how the bucket counts move with the cut-off, not to pick one.
@@ -77,6 +91,12 @@ def _arguments() -> argparse.Namespace:
         action="store_true",
         help="run OSD on every scanned candidate and compare --psm 3 vs --psm 1 OCR on rotated pages",
     )
+    parser.add_argument(
+        "--rotation-oracle",
+        action="store_true",
+        help="OCR every scanned candidate at 0/90/180/270 and score OSD, /Rotate and fixed policies against it",
+    )
+    parser.add_argument("--workers", type=int, default=DEFAULT_ORACLE_WORKERS)
     parser.add_argument("--control-size", type=int, default=DEFAULT_CONTROL_SIZE)
     parser.add_argument("--min-orientation-confidence", type=float, default=DEFAULT_MIN_ORIENTATION_CONFIDENCE)
     parser.add_argument("--sample-size", type=int, default=DEFAULT_SAMPLE_SIZE)
@@ -332,8 +352,227 @@ def _orientation_census(args: argparse.Namespace) -> int:
     return 0
 
 
+def _page_image_and_rotate(source_fs: SourceFS, root_id: str, relpath_raw: str, page: int) -> tuple[bytes | None, int]:
+    """The page's first embedded image and its ``/Rotate`` (normalized to 0/90/180/270, clockwise)."""
+    with source_fs.open_binary(root_id, relpath_raw) as stream:
+        reader = pypdf.PdfReader(stream)
+        pdf_page = reader.pages[min(page - 1, len(reader.pages) - 1)]
+        images = list(pdf_page.images)
+        rotate = int(pdf_page.rotation) % 360
+    return (images[0].data if images else None), rotate
+
+
+def _score_rotation(image_bytes: bytes, rotation: int) -> tuple[int, float | None, str | None]:
+    """(confident words, mean confidence, error) for ``tesseract -l deu --psm 3`` on the image turned ``rotation``
+    degrees clockwise. ``--psm 3`` does no orientation correction of its own, so the rotation is the only variable."""
+    try:
+        with Image.open(io.BytesIO(image_bytes)) as img:
+            img.load()
+            turned = img.rotate(-rotation, expand=True) if rotation else img.copy()
+        buffer = io.BytesIO()
+        turned.save(buffer, format="PNG")
+    except Exception as exc:  # a corrupt or exotic image is one page's error, not the run's
+        return 0, None, f"image: {type(exc).__name__}"
+    with tempfile.TemporaryDirectory() as tmp:
+        image_path = Path(tmp) / "page.png"
+        image_path.write_bytes(buffer.getvalue())
+        try:
+            result = subprocess.run(
+                ["tesseract", str(image_path), "stdout", "-l", "deu", "--psm", "3", "tsv"],
+                capture_output=True,
+                text=True,
+                encoding="utf-8",
+                errors="replace",
+                timeout=180,
+                check=False,
+                env={**os.environ, "OMP_THREAD_LIMIT": "1"},
+            )
+        except (OSError, subprocess.TimeoutExpired) as exc:
+            return 0, None, f"{type(exc).__name__}: {exc}"
+    if result.returncode != 0:
+        return 0, None, result.stderr.strip()[:300]
+    words = parse_tesseract_tsv(result.stdout)
+    return confident_word_count(words), mean_word_confidence(words), None
+
+
+def _oracle_row(source_fs: SourceFS, candidate: Candidate) -> dict[str, Any]:
+    blob_id, root_id, relpath_raw, relpath, page = candidate
+    row: dict[str, Any] = {"blob_id": blob_id, "relpath": relpath, "page": page}
+    try:
+        image, pdf_rotate = _page_image_and_rotate(source_fs, root_id, relpath_raw, page)
+    except Exception as exc:  # one unreadable PDF must not abort the run
+        row["error"] = type(exc).__name__
+        return row
+    row["pdf_rotate"] = pdf_rotate
+    if image is None:
+        row["error"] = "no embedded image found"
+        return row
+    osd, osd_error = _run_osd(image)
+    row["osd"] = osd
+    scores: dict[int, int] = {}
+    for rotation in ORACLE_ROTATIONS:
+        count, _mean, error = _score_rotation(image, rotation)
+        if error is not None:
+            row["error"] = error
+            return row
+        scores[rotation] = count
+    row["scores"] = scores
+    row["verdict"] = pick_rotation(scores)
+    if osd_error is not None:
+        row["osd_error"] = osd_error
+    return row
+
+
+def _safe_oracle_row(source_fs: SourceFS, candidate: Candidate) -> dict[str, Any]:
+    """One page's unexpected failure becomes that page's error, never the run's (a 10-minute run once died on one)."""
+    try:
+        return _oracle_row(source_fs, candidate)
+    except Exception as exc:  # recorded per page, counted in the report
+        return {"blob_id": candidate[0], "relpath": candidate[3], "page": candidate[4], "error": type(exc).__name__}
+
+
+def _policy_accuracy(rows: list[dict[str, Any]], choose: Callable[[dict[str, Any]], int]) -> tuple[int, int, int]:
+    """(correct, made_worse, decided) over pages with a confident, unambiguous oracle verdict. ``made_worse``
+    counts pages the oracle says were upright as stored (rotate 0) that the policy turns anyway."""
+    decided = [r for r in rows if r["verdict"].rotate is not None and not r["verdict"].ambiguous]
+    correct = sum(1 for r in decided if choose(r) == r["verdict"].rotate)
+    worse = sum(1 for r in decided if r["verdict"].rotate == 0 and choose(r) != 0)
+    return correct, worse, len(decided)
+
+
+def _rotation_oracle(args: argparse.Namespace) -> int:
+    source_fs, candidates = _find_scanned_candidates(args.config, args.page_census)
+    output: Path = args.output or DEFAULT_ROTATION_ORACLE_OUTPUT
+    started = time.perf_counter()
+    with ThreadPoolExecutor(max_workers=max(1, args.workers)) as pool:
+        rows = list(pool.map(lambda c: _safe_oracle_row(source_fs, c), candidates))
+    elapsed = time.perf_counter() - started
+
+    scored = [r for r in rows if "verdict" in r]
+    verdicts = [r["verdict"] for r in scored]
+    oracle_counts: dict[str, int] = {str(r): sum(1 for v in verdicts if v.rotate == r) for r in ORACLE_ROTATIONS}
+    unreadable = sum(1 for v in verdicts if v.rotate is None)
+    ambiguous = sum(1 for v in verdicts if v.rotate is not None and v.ambiguous)
+
+    def _osd_rotate(r: dict[str, Any], threshold: float) -> int:
+        osd = r["osd"]
+        return osd.rotate if osd is not None and osd.orientation_confidence >= threshold else 0
+
+    agreement = orientation_agreement(
+        [
+            (r["osd"].rotate if r["osd"] is not None else None, None if r["verdict"].ambiguous else r["verdict"].rotate)
+            for r in scored
+        ]
+    )
+    policies: list[tuple[str, Callable[[dict[str, Any]], int]]] = [
+        ("never rotate", lambda r: 0),
+        ("honour PDF /Rotate", lambda r: int(r["pdf_rotate"])),
+    ]
+    for threshold in ORACLE_OSD_THRESHOLDS:
+        policies.append(
+            (f"apply OSD at confidence >= {threshold}", functools.partial(_osd_rotate, threshold=threshold))
+        )
+
+    def _pct(part: int, whole: int) -> str:
+        return f"{100 * part / whole:.1f}%" if whole else "n/a"
+
+    policy_lines = []
+    for name, choose in policies:
+        correct, worse, decided = _policy_accuracy(scored, choose)
+        policy_lines.append(f"| {name} | {correct}/{decided} ({_pct(correct, decided)}) | {worse} |")
+
+    by_pdf_rotate: dict[int, dict[int | None, int]] = {}
+    for r in scored:
+        cell = by_pdf_rotate.setdefault(int(r["pdf_rotate"]), {})
+        key = None if r["verdict"].ambiguous else r["verdict"].rotate
+        cell[key] = cell.get(key, 0) + 1
+    cross_lines = [
+        f"| {pr} | " + " | ".join(str(cells.get(o, 0)) for o in (*ORACLE_ROTATIONS, None)) + " |"
+        for pr, cells in sorted(by_pdf_rotate.items())
+    ]
+
+    disagreements = [
+        r
+        for r in scored
+        if r["osd"] is not None
+        and r["verdict"].rotate is not None
+        and not r["verdict"].ambiguous
+        and r["osd"].rotate != r["verdict"].rotate
+    ]
+    disagreement_lines = [
+        f"| {r['relpath']} | {r['page']} | {r['pdf_rotate']} | {r['osd'].rotate} | "
+        f"{r['osd'].orientation_confidence:.2f} | {r['verdict'].rotate} | "
+        + " / ".join(str(r["scores"][x]) for x in ORACLE_ROTATIONS)
+        + " |"
+        for r in sorted(disagreements, key=lambda r: -r["osd"].orientation_confidence)
+    ]
+    by_osd = agreement["by_osd"]
+    lines = [
+        "# SPIKE-OCR follow-up: rotation oracle and correction policies (T-P3-08)",
+        "",
+        "Every scanned-page candidate's first embedded image is OCR'd with `tesseract -l deu --psm 3` four times, "
+        "turned 0/90/180/270 degrees clockwise. `--psm 3` does no orientation correction itself, so the rotation "
+        "is the only variable. The rotation with the most words at confidence >= 80 is the **readability oracle**; "
+        "a leader within 15% of the runner-up is *ambiguous*, and a page with fewer than 5 such words in every "
+        "rotation is *unreadable* (no verdict). OSD (`--psm 0`) and the page's PDF `/Rotate` are then scored "
+        "against the oracle.",
+        "",
+        "**Evidence, not a decision.** The oracle is a proxy, not ground truth: it is only as good as Tesseract's "
+        "own confidence, and it says nothing about CER (that needs T-P3-03 gold transcriptions). The orientation "
+        "step and threshold for the pipeline stay with ADR-010/T-P4. Blobs the sensitivity gate rejects are not "
+        "opened (counts on stderr only).",
+        "",
+        f"- scanned-page candidates: {len(candidates)}; scored at all four rotations: {len(scored)}; "
+        f"no embedded image: {sum(1 for r in rows if r.get('error') == 'no embedded image found')}; "
+        f"other errors: {sum(1 for r in rows if 'error' in r and r['error'] != 'no embedded image found')}",
+        f"- oracle verdicts: 0={oracle_counts['0']}, 90={oracle_counts['90']}, 180={oracle_counts['180']}, "
+        f"270={oracle_counts['270']}; ambiguous={ambiguous}; unreadable={unreadable}",
+        f"- OSD vs oracle (both decided): {agreement['agree']}/{agreement['compared']} agree "
+        f"({_pct(agreement['agree'], agreement['compared'])}); OSD declined {agreement['osd_abstained']}, "
+        f"oracle abstained {agreement['oracle_abstained']}",
+        "- OSD vs oracle by OSD call: "
+        + ", ".join(
+            f"{k}: {v['agree']}/{v['agree'] + v['disagree']} agree"
+            for k, v in by_osd.items()
+            if v["agree"] + v["disagree"]
+        ),
+        f"- wall time: {elapsed:.0f} s with {args.workers} workers",
+        "",
+        "## Correction policies scored against the oracle",
+        "",
+        "Only pages with a decided, unambiguous oracle verdict count. *Made worse* = pages the oracle reads best as "
+        "stored that the policy rotates anyway.",
+        "",
+        "| policy | correct | made worse |",
+        "|---|---|---|",
+        *policy_lines,
+        "",
+        "## PDF /Rotate against the oracle",
+        "",
+        "| PDF /Rotate | oracle 0 | oracle 90 | oracle 180 | oracle 270 | ambiguous or unreadable |",
+        "|---|---|---|---|---|---|",
+        *cross_lines,
+        "",
+        f"## Pages where OSD and a decided oracle disagree ({len(disagreements)})",
+        "",
+        "| relpath | page | PDF /Rotate | OSD rotate | OSD confidence | oracle rotate | words>=80 at 0/90/180/270 |",
+        "|---|---|---|---|---|---|---|",
+        *disagreement_lines,
+        "",
+    ]
+    output.parent.mkdir(parents=True, exist_ok=True)
+    output.write_text("\n".join(lines), encoding="utf-8")
+    print(
+        json.dumps({"scored": len(scored), "oracle": oracle_counts, "agreement": agreement}, indent=2, sort_keys=True)
+    )
+    print(f"report written to {output}")
+    return 0
+
+
 def main() -> int:
     args = _arguments()
+    if args.rotation_oracle:
+        return _rotation_oracle(args)
     if args.orientation_census:
         return _orientation_census(args)
     source_fs, scanned_candidates = _find_scanned_candidates(args.config, args.page_census)

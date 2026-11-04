@@ -2,8 +2,9 @@
 
 ``--prepare`` writes one offline HTML page pairing every local crop/source substitute with a rendered formula.
 If a local KaTeX distribution is supplied, it is referenced directly; otherwise pandoc embeds MathML and the
-page labels that fallback explicitly.  ``--record`` writes owner decisions to a separate YAML log.  A
-``pending_ai_draft`` entry cannot be accepted because it has no LaTeX to verify.
+page labels that fallback explicitly.  ``--record`` writes owner decisions to a separate YAML log.
+``--export-sheet``/``--record-sheet`` do the same in bulk through a CSV review sheet (decisions exported blank,
+imported all-or-nothing).  A ``pending_ai_draft`` entry cannot be accepted because it has no LaTeX to verify.
 """
 
 from __future__ import annotations
@@ -14,12 +15,14 @@ import json
 import os
 import subprocess
 from datetime import UTC, datetime
-from pathlib import Path
+from pathlib import Path, PureWindowsPath
 from typing import Any
 
 from ruamel.yaml import YAML
 
 from sbr.config import load_config
+from sbr.eval.extract.omml_latex import latex_text_signature, omml_xml_to_latex
+from sbr.eval.review_sheet import read_sheet_decisions, write_review_sheet
 from sbr.safety import assert_writable
 
 DEFAULT_SAMPLE = Path("eval/gold/math_sample.yaml")
@@ -32,6 +35,8 @@ def _arguments() -> argparse.Namespace:
     mode = parser.add_mutually_exclusive_group(required=True)
     mode.add_argument("--prepare", action="store_true")
     mode.add_argument("--record", metavar="SAMPLE_ID")
+    mode.add_argument("--export-sheet", type=Path, metavar="CSV", help="write a review sheet with blank decisions")
+    mode.add_argument("--record-sheet", type=Path, metavar="CSV", help="record every decided row of a review sheet")
     parser.add_argument("--decision", choices=("accept", "correct", "reject"))
     parser.add_argument("--note", default="")
     parser.add_argument("--config", type=Path, required=True)
@@ -183,23 +188,18 @@ PDF entries with null LaTeX cannot be accepted until the Q-B04/model-gateway dra
     return {"entries": len(samples), "renderer": renderer, "review_page": str(output)}
 
 
-def _record(args: argparse.Namespace, config: Any) -> dict[str, Any]:
-    if args.decision is None:
-        raise ValueError("--decision is required with --record")
-    document = _load_yaml(args.sample)
-    entries = {str(entry["sample_id"]): entry for entry in document.get("samples", [])}
-    if args.record not in entries:
-        raise ValueError(f"unknown sample id: {args.record}")
-    entry = entries[args.record]
-    if entry.get("latex") is None:
-        raise ValueError(f"{args.record} is pending_ai_draft and has no LaTeX to verify")
-    decisions = _existing_decisions(args.decisions)
-    decisions[args.record] = {
-        "sample_id": args.record,
-        "decision": args.decision,
-        "note": args.note,
-        "verified_at": datetime.now(UTC).isoformat(),
-    }
+def _decide(entry: dict[str, Any], sample_id: str, decision: str, note: str, corrected: str) -> dict[str, Any]:
+    """Validate one decision. A ``pending_ai_draft`` entry has no LaTeX to accept: it can only be rejected, or
+    corrected with owner-written LaTeX (which is then owner-authored gold, not an AI draft)."""
+    if entry.get("latex") is None and not (decision == "reject" or (decision == "correct" and corrected)):
+        raise ValueError(f"{sample_id} is pending_ai_draft: reject it, or 'correct' it with the LaTeX")
+    row = {"sample_id": sample_id, "decision": decision, "note": note, "verified_at": datetime.now(UTC).isoformat()}
+    if corrected:
+        row["corrected_latex"] = corrected
+    return row
+
+
+def _write_decisions(args: argparse.Namespace, config: Any, decisions: dict[str, dict[str, Any]]) -> dict[str, int]:
     output = {
         "purpose": "T-P3-02 owner verification log; completion also requires a separate 10 percent double-check",
         "sample": str(args.sample),
@@ -208,17 +208,94 @@ def _record(args: argparse.Namespace, config: Any) -> dict[str, Any]:
     assert_writable(args.decisions.resolve(), config)
     args.decisions.parent.mkdir(parents=True, exist_ok=True)
     _dump_yaml(args.decisions, output)
-    counts = {
+    return {
         decision: sum(row["decision"] == decision for row in decisions.values())
         for decision in ("accept", "correct", "reject")
     }
+
+
+def _record(args: argparse.Namespace, config: Any) -> dict[str, Any]:
+    if args.decision is None:
+        raise ValueError("--decision is required with --record")
+    document = _load_yaml(args.sample)
+    entries = {str(entry["sample_id"]): entry for entry in document.get("samples", [])}
+    if args.record not in entries:
+        raise ValueError(f"unknown sample id: {args.record}")
+    decisions = _existing_decisions(args.decisions)
+    decisions[args.record] = _decide(entries[args.record], args.record, args.decision, args.note, "")
+    counts = _write_decisions(args, config, decisions)
     return {"recorded": args.record, "decision": args.decision, "counts": counts, "total_entries": len(entries)}
+
+
+def _sheet_check(entry: dict[str, Any], base: Path) -> tuple[str, str]:
+    """(check, native LaTeX of the crop) - computed evidence for the reviewer, never a decision."""
+    if entry.get("latex") is None:
+        return "pending_ai_draft", ""
+    crop = entry.get("crop", {}).get("path")
+    if entry.get("source_kind") != "omml_exact" or not crop:
+        return "ok", ""
+    path = base / PureWindowsPath(crop).as_posix()
+    if not path.is_file():
+        return "no_crop", ""
+    converted = omml_xml_to_latex(path.read_bytes())
+    native = converted[0].latex if converted else ""
+    if latex_text_signature(native) != latex_text_signature(entry["latex"]):
+        return "mispaired: latex belongs to another equation; native shows the crop", native
+    return "ok", native
+
+
+def _export_sheet(args: argparse.Namespace, config: Any) -> dict[str, Any]:
+    document = _load_yaml(args.sample)
+    base = args.sample.resolve().parent.parent.parent
+    rows = []
+    for entry in document.get("samples", []):
+        check, native = _sheet_check(entry, base)
+        rows.append(
+            {
+                "sample_id": entry["sample_id"],
+                "check": check,
+                "source_kind": entry.get("source_kind", ""),
+                "difficulty": entry.get("difficulty_tag", ""),
+                "relpath": entry.get("relpath", ""),
+                "page": entry.get("page", ""),
+                "latex": entry.get("latex") or "",
+                "native_latex_from_crop": native,
+            }
+        )
+    assert_writable(args.export_sheet.resolve(), config)
+    write_review_sheet(args.export_sheet, rows)
+    checks: dict[str, int] = {}
+    for row in rows:
+        key = str(row["check"]).split(":")[0]
+        checks[key] = checks.get(key, 0) + 1
+    return {"sheet": str(args.export_sheet), "rows": len(rows), "checks": checks}
+
+
+def _record_sheet(args: argparse.Namespace, config: Any) -> dict[str, Any]:
+    document = _load_yaml(args.sample)
+    entries = {str(entry["sample_id"]): entry for entry in document.get("samples", [])}
+    decided = read_sheet_decisions(args.record_sheet)
+    unknown = [d.sample_id for d in decided if d.sample_id not in entries]
+    if unknown:
+        raise ValueError(f"unknown sample ids in sheet: {', '.join(unknown)}")
+    decisions = _existing_decisions(args.decisions)
+    staged = {d.sample_id: _decide(entries[d.sample_id], d.sample_id, d.decision, d.note, d.corrected) for d in decided}
+    decisions.update(staged)  # only after every row validated: a bad sheet records nothing
+    counts = _write_decisions(args, config, decisions)
+    return {"recorded": len(staged), "counts": counts, "pending": len(entries) - len(decisions)}
 
 
 def main() -> int:
     args = _arguments()
     config = load_config(args.config)
-    result = _prepare(args, config) if args.prepare else _record(args, config)
+    if args.prepare:
+        result = _prepare(args, config)
+    elif args.export_sheet:
+        result = _export_sheet(args, config)
+    elif args.record_sheet:
+        result = _record_sheet(args, config)
+    else:
+        result = _record(args, config)
     print(json.dumps(result, ensure_ascii=False, indent=2, sort_keys=True))
     return 0
 

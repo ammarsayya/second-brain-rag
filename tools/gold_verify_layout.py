@@ -3,8 +3,9 @@
 ``--prepare`` validates the aggregate annotation file through the real ``load_gold_samples()`` loader, exports
 each referenced page as a one-page PDF, and writes a Markdown index pairing that page with its draft fields.
 After inspecting (and, for ``correct``, editing the aggregate YAML), the owner records one explicit decision
-with ``--record SAMPLE_ID --decision accept|correct|reject``.  Decisions never imply task completion; all 40
-must be owner-verified and any rejection resolved before T-P3-03 can close.
+with ``--record SAMPLE_ID --decision accept|correct|reject``, or in bulk with ``--export-sheet``/``--record-sheet``.
+Decisions never imply task completion; all 40 must be owner-verified and any rejection resolved before T-P3-03
+can close.
 """
 
 from __future__ import annotations
@@ -21,6 +22,7 @@ from ruamel.yaml import YAML
 
 from sbr.config import load_config
 from sbr.eval.extract.goldfile import load_gold_samples
+from sbr.eval.review_sheet import read_sheet_decisions, write_review_sheet
 from sbr.safety import assert_writable
 from sbr.sourcefs import SourceFS
 
@@ -34,6 +36,8 @@ def _arguments() -> argparse.Namespace:
     mode = parser.add_mutually_exclusive_group(required=True)
     mode.add_argument("--prepare", action="store_true", help="Export one-page PDFs and a Markdown review index.")
     mode.add_argument("--record", metavar="SAMPLE_ID", help="Record an owner decision for one sample.")
+    mode.add_argument("--export-sheet", type=Path, metavar="CSV", help="Write a review sheet with blank decisions.")
+    mode.add_argument("--record-sheet", type=Path, metavar="CSV", help="Record every decided row of a review sheet.")
     parser.add_argument("--decision", choices=("accept", "correct", "reject"))
     parser.add_argument("--note", default="", help="Optional owner note for --record.")
     parser.add_argument("--config", type=Path, required=True)
@@ -137,6 +141,24 @@ def _prepare(args: argparse.Namespace, source_fs: SourceFS, config: Any) -> dict
     return {"schema_load_ok": True, "pages_exported": len(entries), "review_index": str(index_path)}
 
 
+def _write_decisions(args: argparse.Namespace, config: Any, decisions: dict[str, dict[str, Any]]) -> dict[str, int]:
+    output = {
+        "purpose": "T-P3-03 owner verification log",
+        "annotations": str(args.annotations),
+        "decisions": [decisions[key] for key in sorted(decisions)],
+    }
+    assert_writable(args.decisions.resolve(), config)
+    args.decisions.parent.mkdir(parents=True, exist_ok=True)
+    _dump_yaml(args.decisions, output)
+    return {
+        name: sum(row["decision"] == name for row in decisions.values()) for name in ("accept", "correct", "reject")
+    }
+
+
+def _decision_row(sample_id: str, decision: str, note: str) -> dict[str, Any]:
+    return {"sample_id": sample_id, "decision": decision, "note": note, "verified_at": datetime.now(UTC).isoformat()}
+
+
 def _record(args: argparse.Namespace, source_fs: SourceFS, config: Any) -> dict[str, Any]:
     if args.decision is None:
         raise ValueError("--decision is required with --record")
@@ -146,23 +168,8 @@ def _record(args: argparse.Namespace, source_fs: SourceFS, config: Any) -> dict[
     if args.record not in valid_ids:
         raise ValueError(f"unknown sample id: {args.record}")
     decisions = _existing_decisions(args.decisions)
-    decisions[args.record] = {
-        "sample_id": args.record,
-        "decision": args.decision,
-        "note": args.note,
-        "verified_at": datetime.now(UTC).isoformat(),
-    }
-    output = {
-        "purpose": "T-P3-03 owner verification log",
-        "annotations": str(args.annotations),
-        "decisions": [decisions[key] for key in sorted(decisions)],
-    }
-    assert_writable(args.decisions.resolve(), config)
-    args.decisions.parent.mkdir(parents=True, exist_ok=True)
-    _dump_yaml(args.decisions, output)
-    counts = {
-        name: sum(row["decision"] == name for row in decisions.values()) for name in ("accept", "correct", "reject")
-    }
+    decisions[args.record] = _decision_row(args.record, args.decision, args.note)
+    counts = _write_decisions(args, config, decisions)
     return {
         "recorded": args.record,
         "decision": args.decision,
@@ -171,11 +178,57 @@ def _record(args: argparse.Namespace, source_fs: SourceFS, config: Any) -> dict[
     }
 
 
+def _export_sheet(args: argparse.Namespace, config: Any) -> dict[str, Any]:
+    annotations = _load_yaml(args.annotations)
+    rows = []
+    for entry in annotations.get("samples", []):
+        blocks = entry.get("gold", {}).get("blocks", [])
+        kinds: dict[str, int] = {}
+        for block in blocks:
+            kinds[str(block.get("kind"))] = kinds.get(str(block.get("kind")), 0) + 1
+        rows.append(
+            {
+                "sample_id": entry["sample_id"],
+                "bucket": entry.get("bucket", ""),
+                "review_pdf": f"{entry['sample_id']}.pdf",
+                "relpath": entry.get("relpath", ""),
+                "page": entry.get("page", ""),
+                "draft_blocks": " ".join(f"{kind}={n}" for kind, n in sorted(kinds.items())),
+                "draft_tables": len(entry.get("gold", {}).get("tables", [])),
+                "draft_figures": len(entry.get("gold", {}).get("figures", [])),
+            }
+        )
+    assert_writable(args.export_sheet.resolve(), config)
+    write_review_sheet(args.export_sheet, rows)
+    return {"sheet": str(args.export_sheet), "rows": len(rows)}
+
+
+def _record_sheet(args: argparse.Namespace, source_fs: SourceFS, config: Any) -> dict[str, Any]:
+    annotations = _load_yaml(args.annotations)
+    load_gold_samples(source_fs, args.annotations)  # schema + SourceFS check after any owner correction
+    valid_ids = {str(entry["sample_id"]) for entry in annotations.get("samples", [])}
+    decided = read_sheet_decisions(args.record_sheet)
+    unknown = [d.sample_id for d in decided if d.sample_id not in valid_ids]
+    if unknown:
+        raise ValueError(f"unknown sample ids in sheet: {', '.join(unknown)}")
+    decisions = _existing_decisions(args.decisions)
+    decisions.update({d.sample_id: _decision_row(d.sample_id, d.decision, d.note) for d in decided})
+    counts = _write_decisions(args, config, decisions)
+    return {"recorded": len(decided), "counts": counts, "pending": len(valid_ids) - len(decisions)}
+
+
 def main() -> int:
     args = _arguments()
     config = load_config(args.config)
     source_fs = SourceFS(config)
-    result = _prepare(args, source_fs, config) if args.prepare else _record(args, source_fs, config)
+    if args.prepare:
+        result = _prepare(args, source_fs, config)
+    elif args.export_sheet:
+        result = _export_sheet(args, config)
+    elif args.record_sheet:
+        result = _record_sheet(args, source_fs, config)
+    else:
+        result = _record(args, source_fs, config)
     print(json.dumps(result, ensure_ascii=False, indent=2, sort_keys=True))
     return 0
 

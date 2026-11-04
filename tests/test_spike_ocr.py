@@ -6,6 +6,7 @@ Tesseract itself is replaced by canned real outputs, so these tests run (rather 
 from __future__ import annotations
 
 import argparse
+import io
 import json
 import subprocess
 from collections.abc import Callable
@@ -171,3 +172,49 @@ def test_orientation_census_reports_declined_pages_as_undetected(
     assert "pages OSD declined (too few characters): 1" in report
     assert "pages with another read or OSD error: 0" in report
     assert "rotated pages: n/a" in report
+
+
+def test_rotation_oracle_scores_osd_and_policies_against_the_best_reading_rotation(
+    make_config: Callable[..., SbrConfig], tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    config_file = _registry_with(make_config, tmp_path, {"scan_seite1.pdf": FIXTURES / "Übung" / "scan_seite1.pdf"})
+    readable = {0: 2, 90: 3, 180: 60, 270: 1}  # the stored image reads only when turned 180 degrees
+    turned: list[int] = []
+
+    def fake_score(_image: bytes, rotation: int) -> tuple[int, float | None, str | None]:
+        turned.append(rotation)
+        return readable[rotation], 50.0, None
+
+    monkeypatch.setattr(spike_ocr, "_score_rotation", fake_score)
+    monkeypatch.setattr(spike_ocr, "_run_osd", lambda _image: (spike_ocr.parse_tesseract_osd(OSD_UPSIDE_DOWN), None))
+    output = tmp_path / "oracle.md"
+    args = argparse.Namespace(config=config_file, page_census=tmp_path / "census.jsonl", output=output, workers=2)
+
+    assert spike_ocr._rotation_oracle(args) == 0
+
+    assert sorted(turned) == [0, 90, 180, 270]
+    report = output.read_text(encoding="utf-8")
+    assert "oracle verdicts: 0=0, 90=0, 180=1, 270=0; ambiguous=0; unreadable=0" in report
+    assert "OSD vs oracle (both decided): 1/1 agree (100.0%)" in report
+    assert "| never rotate | 0/1 (0.0%) | 0 |" in report
+    assert "| apply OSD at confidence >= 10.0 | 1/1 (100.0%) | 0 |" in report
+    assert "| 0 | 0 | 0 | 1 | 0 | 0 |" in report  # PDF /Rotate 0, oracle 180
+    assert "Evidence, not a decision." in report
+
+
+def test_score_rotation_turns_the_image_clockwise_before_ocr(monkeypatch: pytest.MonkeyPatch) -> None:
+    from PIL import Image
+
+    buffer = io.BytesIO()
+    Image.new("L", (40, 10), 255).save(buffer, format="PNG")
+    sizes: list[tuple[int, int]] = []
+
+    def fake_run(cmd: list[str], **_: Any) -> subprocess.CompletedProcess[str]:
+        with Image.open(cmd[1]) as img:
+            sizes.append(img.size)
+        return subprocess.CompletedProcess(cmd, 0, TSV_HEADER + "5\t1\t1\t1\t1\t1\t0\t0\t9\t9\t91.0\tRegler\n", "")
+
+    monkeypatch.setattr(spike_ocr.subprocess, "run", fake_run)
+    assert spike_ocr._score_rotation(buffer.getvalue(), 90) == (1, 91.0, None)
+    assert spike_ocr._score_rotation(buffer.getvalue(), 180) == (1, 91.0, None)
+    assert sizes == [(10, 40), (40, 10)]
