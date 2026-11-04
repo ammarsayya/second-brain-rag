@@ -51,6 +51,7 @@ testpaths = ["tests"]
 addopts = ["-ra", "--strict-markers", "--strict-config"]
 markers = [
     "slow: long-running tests (large files, subprocess kills)",
+    "pdflatex: integration tests that compile LaTeX; skipped without pdflatex unless SBR_REQUIRE_PDFLATEX=1",
 ]
 
 [tool.ruff]

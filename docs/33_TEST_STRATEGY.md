@@ -38,6 +38,8 @@
 ## 3. Test data policy
 
 - Synthetic fixtures are generated (LaTeX-compiled PDFs, python-docx/pptx with OMML, images rendered to PDF). They contain no copyrighted corpus content, so they are safe to commit.
+- Only regenerating `skript.pdf` needs `pdflatex`. The generator tests reuse the committed, already-compiled `skript.pdf` (`generate(root, latex_pdf=...)` / `--reuse-latex-pdf`) and rebuild every other fixture from scratch. Real compilation is covered by tests marked `pdflatex`. They are reported as skipped when `pdflatex` is not on PATH. With `SBR_REQUIRE_PDFLATEX=1` they run and fail instead. Byte equality with the committed `skript.pdf` is only defined for the pdfTeX build recorded in its `/PTEX.Fullbanner` (currently TeX Live 2023, pdfTeX 1.40.25). The end-to-end test reports a different build as a skip with both banners.
+- All stored fixture paths are NFC. Keep `core.precomposeunicode=true` on macOS checkouts so that Git never records NFD duplicates.
 - Gold sets reference corpus content by `blob_id` + page. Crops and derived text for gold sets live in `eval/gold/` and are **excluded from any public remote** (22 §4).
 - LLM-dependent tests use fake or recorded model responses. Live-model evals are separate commands.
 

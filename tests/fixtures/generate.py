@@ -16,11 +16,18 @@ itself by relocating a generated file between two scans, not a second baked tree
 move, not the corpus.
 
 Regenerate: ``uv run python tests/fixtures/generate.py [--out DIR]`` (default: ``tests/fixtures/corpus``).
+
+``skript.pdf`` byte-reproducibility is toolchain-bound: pdfTeX embeds its version banner and the distribution's font
+programs, so identical bytes need the same pdfTeX build that produced the committed file (its ``/PTEX.Fullbanner``
+records it — currently TeX Live 2023/Debian, pdfTeX 1.40.25). Without TeX, ``--reuse-latex-pdf PATH`` (or
+``generate(root, latex_pdf=PATH)``) takes an already-compiled ``skript.pdf`` and regenerates everything else from
+scratch; the fixture tests use that mode, and only tests marked ``pdflatex`` compile LaTeX (docs/33 §3).
 """
 
 from __future__ import annotations
 
 import argparse
+import os
 import shutil
 import subprocess
 import time
@@ -99,7 +106,7 @@ Synthetic fixture: state-space model.
 """.strip()
 
 
-def _build_latex_pdf(out: Path) -> None:
+def build_latex_pdf(out: Path) -> None:
     """Compile a small LaTeX document with two real equations. Byte-deterministic via ``SOURCE_DATE_EPOCH``."""
     pdflatex = shutil.which("pdflatex")
     if pdflatex is None:
@@ -111,7 +118,11 @@ def _build_latex_pdf(out: Path) -> None:
     work.mkdir(parents=True, exist_ok=True)
     tex = work / "doc.tex"
     tex.write_text(_LATEX_SOURCE, encoding="utf-8")
-    env = {"SOURCE_DATE_EPOCH": SOURCE_DATE_EPOCH, "PATH": "/usr/bin:/bin"}
+    # pdflatex's own directory first: TeX distributions resolve helper binaries from there (MacTeX, MiKTeX).
+    env = {
+        "SOURCE_DATE_EPOCH": SOURCE_DATE_EPOCH,
+        "PATH": os.pathsep.join([str(Path(pdflatex).parent), "/usr/bin", "/bin"]),
+    }
     result = subprocess.run(
         [pdflatex, "-interaction=nonstopmode", "-halt-on-error", "-output-directory", str(work), str(tex)],
         capture_output=True,
@@ -248,8 +259,21 @@ def _build_archive(out: Path, duplicate_of: Path) -> None:
 # -- orchestration --------------------------------------------------------------------------------------------------
 
 
-def generate(root: Path) -> None:
-    """Build the fixture corpus under ``root``, replacing anything already there."""
+def generate(root: Path, *, latex_pdf: Path | None = None) -> None:
+    """Build the fixture corpus under ``root``, replacing anything already there.
+
+    ``latex_pdf``: an already-compiled ``skript.pdf`` to reuse instead of running ``pdflatex``. It is read before
+    ``root`` is cleared, so it may live inside ``root`` (regenerating the committed tree in place). Every other file is
+    still generated from scratch, including the ones derived from ``skript.pdf``.
+    """
+    reused_latex_pdf: bytes | None = None
+    if latex_pdf is not None:
+        try:
+            reused_latex_pdf = latex_pdf.read_bytes()
+        except OSError as exc:
+            raise FixtureGenerationError(f"cannot read the LaTeX PDF to reuse: {latex_pdf}") from exc
+        if not reused_latex_pdf.startswith(b"%PDF-"):
+            raise FixtureGenerationError(f"the LaTeX PDF to reuse is not a PDF: {latex_pdf}")
     if root.exists():
         shutil.rmtree(root)
     reg = root / "Regelungstechnik"
@@ -259,7 +283,10 @@ def generate(root: Path) -> None:
         d.mkdir(parents=True)
 
     skript = reg / "skript.pdf"
-    _build_latex_pdf(skript)
+    if reused_latex_pdf is None:
+        build_latex_pdf(skript)
+    else:
+        skript.write_bytes(reused_latex_pdf)
     _build_docx(uebung / "uebung1.docx")
     _build_pptx(uebung / "folien.pptx")
     _build_scanned_pdf(uebung / "scan_seite1.pdf")
@@ -272,8 +299,15 @@ def generate(root: Path) -> None:
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--out", type=Path, default=Path(__file__).resolve().parent / "corpus")
+    parser.add_argument(
+        "--reuse-latex-pdf",
+        type=Path,
+        default=None,
+        metavar="PATH",
+        help="reuse this compiled skript.pdf instead of running pdflatex (everything else is regenerated)",
+    )
     args = parser.parse_args()
-    generate(args.out)
+    generate(args.out, latex_pdf=args.reuse_latex_pdf)
     print(f"generated fixture corpus at {args.out}")
     return 0
 

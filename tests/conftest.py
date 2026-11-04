@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import os
+import shutil
 from collections.abc import Callable
 from pathlib import Path
 from typing import Any
@@ -9,6 +11,17 @@ from typing import Any
 import pytest
 
 from sbr.config import SbrConfig, config_from_mapping
+
+
+def pytest_collection_modifyitems(config: pytest.Config, items: list[pytest.Item]) -> None:
+    """``pdflatex``-marked tests need a TeX install. Without one they are reported as skipped with the reason, never
+    silently passed; ``SBR_REQUIRE_PDFLATEX=1`` makes them run (and fail) anyway, for CI or a TeX-equipped host."""
+    if shutil.which("pdflatex") is not None or os.environ.get("SBR_REQUIRE_PDFLATEX") == "1":
+        return
+    skip = pytest.mark.skip(reason="pdflatex not on PATH (install TeX Live/MacTeX/MiKTeX, or SBR_REQUIRE_PDFLATEX=1)")
+    for item in items:
+        if "pdflatex" in item.keywords:
+            item.add_marker(skip)
 
 
 @pytest.fixture
