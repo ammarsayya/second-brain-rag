@@ -281,6 +281,66 @@ def _symbols(text: str) -> str:
     return "".join(out)
 
 
+# A function name as a whole word inside a longer run ("f=min", "-ln"), never inside a command (\min) or a word.
+_FUNCTION_WORD = re.compile(
+    r"(?<![A-Za-z\\])(" + "|".join(sorted(_FUNCTIONS, key=len, reverse=True)) + r")(?![A-Za-z])"
+)
+_WORD = r"[A-Za-zÄÖÜäöüß]+"
+_WS = "[ \N{NO-BREAK SPACE}\t]"
+_SPAN = re.compile(rf"{_WS}*{_WORD}(?:{_WS}+{_WORD})*{_WS}*")
+_SPACES = frozenset(" \N{NO-BREAK SPACE}\t")
+_TEXT_ESCAPES = {
+    "\\": r"\textbackslash{}",
+    "{": r"\{",
+    "}": r"\}",
+    "#": r"\#",
+    "%": r"\%",
+    "&": r"\&",
+    "_": r"\_",
+    "$": r"\$",
+    "^": r"\^{}",
+    "~": r"\~{}",
+}
+
+
+def _is_prose_span(span: str) -> bool:
+    """A word span is prose when it has a space and a word of 3+ letters that is not a function name.
+
+    Deliberately narrow: ``z := z + 1``, ``max x`` and single-word runs stay math.
+    """
+    if not re.search(_WS, span):
+        return False
+    return any(len(word) >= 3 and word not in _FUNCTIONS for word in re.findall(_WORD, span))
+
+
+def _has_prose(text: str) -> bool:
+    return any(_is_prose_span(m.group(0)) for m in _SPAN.finditer(text))
+
+
+def _function_words(body: str) -> str:
+    return _FUNCTION_WORD.sub(lambda m: "\\" + m.group(1) + " ", body)  # "f=min" -> "f=\min ", "-ln"
+
+
+def _math_or_prose(text: str) -> list[str]:
+    """Split a run into prose spans (``\\text{...}``) and math pieces, in order."""
+    pieces: list[str] = []
+    last = 0
+    for m in _SPAN.finditer(text):
+        if not _is_prose_span(m.group(0)):
+            continue
+        if m.start() > last:
+            pieces.append(_function_words(_symbols(text[last : m.start()])))
+        pieces.append(r"\text{" + _text_escape(m.group(0)) + "}")
+        last = m.end()
+    if last < len(text):
+        pieces.append(_function_words(_symbols(text[last:])))
+    return pieces
+
+
+def _text_escape(text: str) -> str:
+    return "".join(_TEXT_ESCAPES.get(ch, " " if ch in _SPACES else ch) for ch in text)
+
+
 def _val(node: ElementTree.Element | None, prop: str, default: str | None = None) -> str | None:
     """``m:<prop> m:val`` inside a property element; a present element without ``m:val`` means "on" (OMML)."""
     if node is None:
@@ -342,9 +402,15 @@ class _Converter:
             return ""
         if text.strip() in _FUNCTIONS and style in (None, "p"):
             return "\\" + text.strip() + " "
-        body = _symbols(text)
         if normal_text:
-            return r"\text{" + text.replace("\\", r"\textbackslash{}") + "}"
+            return r"\text{" + _text_escape(text) + "}"
+        if script is None and style in (None, "p") and _has_prose(text):
+            # Prose typed inside a math zone (PowerPoint: "Term nach Zuweisungen", "von A") becomes \text{...};
+            # the math around it (arrows, braces, operators) stays math.
+            return _join(_math_or_prose(text))
+        body = _symbols(text)
+        if style in (None, "p"):
+            body = _function_words(body)
         if script == "double-struck":
             return r"\mathbb{" + body + "}"
         if script == "script":
@@ -534,13 +600,13 @@ def latex_compare_key(latex: str) -> str:
     synonyms (``\\boldsymbol``/``\\mathbf``, ``\\overrightarrow``/``\\vec``, ``\\cdot``/``*`` ...). It is for
     *scoring converters against each other*, never for storing an equation.
     """
-    key = latex
+    key = latex.replace("\\\\", "\x00")  # a row break "\\\\" must not be read as the spacing command "\\ "
     for pattern, replacement in _KEY_COMMAND_ALIASES:
         key = pattern.sub(replacement, key)
     for old, new in _KEY_LITERALS:
         key = key.replace(old, new)
     key = re.sub(r"[{}\s]", "", key).replace("_^", "").replace("^_", "")
-    return re.sub(r"(\\mathbf)(?:\\mathbf)+", r"\1", key)
+    return re.sub(r"(\\mathbf)(?:\\mathbf)+", r"\1", key).replace("\x00", "\\\\")
 
 
 def latex_text_signature(latex: str) -> str:

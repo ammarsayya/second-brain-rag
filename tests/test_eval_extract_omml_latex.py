@@ -157,3 +157,49 @@ def test_a_command_word_does_not_swallow_the_next_runs_letter() -> None:
 def test_no_break_space_survives_whitespace_collapsing() -> None:
     latex = convert(r("A\N{NO-BREAK SPACE}"))[0]
     assert latex == "A~"
+
+
+@pytest.mark.parametrize(
+    ("body", "expected"),
+    [
+        # corpus pattern (PPTX review sample): function names inside a longer run
+        (r("f=min"), r"f=\min"),
+        (r("-ln"), r"-\ln"),
+        (r("det(A)"), r"\det (A)"),
+        # never inside a command or a longer word
+        (r("∞"), r"\infty"),
+        (r("Prandtl"), "Prandtl"),
+        (r("x min", "i"), "x min"),  # explicit italic: left alone
+    ],
+)
+def test_function_names_inside_runs_become_operators(body: str, expected: str) -> None:
+    assert convert(body)[0] == expected
+
+
+@pytest.mark.parametrize(
+    ("text", "expected"),
+    [
+        ("Term nach Zuweisungen", r"\text{Term nach Zuweisungen}"),
+        (" von A", r"\text{ von A}"),
+        ("100 % sicher", r"100 \%\text{ sicher}"),
+        ("→{Term\u00a0nach\u00a0Zuweisungen}", r"\rightarrow\{\text{Term nach Zuweisungen}\}"),
+    ],
+)
+def test_prose_typed_in_a_math_zone_becomes_text(text: str, expected: str) -> None:
+    assert convert(r(text))[0] == expected
+
+
+@pytest.mark.parametrize("text", ["z := z + 1;", "max x", "a b", "x  y"])
+def test_math_with_spaces_is_not_mistaken_for_prose(text: str) -> None:
+    assert r"\text" not in convert(r(text))[0]
+
+
+def test_prose_rule_keeps_the_text_signature() -> None:
+    latex = convert(r("Term nach Zuweisungen"))[0]
+    assert latex_text_signature(latex) == latex_text_signature("Term nach Zuweisungen")
+
+
+def test_compare_key_keeps_row_breaks_apart_from_spacing_commands() -> None:
+    spaced = r"\begin{matrix} 1 & 0 \\ 0 & 1 \end{matrix}"
+    assert latex_compare_key(spaced) == latex_compare_key(r"\begin{matrix}1&0\\0&1\end{matrix}")
+    assert latex_compare_key(r"a\ b") == latex_compare_key("ab")
