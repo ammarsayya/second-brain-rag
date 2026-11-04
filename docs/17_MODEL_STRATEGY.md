@@ -23,9 +23,11 @@ Each role config: `primary`, `fallbacks[]`, `max_cost_per_call`, `temperature`, 
 
 ## 2. Access paths
 
+**Policy (2026-11-04, ADR-039/ADR-040):** local-only execution. Remote providers are disabled and cannot be enabled by configuration in this phase; no corpus data leaves the host. Implemented in `sbr.models` (T-P7-01).
+
 | Path | Status | Notes |
 |---|---|---|
-| **OpenCode-configured models** | PROPOSED → **SPIKE-MODELGW** (blocked on Q-B04) | Options: (a) call the providers OpenCode uses directly, with the same keys, via an OpenAI-compatible or LiteLLM adapter; (b) the OpenCode headless server (`opencode serve`, an OpenAPI HTTP API plus `@opencode-ai/sdk`), which is agent-session-oriented, heavier, and not a plain completion API; (c) the OpenCode Zen gateway endpoint, if that is what the owner subscribes to. Which subscription or provider the owner uses is unknown |
+| **OpenCode-configured models** | PROPOSED → **SPIKE-MODELGW** (Q-B04 answered for architecture only, ADR-040; credentials/activation not authorized) | Options: (a) call the providers OpenCode uses directly, with the same keys, via an OpenAI-compatible or LiteLLM adapter; (b) the OpenCode headless server (`opencode serve`, an OpenAPI HTTP API plus `@opencode-ai/sdk`), which is agent-session-oriented, heavier, and not a plain completion API; (c) the OpenCode Zen gateway endpoint, if that is what the owner subscribes to. Which subscription or provider the owner uses is unknown |
 | Anthropic (Claude), OpenAI (incl. Codex models), Google | Adapters planned | Direct SDKs behind the gateway |
 | Local | Planned | Ollama or llama.cpp server (OpenAI-compatible) for small models; sentence-transformers or ONNX Runtime for embed/rerank; OCR and math engines as Python libraries |
 

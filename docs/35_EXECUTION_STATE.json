@@ -2,7 +2,7 @@
   "schema_version": "1.0",
   "project": "second-brain-rag",
   "last_updated": "2026-11-04",
-  "updated_by": "Claude (T-P3-07/T-P3-08 evidence follow-ups; both remain IN_PROGRESS, owner review pending)",
+  "updated_by": "Claude (Q-B03/Q-B04 owner decisions recorded as ADR-039/040; T-P7-01 dependency adjusted per owner decision)",
   "authoritative_docs": "docs/28_TASK_REGISTER.md (tasks), docs/24_DECISION_LOG.md (decisions), docs/25_OPEN_QUESTIONS.md, docs/34_RESEARCH_AND_SPIKE_REGISTER.md",
   "current_phase": "P3/P4/P5/P13",
   "current_phase_status": "P3 in_progress (T-P3-01, T-P3-04 DONE; T-P3-02/T-P3-03/T-P3-07/T-P3-08 IN_PROGRESS - evidence or drafts gathered, owner review pending; T-P3-02 also has 120 PDF-native equations gated on Q-B04/model access); P4 in progress (T-P4-01, T-P4-02, T-P4-13 DONE); P5 in progress (T-P5-06 taxonomy drafted, owner approval pending); P13 in progress (T-P13-02, T-P13-04 DONE)",
@@ -281,7 +281,9 @@
   "blocked_tasks": [
     "T-P7-02"
   ],
-  "next_eligible_tasks": [],
+  "next_eligible_tasks": [
+    "T-P7-01"
+  ],
   "first_implementation_task_after_approval": "T-P1-01",
   "decisions": {
     "accepted": [
@@ -306,6 +308,8 @@
       "ADR-034",
       "ADR-035",
       "ADR-037",
+      "ADR-039",
+      "ADR-040",
       "ADR-015"
     ],
     "proposed": [
@@ -335,20 +339,10 @@
   },
   "unresolved_blockers": [
     {
-      "id": "Q-B03",
-      "summary": "Compute/privacy policy (cloud APIs, GPU rental, budget)",
+      "id": "Q-B04-activation",
+      "summary": "Q-B04 is answered for architecture only (ADR-040). Provider credentials, remote activation, paid services and remote data transmission are not authorized, so SPIKE-MODELGW cannot meet its acceptance criterion",
       "blocks": [
-        "T-P3-09",
-        "T-P3-11",
-        "T-P13-01"
-      ]
-    },
-    {
-      "id": "Q-B04",
-      "summary": "How OpenCode-configured models are accessed programmatically",
-      "blocks": [
-        "T-P7-02",
-        "T-P7-01"
+        "T-P7-02"
       ]
     }
   ],
@@ -561,6 +555,18 @@
       "answer": "vault lives at D:\\AgenticAI\\second-brain-rag\\vault as its own independent git repository, gitignored from the code repo; Brain gets only the registry record (ADR-037 accepted)",
       "date": "2026-09-27",
       "evidence": "owner's implementation-authorization message 2026-09-27; docs/24 ADR-037 and Owner decisions"
+    },
+    {
+      "id": "Q-B03",
+      "answer": "local-first and local-only for the current phase: all ingestion, extraction, OCR, classification, embeddings, indexing and inference local; no corpus data to remote AI providers; no GPU rental or paid cloud compute; future remote processing needs a separate owner authorization; resource limits and performance measured on the real host (ADR-039)",
+      "date": "2026-11-04",
+      "evidence": "owner's explicit decision message 2026-11-04; docs/24 ADR-039 and Owner decisions"
+    },
+    {
+      "id": "Q-B04",
+      "answer": "architecture only: hybrid-capable gateway with local-only execution initially, remote providers disabled by default, mock backends, credentials outside source control, sensitivity enforced at the gateway (ADR-040). Credentials, provider activation, paid services and remote data transmission NOT approved. T-P7-01 may proceed before T-P7-02 with mock/local backends only",
+      "date": "2026-11-04",
+      "evidence": "owner's explicit decision message 2026-11-04; docs/24 ADR-040 and Owner decisions"
     }
   ],
   "implementation_log": [

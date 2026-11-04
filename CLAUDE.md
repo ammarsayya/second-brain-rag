@@ -26,7 +26,7 @@ gap analysis, and approval-gated external research. It is not "PDF â†’ chunks â†
 
 ## Current state (2026-09-24)
 
-- **Phase 0 is DONE.** The owner approved the plan on 2026-09-24 (T-P0-08, Q-B05). Q-B01 is closed. Q-B02, Q-B03 and Q-B04 stay open for the phases they gate.
+- **Phase 0 is DONE.** The owner approved the plan on 2026-09-24 (T-P0-08, Q-B05). Q-B01 is closed. Q-B02 is answered (ADR-037). **Q-B03 (2026-11-04): local-only compute (ADR-039). Q-B04 (2026-11-04): hybrid-capable gateway, local-only execution; no credentials, remote calls or paid providers authorized (ADR-040).**
   **Phase 1 (foundations) is DONE** (all 13 tasks; SourceFS, ids/hashing, core schemas, SQLite registry, provenance, run
   ledger, job queue, resource governor, CLI skeleton, curation ledger, synthetic fixture corpus). **Phase 2 (source
   registry, manifest & exact dedup) is next.** See `docs/35_EXECUTION_STATE.json` for task status.

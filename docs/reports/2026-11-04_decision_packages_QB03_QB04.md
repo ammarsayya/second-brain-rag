@@ -1,5 +1,7 @@
 # Decision Packages: Q-B03 (Compute & Privacy) and Q-B04 (Model Access)
 
+> **Outcome (2026-11-04, added after the fact):** the owner decided both questions. Q-B03: local-only (ADR-039). Q-B04: hybrid-capable gateway, local-only execution, no credentials/activation/paid/remote transmission (ADR-040), plus a narrow T-P7-01 dependency adjustment. The authoritative record is docs/24 and docs/25; the text below is the unchanged pre-decision package.
+
 Status: **recommendations only. The owner decides.** No model was called, no key configured, no corpus content sent
 anywhere in preparing this. Figures marked *(measured)* come from this repo's reports; *(est.)* are order-of-magnitude
 planning estimates that SPIKE-COMPUTE (T-P3-09) must replace with measurements; *(unverified)* I could not check from

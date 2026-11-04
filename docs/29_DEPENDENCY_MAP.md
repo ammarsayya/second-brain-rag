@@ -30,8 +30,8 @@ full-corpus waves W1–W3 (P13) run in the background after the pilot (P4) and t
 | Q-B05 plan approval | T-P0-08 (after T-P0-09 t2 re-audit, DONE) → everything |
 | Q-B01 corpus frozen (recommended CLOSE, pending owner; docs/37 §24) | T-P2-12 → T-P13-01 |
 | Q-B02 vault location | T-P4-13 (VaultWriter) |
-| Q-B03 compute/privacy policy | T-P3-09 → T-P3-11 → P4 tiers; T-P13-01 |
-| Q-B04 OpenCode model access | T-P7-02 → T-P7-01 → P7+ |
+| Q-B03 compute/privacy policy | **Answered 2026-11-04: local-only (ADR-039).** Still shapes T-P3-09 → T-P3-11 → P4 tiers; T-P13-01 |
+| Q-B04 OpenCode model access | **Answered 2026-11-04 (architecture, ADR-040).** T-P7-02 stays blocked on credentials/activation; T-P7-01 no longer waits for it (mock/local backends only) |
 
 ## 3. Parallelizable streams
 
@@ -153,7 +153,7 @@ full-corpus waves W1–W3 (P13) run in the background after the pilot (P4) and t
 
 **P7 — Baseline Grounded QA**
 
-- `T-P7-01` ← `T-P7-02`, `T-P1-02`
+- `T-P7-01` ← `T-P1-02` (T-P7-02 edge removed 2026-11-04 by owner decision; mock/local backends only)
 - `T-P7-02` ← `T-P0-08`
 - `T-P7-03` ← `T-P1-05`
 - `T-P7-04` ← `T-P7-01`, `T-P7-03`, `T-P6-13`

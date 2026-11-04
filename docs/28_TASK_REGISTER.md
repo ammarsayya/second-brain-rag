@@ -1063,6 +1063,7 @@ Each task is written so that it can be independently verified. Spike tasks link 
 - **Acceptance criteria:** Table of options (time, cost, privacy) per wave; owner chooses policy.
 - **Validation method:** Owner decision recorded.
 - **Expected artifacts:** eval/reports/spike_compute.md
+- **Note (2026-11-04):** Q-B03 answered (ADR-039): local-only for the current phase. The options table still has to be produced from measured local speeds, with remote/GPU rows marked out of policy; the owner's policy choice for this phase is recorded, the task's dependencies (T-P3-05/06/08) are unchanged.
 
 ### T-P3-10 — SPIKE-FIGURE: knowledge-bearing vs decorative
 - **Phase:** P3
@@ -1642,7 +1643,8 @@ Each task is written so that it can be independently verified. Spike tasks link 
 - **Phase:** P7
 - **Status:** NOT_STARTED
 - **Priority:** critical
-- **Dependencies:** T-P7-02, T-P1-02
+- **Dependencies:** T-P1-02
+- **Scope limit (owner decision 2026-11-04, docs/24):** the `T-P7-02` dependency was removed so the gateway can be built before SPIKE-MODELGW, **with mock or local backends only**. Real-provider adapters, credentials and provider acceptance/benchmarking remain T-P7-02's job and need further owner authorization (ADR-040).
 - **Human approval:** none
 - **Traces to:** ADR-025,HC-20,ADR-035
 - **Description:** Role routing, adapters, fallbacks, sensitivity gate, accounting, response cache, structured outputs.
@@ -1664,6 +1666,7 @@ Each task is written so that it can be independently verified. Spike tasks link 
 - **Validation method:** Spike report.
 - **Expected artifacts:** eval/reports/spike_modelgw.md
 - **Blocked by:** Q-B04 (model access and credentials are owner decisions; recorded 2026-09-24 when T-P0-08 made the task dependency-eligible).
+- **Update (2026-11-04):** Q-B04 is answered at the architecture level (ADR-040), but credentials, provider activation, paid services and remote data transmission are explicitly **not** authorized, so the acceptance criterion (working call to ≥2 roles' models via the chosen access path) cannot be met. Status stays BLOCKED; its requirements are unchanged.
 
 ### T-P7-03 — Answer schema with knowledge-layer basis
 - **Phase:** P7

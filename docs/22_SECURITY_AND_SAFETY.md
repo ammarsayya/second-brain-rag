@@ -32,7 +32,7 @@ Most sources are copyrighted textbooks and lecture materials, used privately. Ru
 - The vault and its derived content are **private**. Git remotes for the vault must be private (Q-I09).
 - `audit/` and `var/` are never published. They contain paths and derived content.
 - External research stores copies for provenance with license notes. It does not redistribute them.
-- Sending textbook content to cloud models or OCR APIs is a policy decision (Q-B03). The gateway has a per-root switch.
+- Sending textbook content to cloud models or OCR APIs is a policy decision (Q-B03). **Answered 2026-11-04: not allowed in the current phase (ADR-039, local-only).** The gateway refuses every non-loopback provider (T-P7-01).
 
 ## 5. Secrets
 
