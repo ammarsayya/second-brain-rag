@@ -83,7 +83,7 @@ def main() -> int:
 
         observation = observations[blob.canonical_obs_id]
         try:
-            pdf_bytes = source_fs.read_bytes(observation.root_id, observation.relpath)
+            pdf_bytes = source_fs.read_bytes(observation.root_id, observation.relpath_raw)
             _gold, signals = analyze_pdf_page(pdf_bytes, page)
         except Exception as exc:  # record a bounded page failure; do not manufacture signals
             probe_failures.append({"blob_id": blob_id, "page": str(page), "error": type(exc).__name__})

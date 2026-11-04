@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+import unicodedata
 from collections.abc import Callable, Iterator
 from pathlib import Path
 from typing import Any
@@ -83,16 +84,20 @@ def test_committed_generated_corpus_matches_exact_metadata(tmp_path: Path) -> No
             }
         }
     )
-    expected = {
-        str(path.relative_to(corpus)).replace("/", "\\"): (path.stat().st_size, path.stat().st_mtime_ns)
+    # relpath is canonical (``\\``-joined, NFC); relpath_raw is the on-disk name, whatever form git checked out.
+    raw_names = {
+        "\\".join(path.relative_to(corpus).parts): (path.stat().st_size, path.stat().st_mtime_ns)
         for path in corpus.rglob("*")
         if path.is_file()
     }
+    expected = {unicodedata.normalize("NFC", raw): meta for raw, meta in raw_names.items()}
     db, record = _scan(config)
     try:
         got = db.repo(reg.PATH_OBSERVATION).find(order_by="relpath")
-        assert record.files_seen == len(expected)
+        assert record.files_seen == len(expected) == len(raw_names) == 7
+        assert record.errors == 0
         assert {item.relpath: (item.size, item.mtime_ns) for item in got} == expected
+        assert {item.relpath_raw for item in got} == set(raw_names)
     finally:
         db.close()
 

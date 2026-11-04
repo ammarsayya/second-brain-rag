@@ -94,7 +94,7 @@ def _independent_blob_id(root: Path, observation: PathObservation) -> str:
 
 
 def _production_blob_id(source_fs: SourceFS, observation: PathObservation) -> str:
-    with source_fs.open_binary(observation.root_id, observation.relpath) as stream:
+    with source_fs.open_binary(observation.root_id, observation.relpath_raw) as stream:
         return hash_stream(stream).blob_id
 
 

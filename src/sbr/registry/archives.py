@@ -49,8 +49,10 @@ as ``read_failure`` and counted in :attr:`ArchiveRunResult.containers_read_failu
 
 CP437 mojibake in member names (common for old, non-UTF-8-flagged zips, docs/08
 §7) is repaired for *display only* (``ArchiveMember.member_name_display``);
-the byte-exact ``member_path`` used for extraction and hashing is never
-altered.
+the ``member_path`` used for extraction and hashing is never altered by that
+repair. ``member_path`` is the archive library's decoded member name; for zip
+it uses ``/`` separators on every OS (see ``_zip_member_path``), matching what
+CPython's ``zipfile`` already produced on Windows.
 """
 
 from __future__ import annotations
@@ -179,16 +181,29 @@ def _within_limits(members: Sequence[_MemberPlan], container_size: int) -> bool:
 # -- format-specific member iteration --------------------------------------------------------------------------
 
 
+def _zip_member_path(info: zipfile.ZipInfo) -> str:
+    """The canonical member path of a zip entry: ``zipfile``'s decoded name with ``/`` separators on every OS.
+
+    CPython's ``zipfile`` rewrites ``\\`` to ``/`` only when ``os.sep == "\\"`` (Windows), so ``info.filename`` for
+    archives written by legacy DOS/Windows tools differs between hosts. Applying the same rewrite everywhere keeps the
+    persisted ``member_path`` identical to what Windows produced (APPNOTE 4.4.17 mandates ``/`` anyway).
+    """
+    return info.filename.replace("\\", "/")
+
+
 def _zip_members(stream: BinaryIO) -> tuple[list[_MemberPlan], Callable[[str], BinaryIO]]:
     zf = zipfile.ZipFile(stream)
-    plans = [
-        _MemberPlan(info.filename, _cp437_repair(info.filename), info.file_size)
-        for info in zf.infolist()
-        if not info.is_dir()
-    ]
+    by_path: dict[str, zipfile.ZipInfo] = {}
+    plans: list[_MemberPlan] = []
+    for info in zf.infolist():
+        path = _zip_member_path(info)
+        if path.endswith("/"):  # directory entry (also catches "\\"-terminated legacy entries on POSIX)
+            continue
+        by_path[path] = info  # last entry wins, like zipfile's own name lookup
+        plans.append(_MemberPlan(path, _cp437_repair(path), info.file_size))
 
     def opener(path: str) -> BinaryIO:
-        return zf.open(path)  # type: ignore[return-value]
+        return zf.open(by_path[path])  # type: ignore[return-value]
 
     return plans, opener
 
@@ -271,13 +286,13 @@ def _process_container(
         work_dir = Path(raw_work)
         try:
             if blob.format == "zip":
-                with fs.open_binary(observation.root_id, observation.relpath) as stream:
+                with fs.open_binary(observation.root_id, observation.relpath_raw) as stream:
                     plans, opener_factory = _zip_members(stream)
                     rows, new_blobs, outcome = _emit_members(
                         blob, plans, opener_factory, known_blob_ids, extract_root, work_dir, activity_id, clock
                     )
             elif is_tar:
-                with fs.open_binary(observation.root_id, observation.relpath) as stream:
+                with fs.open_binary(observation.root_id, observation.relpath_raw) as stream:
                     plans, opener_factory = _tar_members(stream)
                     rows, new_blobs, outcome = _emit_members(
                         blob, plans, opener_factory, known_blob_ids, extract_root, work_dir, activity_id, clock
@@ -285,7 +300,7 @@ def _process_container(
             elif is_rar:
                 local_copy = work_dir / "container.rar"
                 with (
-                    fs.open_binary(observation.root_id, observation.relpath) as stream,
+                    fs.open_binary(observation.root_id, observation.relpath_raw) as stream,
                     local_copy.open("wb") as out,
                 ):
                     shutil.copyfileobj(stream, out)
@@ -296,7 +311,7 @@ def _process_container(
             else:
                 local_copy = work_dir / "container.7z"
                 with (
-                    fs.open_binary(observation.root_id, observation.relpath) as stream,
+                    fs.open_binary(observation.root_id, observation.relpath_raw) as stream,
                     local_copy.open("wb") as out,
                 ):
                     shutil.copyfileobj(stream, out)

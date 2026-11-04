@@ -305,12 +305,12 @@ def _classify_blob(
     observation: PathObservation,
     rules: ClassificationRules,
 ) -> ClassificationDecision:
-    before = fs.stat(observation.root_id, observation.relpath)
+    before = fs.stat(observation.root_id, observation.relpath_raw)
     if not _matches_observation(before, observation, blob):
         raise SourceChangedError("source metadata changed before classification")
-    with fs.open_binary(observation.root_id, observation.relpath) as stream:
+    with fs.open_binary(observation.root_id, observation.relpath_raw) as stream:
         decision = _classify_stream(stream, blob, observation, rules)
-    after = fs.stat(observation.root_id, observation.relpath)
+    after = fs.stat(observation.root_id, observation.relpath_raw)
     if not _matches_observation(after, observation, blob):
         raise SourceChangedError("source metadata changed during classification")
     return decision

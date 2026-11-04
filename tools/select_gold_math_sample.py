@@ -317,7 +317,7 @@ def main() -> int:
         observation = observations[blob.canonical_obs_id]
         page_number = int(entry["page"])
         try:
-            pdf_bytes = source_fs.read_bytes(observation.root_id, observation.relpath)
+            pdf_bytes = source_fs.read_bytes(observation.root_id, observation.relpath_raw)
             pdf_bytes_by_blob[blob_id] = pdf_bytes
             pdf_data.extend(
                 _pdf_candidates_for_page(

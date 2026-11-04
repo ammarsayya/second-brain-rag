@@ -61,7 +61,7 @@ def main() -> int:
                 rows.append({"blob_id": blob.blob_id, "relpath": None, "error": "no canonical observation"})
                 continue
             try:
-                with source_fs.open_binary(obs.root_id, obs.relpath) as stream:
+                with source_fs.open_binary(obs.root_id, obs.relpath_raw) as stream:
                     reader = pypdf.PdfReader(stream)
                     page_count = len(reader.pages)
                 rows.append({"blob_id": blob.blob_id, "relpath": obs.relpath, "page_count": page_count})

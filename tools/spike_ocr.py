@@ -116,7 +116,7 @@ def main() -> int:
                 continue
             page = representative_page(page_count)
             try:
-                with source_fs.open_binary(obs.root_id, obs.relpath) as stream:
+                with source_fs.open_binary(obs.root_id, obs.relpath_raw) as stream:
                     reader = pypdf.PdfReader(stream)
                     index = min(page - 1, len(reader.pages) - 1)
                     text = reader.pages[index].extract_text() or ""

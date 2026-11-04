@@ -106,7 +106,7 @@ def _bootstrap_sample(config: SbrConfig, db: RegistryDB, root_id: str, count: in
         params={"count": count, "seed": seed, "bootstrap": True},
     ) as activity:
         for observation in selected:
-            with source_fs.open_binary(observation.root_id, observation.relpath) as stream:
+            with source_fs.open_binary(observation.root_id, observation.relpath_raw) as stream:
                 content = hash_stream(stream)
             blobs.upsert(
                 BlobRecord(

@@ -85,7 +85,8 @@ def test_display_path_preserves_original(make_config: Callable[..., SbrConfig], 
     fs = SourceFS(make_config())
     sp = fs.resolve("fx", "Regelungstechnik/./Übung/blatt 1.txt")
     assert sp.relpath == "Regelungstechnik\\Übung\\blatt 1.txt"
-    assert sp.display_path.endswith("src_root\\Regelungstechnik\\Übung\\blatt 1.txt")
+    # display_path is the native path on the host OS (``\\`` on Windows, ``/`` on POSIX); relpath stays canonical.
+    assert sp.display_path == str(source_tree / "Regelungstechnik" / "Übung" / "blatt 1.txt")
     if sys.platform == "win32":
         assert sp.os_path.startswith("\\\\?\\")
 

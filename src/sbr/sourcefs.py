@@ -12,6 +12,14 @@ Path handling (Windows first):
 * The resolved real path (symlinks and junctions followed) must stay inside the root and outside every protected
   path; otherwise the access is refused. Directory listings never follow links; they report them.
 * The original path string (``root.path`` + ``relpath``) is preserved for provenance (:attr:`SourcePath.display_path`).
+
+Path representation (cross-platform):
+
+* The canonical, persisted ``relpath`` always joins components with ``\\`` on every OS. It is an identifier, not a
+  native path, and its format is unchanged so registry data written on Windows stays valid on macOS and Linux.
+* Native paths (``display_path``, ``os_path``) are built with the host's separator: ``ntpath`` on Windows,
+  ``posixpath`` elsewhere. On POSIX a directory entry whose name contains a literal ``\\`` cannot be represented in a
+  canonical relpath without ambiguity, so :meth:`SourceFS.iter_dir` reports it as an error entry instead of guessing.
 """
 
 from __future__ import annotations
@@ -19,6 +27,7 @@ from __future__ import annotations
 import io
 import ntpath
 import os
+import posixpath
 import stat as stat_mod
 import sys
 from collections.abc import Iterator
@@ -80,6 +89,15 @@ def _extended(path: str) -> str:
     return "\\\\?\\" + p
 
 
+def _native_join(root: str, parts: tuple[str, ...]) -> str:
+    """Join validated relpath components onto a root using the host OS separator."""
+    if _IS_WINDOWS:
+        root_clean = root.rstrip("\\/") if not root.endswith(":\\") else root
+        return ntpath.join(root_clean, *parts) if parts else root_clean
+    root_clean = root.rstrip("/") or "/"
+    return posixpath.join(root_clean, *parts) if parts else root_clean
+
+
 def split_relpath(relpath: str) -> tuple[str, ...]:
     """Validate and split a root-relative path into components. Raises :class:`SourceAccessError`."""
     if "\x00" in relpath:
@@ -124,8 +142,7 @@ class SourceFS:
         """Validate ``relpath`` and return its :class:`SourcePath`. Does not touch the filesystem."""
         root = self.root_path(root_id)
         parts = split_relpath(relpath)
-        root_clean = root.rstrip("\\/") if not root.endswith(":\\") else root
-        display = ntpath.join(root_clean, *parts) if parts else root_clean
+        display = _native_join(root, parts)
         for prot in self._protected:
             if is_within(display, prot):
                 raise SourceAccessError("path lies inside a protected path")
@@ -156,6 +173,11 @@ class SourceFS:
         with os.scandir(sp.os_path) as it:
             for entry in it:
                 child = f"{sp.relpath}\\{entry.name}" if sp.relpath else entry.name
+                if not _IS_WINDOWS and "\\" in entry.name:
+                    yield SourceEntry(
+                        child, entry.name, False, False, False, None, None, error="UnrepresentableName: backslash"
+                    )
+                    continue
                 try:
                     st = entry.stat(follow_symlinks=False)
                     is_link = entry.is_symlink() or entry.is_junction() or _is_reparse(st)

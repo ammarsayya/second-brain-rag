@@ -90,12 +90,12 @@ def _require_observation(observations: Repository[PathObservation], subject_id: 
 
 
 def _hash_observation(fs: SourceFS, observation: PathObservation, progress: Callable[[int], None]) -> ContentHash:
-    before = fs.stat(observation.root_id, observation.relpath)
+    before = fs.stat(observation.root_id, observation.relpath_raw)
     if not _matches_observation(before, observation):
         raise SourceChangedError("source metadata changed before hashing")
-    with fs.open_binary(observation.root_id, observation.relpath) as stream:
+    with fs.open_binary(observation.root_id, observation.relpath_raw) as stream:
         content = hash_stream(stream, progress=progress)
-    after = fs.stat(observation.root_id, observation.relpath)
+    after = fs.stat(observation.root_id, observation.relpath_raw)
     if not _matches_observation(after, observation) or content.size != observation.size:
         raise SourceChangedError("source metadata changed while hashing")
     return content
