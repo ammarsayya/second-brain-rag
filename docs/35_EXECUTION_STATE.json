@@ -1,8 +1,8 @@
 {
   "schema_version": "1.0",
   "project": "second-brain-rag",
-  "last_updated": "2026-09-27",
-  "updated_by": "Codex (T-P5-06 IN_PROGRESS: taxonomy draft complete; owner approval pending)",
+  "last_updated": "2026-11-04",
+  "updated_by": "Claude (T-P3-07/T-P3-08 evidence follow-ups; both remain IN_PROGRESS, owner review pending)",
   "authoritative_docs": "docs/28_TASK_REGISTER.md (tasks), docs/24_DECISION_LOG.md (decisions), docs/25_OPEN_QUESTIONS.md, docs/34_RESEARCH_AND_SPIKE_REGISTER.md",
   "current_phase": "P3/P4/P5/P13",
   "current_phase_status": "P3 in_progress (T-P3-01, T-P3-04 DONE; T-P3-02/T-P3-03/T-P3-07/T-P3-08 IN_PROGRESS - evidence or drafts gathered, owner review pending; T-P3-02 also has 120 PDF-native equations gated on Q-B04/model access); P4 in progress (T-P4-01, T-P4-02, T-P4-13 DONE); P5 in progress (T-P5-06 taxonomy drafted, owner approval pending); P13 in progress (T-P13-02, T-P13-04 DONE)",
@@ -767,6 +767,32 @@
         "uv.lock"
       ],
       "verification": "Cross-run determinism verified with a real >1s wall-clock gap between two generations into separate directories: every file's BLAKE3 hash (sbr.ids.hash_bytes) matches. Re-running into the same directory is idempotent, and the committed tests/fixtures/corpus/ matches a fresh generation exactly (not stale). Content sanity verified for every advertised scenario: the LaTeX PDF's extracted text contains the real compiled equations; the DOCX and PPTX open validly via python-docx/python-pptx and their raw XML contains a real m:oMath / a14:m tree; the scanned PDF extracts zero text; the annotated PDF carries exactly one /Annots entry; the archive's umlaut-bearing entry name has no UTF-8 flag bit set (genuine CP437) and its embedded 'duplicate' member hashes identically to the real skript.pdf; the Formelsammlung copy hashes identically to the original; the umlaut path component exists; generate() replaces (never merges into) a pre-existing output directory. 12/12 new tests passed; full suite 195 passed, the same 3 pre-existing Windows-only sourcefs/runtime-guard failures as before (unrelated to this task). ruff (check and format) and mypy clean on every file touched (lxml-stubs added for lxml's types); the two pre-existing mypy unused-ignore findings (tests/test_schemas.py:220, tests/safety/test_sourcefs.py:54) and tools/validate_plan.py's pre-existing lint debt are untouched and confirmed to predate this session. detect-secrets scan of every new/changed file, including the generated binary fixtures: no findings. tools/export_schemas.py --check clean (no sbr.schemas change this task). tools/validate_plan.py: PLAN CONSISTENT. tools/audit_crossrefs.py: CROSSREFS CLEAN. This completes Phase 1 (all 13 P1 tasks DONE)."
+    },
+    {
+      "task": "T-P3-07",
+      "date": "2026-11-04",
+      "status": "IN_PROGRESS",
+      "summary": "PPTX gap sized without pandoc: count_omml_equations() plus tools/spike_omml.py --pptx-inventory. Real corpus: 497 native OMML equations in 13 PPTX files (484 on 53 slides), 2,597 in 31 DOCX files (pandoc first run: 2,608). The register's '14 PPTX' is a slip for 13. Owner review and the ADR-009 PPTX path stay open.",
+      "files": [
+        "src/sbr/eval/extract/omml.py",
+        "tools/spike_omml.py",
+        "tests/test_eval_extract_omml.py",
+        "tests/test_spike_omml.py",
+        "eval/reports/spike_omml_inventory.md"
+      ]
+    },
+    {
+      "task": "T-P3-08",
+      "date": "2026-11-04",
+      "status": "IN_PROGRESS",
+      "summary": "Orientation census: parse_tesseract_osd() plus tools/spike_ocr.py --orientation-census over all 764 scanned candidates. OSD rotate 0/90/180/270 = 314/54/169/32 (73 declined). --psm 1 vs --psm 3 mean confidence: +28.3 on 90-degree pages, -0.1 on 180, +1.1 on 270, -0.9 on upright control. CER, PaddleOCR/VLM and handwriting detection stay open.",
+      "files": [
+        "src/sbr/eval/extract/ocr.py",
+        "tools/spike_ocr.py",
+        "tests/test_eval_extract_ocr.py",
+        "tests/test_spike_ocr.py",
+        "eval/reports/spike_ocr_orientation.md"
+      ]
     }
   ]
 }

@@ -424,6 +424,17 @@ Each task is written so that it can be independently verified. Spike tasks link 
   met; the flagged-file counts and rule breakdown were reviewed (paths themselves stay local per docs/22 §3's
   counts-only policy for `restricted`, and were not printed into any transcript or log).
 
+- **Addendum (2026-11-04, rules version 2; status unchanged: DONE):** a T-P3-08 orientation census surfaced a
+  court/legal-aid paper that rules version 1 classified `normal`, and the spike tool OCR'd it locally. Added rule
+  `Gerichtsdokument` -> `restricted` (`terminsladung|prozesskostenhilfe|gerichtsbeschluss|aktenzeichen|PKH` as a
+  word); bare `Ladung`/`Beschluss` were rejected because they hit physics material ("Aufladung"). Against the 83,880
+  t3 relpaths (read-only) it matches exactly 1 path and 0 course files. New `local_processing_allowed()` +
+  `sbr.eval.spike_gate.processable_blobs()` stop spike tools from opening `restricted`/`third_party_personal` or
+  non-active blobs and re-apply current path rules to every alias. The production registry was **not**
+  reclassified (still rules version 1); re-running `sbr sensitivity` on it is an owner-authorised registry write.
+  The report row was redacted (counts unchanged). The name was already in the historical `audit/phase0/*`
+  inventories, which stay untouched.
+
 ### T-P2-06 — Exact duplicate groups and canonical selection
 - **Phase:** P2
 - **Status:** DONE
@@ -978,6 +989,17 @@ Each task is written so that it can be independently verified. Spike tasks link 
   7 new tests; 368 passed; mypy strict and ruff clean. **Owner action needed to close this task**: review the
   50-sample table for correctness (not just syntax) to determine whether the ≥98% bar is met, and choose (or
   defer) a PPTX-specific conversion path.
+- **Addendum (2026-11-04, still IN_PROGRESS):** `tools/spike_omml.py --pptx-inventory` sizes the PPTX gap without
+  pandoc. A new pure counter `count_omml_equations()` (`src/sbr/eval/extract/omml.py`) counts outermost `m:oMath` by
+  namespace URI, splits display from inline, counts each `mc:AlternateContent` equation once, and returns `None` for
+  unparseable XML. Real-corpus run on macOS through SourceFS (`eval/reports/spike_omml_inventory.md`): **497 native
+  OMML equations in 13 PPTX files** (484 on 53 slides, 5 in notes, 8 in other parts; 242 display). That is about 16%
+  of all native OMML in the corpus, and the volume a PPTX path has to cover. DOCX: 2,597 native equations in 31
+  files, against pandoc's 2,608 extracted in the first run (within 0.4%, an independent cross-check of the DOCX
+  path). Correction: the first run's own table lists **13** PPTX files, not the 14 stated above (31 + 13 = 44
+  files); this addendum does not rewrite the earlier note. Also: both spike tools now open sources by `relpath_raw`.
+  Still open, owner-gated: the 50-equation review and the ADR-009 choice of PPTX path (another converter, or route
+  PPTX math to SPIKE-MATH). pandoc is not installed on the current macOS host, so the pandoc pass was not re-run.
 
 ### T-P3-08 — SPIKE-OCR: scanned German pages
 - **Phase:** P3
@@ -1009,6 +1031,20 @@ Each task is written so that it can be independently verified. Spike tasks link 
   proxy that doesn't measure it). 5 new tests; 373 passed; mypy strict and ruff clean. **Owner action needed
   to close this task**: review `eval/reports/spike_ocr.md`; decide whether PaddleOCR/remote-VLM benchmarking
   is worth the additional install/policy cost given Tesseract's already-visible split by content type.
+- **Addendum (2026-11-04, still IN_PROGRESS):** follow-up on the upside-down page finding.
+  `parse_tesseract_osd()`/`summarize_rotations()` (`src/sbr/eval/extract/ocr.py`, fail closed on "Too few
+  characters") and `tools/spike_ocr.py --orientation-census` run Tesseract 5.5.3 OSD (`--psm 0`) on **all 764**
+  scanned-page candidates, then compare `-l deu` OCR at `--psm 3` and `--psm 1` on every page OSD says to rotate, plus
+  a seeded upright control. Real-corpus run on macOS (`eval/reports/spike_ocr_orientation.md`): 119 pages without an
+  embedded image, 3 read/OSD errors, 73 declined by OSD. Rotate distribution: 0=314, 90=54, 180=169, 270=32 (at
+  OSD confidence >= 2.0: 236/40/82/18, 193 below). Mean word-confidence change psm1 - psm3: +6.2 on 243 rotated
+  pages, -0.9 on 14 control pages. **Per bucket (from the report's table):** 90 degrees +28.3 (40 of 52 gain >10
+  points); 180 degrees -0.1 (146 of 159 unchanged); 270 degrees +1.1 (23 of 32 unchanged). So `--psm 1` recovers
+  90-degree pages but does not correct 180-degree ones, and many 180/270 OSD calls on pages already OCR'd at high
+  confidence look like false positives. Caveat: OSD runs on the page's first embedded image, which ignores the
+  page's `/Rotate` and content transform. Not CER (no gold transcriptions). Choosing an orientation step and
+  threshold for the pipeline stays with ADR-010/T-P4. Still open: CER, PaddleOCR/VLM (owner policy), handwriting
+  detection.
 
 ### T-P3-09 — SPIKE-COMPUTE: throughput and cost projection
 - **Phase:** P3

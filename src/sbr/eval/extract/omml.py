@@ -15,6 +15,8 @@ on the 50-sample manual review this spike's report prepares for them.
 from __future__ import annotations
 
 import re
+from dataclasses import dataclass
+from xml.etree import ElementTree
 
 _DISPLAY_MATH = re.compile(r"\\\[(.+?)\\\]", re.DOTALL)
 _INLINE_PAREN_MATH = re.compile(r"\\\((.+?)\\\)", re.DOTALL)
@@ -54,4 +56,55 @@ def is_syntactically_plausible_latex(latex: str) -> bool:
     return depth == 0
 
 
-__all__ = ["extract_latex_equations", "is_syntactically_plausible_latex"]
+OMML_NAMESPACE = "http://schemas.openxmlformats.org/officeDocument/2006/math"
+_OMATH = f"{{{OMML_NAMESPACE}}}oMath"
+_OMATH_PARA = f"{{{OMML_NAMESPACE}}}oMathPara"
+
+
+@dataclass(frozen=True, slots=True)
+class OmmlCount:
+    """Native OMML equations in one Office XML part. ``display`` counts equations inside an ``m:oMathPara``."""
+
+    total: int
+    display: int
+
+    @property
+    def inline(self) -> int:
+        return self.total - self.display
+
+
+def count_omml_equations(xml_bytes: bytes) -> OmmlCount | None:
+    """Count outermost ``m:oMath`` elements in one DOCX/PPTX XML part, by namespace URI rather than by prefix.
+
+    A PPTX equation sits in ``mc:AlternateContent``: the ``mc:Choice`` carries the ``a14:m``/OMML tree and the
+    ``mc:Fallback`` only a picture, so each equation is counted once. Returns ``None`` (never a guessed 0) for XML
+    that does not parse, so a caller can report the part as unreadable.
+    """
+    try:
+        # Expat (>= 2.4) refuses entity amplification and never resolves external entities; both surface as
+        # ParseError -> None. Pinned by test_refuses_entity_expansion_and_external_entities, so no new dependency.
+        root = ElementTree.fromstring(xml_bytes)  # noqa: S314
+    except ElementTree.ParseError:
+        return None
+    total = display = 0
+
+    def walk(node: ElementTree.Element, in_para: bool) -> None:
+        nonlocal total, display
+        if node.tag == _OMATH:
+            total += 1
+            display += int(in_para)
+            return  # an equation's own subtree is not searched for further equations
+        for child in node:
+            walk(child, in_para or node.tag == _OMATH_PARA)
+
+    walk(root, False)
+    return OmmlCount(total, display)
+
+
+__all__ = [
+    "OMML_NAMESPACE",
+    "OmmlCount",
+    "count_omml_equations",
+    "extract_latex_equations",
+    "is_syntactically_plausible_latex",
+]

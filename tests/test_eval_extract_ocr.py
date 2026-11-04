@@ -2,7 +2,13 @@
 
 from __future__ import annotations
 
-from sbr.eval.extract.ocr import mean_word_confidence, parse_tesseract_tsv
+from sbr.eval.extract.ocr import (
+    OsdResult,
+    mean_word_confidence,
+    parse_tesseract_osd,
+    parse_tesseract_tsv,
+    summarize_rotations,
+)
 
 # A real (trimmed) sample of `tesseract <img> stdout -l deu tsv` output, captured against a real corpus
 # scanned page - structural rows (level 1-4) carry conf=-1 and no text; only level-5 word rows have both.
@@ -39,3 +45,62 @@ def test_mean_word_confidence_of_no_words_is_none() -> None:
 def test_parse_tesseract_tsv_handles_a_header_only_output() -> None:
     header_only = "level\tpage_num\tblock_num\tpar_num\tline_num\tword_num\tleft\ttop\twidth\theight\tconf\ttext\n"
     assert parse_tesseract_tsv(header_only) == []
+
+
+# Real `tesseract IMG stdout --psm 0` output (Tesseract 5.5.3), captured on a synthetic German text image rotated
+# by 180 degrees - the stderr warnings tesseract interleaves are included, since a caller may merge streams.
+REAL_OSD_UPSIDE_DOWN = (
+    "Estimating resolution as 366\n"
+    "Warning. Invalid resolution 0 dpi. Using 70 instead.\n"
+    "Page number: 0\n"
+    "Orientation in degrees: 180\n"
+    "Rotate: 180\n"
+    "Orientation confidence: 17.32\n"
+    "Script: Latin\n"
+    "Script confidence: 28.10\n"
+)
+REAL_OSD_ROTATED_90 = (
+    "Page number: 0\nOrientation in degrees: 270\nRotate: 90\nOrientation confidence: 12.35\n"
+    "Script: Latin\nScript confidence: 22.59\n"
+)
+REAL_OSD_TOO_FEW_CHARACTERS = (
+    "Warning. Invalid resolution 0 dpi. Using 70 instead.\nToo few characters. Skipping this page\n"
+    "Error during processing.\n"
+)
+
+
+def test_parse_tesseract_osd_reads_rotation_and_confidences() -> None:
+    result = parse_tesseract_osd(REAL_OSD_UPSIDE_DOWN)
+    assert result == OsdResult(
+        orientation_degrees=180, rotate=180, orientation_confidence=17.32, script="Latin", script_confidence=28.10
+    )
+
+
+def test_parse_tesseract_osd_keeps_rotate_distinct_from_orientation() -> None:
+    result = parse_tesseract_osd(REAL_OSD_ROTATED_90)
+    assert result is not None
+    assert (result.orientation_degrees, result.rotate) == (270, 90)
+
+
+def test_parse_tesseract_osd_fails_closed_on_too_few_characters() -> None:
+    assert parse_tesseract_osd(REAL_OSD_TOO_FEW_CHARACTERS) is None
+    assert parse_tesseract_osd("") is None
+
+
+def test_parse_tesseract_osd_rejects_malformed_or_impossible_values() -> None:
+    assert parse_tesseract_osd("Orientation in degrees: 180\nRotate: x\nOrientation confidence: 3\n") is None
+    assert parse_tesseract_osd("Orientation in degrees: 45\nRotate: 45\nOrientation confidence: 3\n") is None
+
+
+def test_parse_tesseract_osd_tolerates_missing_script_lines() -> None:
+    result = parse_tesseract_osd("Orientation in degrees: 0\nRotate: 0\nOrientation confidence: 4.5\n")
+    assert result is not None
+    assert result.script is None and result.script_confidence is None
+
+
+def test_summarize_rotations_separates_low_confidence_and_undetected() -> None:
+    upside_down = parse_tesseract_osd(REAL_OSD_UPSIDE_DOWN)
+    weak = OsdResult(0, 90, 0.4, "Latin", 1.0)
+    upright = OsdResult(0, 0, 9.0, "Latin", 5.0)
+    counts = summarize_rotations([upside_down, weak, upright, None], min_confidence=2.0)
+    assert counts == {"0": 1, "90": 0, "180": 1, "270": 0, "low_confidence": 1, "undetected": 1}

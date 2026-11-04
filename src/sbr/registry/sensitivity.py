@@ -45,7 +45,7 @@ from sbr.schemas.registry import BlobStatus, KnowledgeClass, ObservationState, S
 
 SENSITIVITY_PRODUCER: Final = "sbr.registry.sensitivity"
 SENSITIVITY_STAGE: Final = "sensitivity"
-SENSITIVITY_RULES_VERSION: Final = "1"
+SENSITIVITY_RULES_VERSION: Final = "2"
 DEFAULT_EXCLUSIONS_NAME: Final = "exclusions.yaml"
 DEFAULT_OVERRIDES_NAME: Final = "sensitivity_overrides.yaml"
 
@@ -76,6 +76,17 @@ PATH_SENSITIVITY_RULES: Final = (
     PathSensitivityRule("Zeugnis", Sensitivity.RESTRICTED, re.compile("zeugnis", re.IGNORECASE)),
     PathSensitivityRule("Ausweis", Sensitivity.RESTRICTED, re.compile("ausweis", re.IGNORECASE)),
     PathSensitivityRule("Immatrikulation", Sensitivity.RESTRICTED, re.compile("immatrikulation", re.IGNORECASE)),
+    # Rules version 2 (2026-11-04): court and legal-aid papers.  Deliberately narrow: a bare "Ladung" or
+    # "Beschluss" would hit physics/engineering material (e.g. "Aufladung", "Ladungstraeger").  On the t3
+    # registry this matches exactly one relpath and no course material.
+    PathSensitivityRule(
+        "Gerichtsdokument",
+        Sensitivity.RESTRICTED,
+        re.compile(
+            r"terminsladung|prozesskostenhilfe|gerichtsbeschluss|aktenzeichen|(?<![a-z])pkh(?![a-z])",
+            re.IGNORECASE,
+        ),
+    ),
     PathSensitivityRule("Noten", Sensitivity.THIRD_PARTY_PERSONAL, re.compile(r"(?<!k)noten", re.IGNORECASE)),
     PathSensitivityRule(
         "Ergebnisliste", Sensitivity.THIRD_PARTY_PERSONAL, re.compile(r"ergebnislisten?", re.IGNORECASE)
@@ -139,6 +150,22 @@ def automatic_sensitivity(relpath: str) -> SensitivityDecision:
         if rule.pattern.search(relpath) is not None:
             return SensitivityDecision(rule.sensitivity, rule.label)
     return SensitivityDecision(Sensitivity.NORMAL, "Normal")
+
+
+LOCAL_PROCESSING_BLOCKED: Final = frozenset({Sensitivity.RESTRICTED, Sensitivity.THIRD_PARTY_PERSONAL})
+
+
+def local_processing_allowed(status: BlobStatus, sensitivity: Sensitivity, relpaths: Sequence[str]) -> bool:
+    """Gate for any tool that opens a source's *content* (docs/22 §3).
+
+    ``restricted`` and ``third_party_personal`` blobs are metadata-only; excluded and orphaned blobs are not
+    processed either.  As defense in depth the current automatic path rules are re-applied to ``relpaths``:
+    a registry classified under an older rules version can still say ``normal`` for a name a newer rule
+    blocks.  This re-check cannot see owner overrides, so it is stricter than the registry, never looser.
+    """
+    if status is not BlobStatus.ACTIVE or sensitivity in LOCAL_PROCESSING_BLOCKED:
+        return False
+    return all(automatic_sensitivity(relpath).sensitivity not in LOCAL_PROCESSING_BLOCKED for relpath in relpaths)
 
 
 def decide_sensitivity(
@@ -256,6 +283,7 @@ def classify_sensitivity(
 __all__ = [
     "DEFAULT_EXCLUSIONS_NAME",
     "DEFAULT_OVERRIDES_NAME",
+    "LOCAL_PROCESSING_BLOCKED",
     "PATH_SENSITIVITY_RULES",
     "SENSITIVITY_PRODUCER",
     "SENSITIVITY_RULES_VERSION",
@@ -268,4 +296,5 @@ __all__ = [
     "classify_sensitivity",
     "decide_blob",
     "decide_sensitivity",
+    "local_processing_allowed",
 ]

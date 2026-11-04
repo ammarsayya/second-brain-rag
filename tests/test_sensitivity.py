@@ -17,7 +17,7 @@ from sbr.db.registry import RegistryDB
 from sbr.registry.classify import classify_pending
 from sbr.registry.hash import hash_pending
 from sbr.registry.scan import scan_root
-from sbr.registry.sensitivity import automatic_sensitivity, classify_sensitivity
+from sbr.registry.sensitivity import automatic_sensitivity, classify_sensitivity, local_processing_allowed
 from sbr.schemas import BlobRecord
 from sbr.schemas.registry import BlobStatus, Sensitivity
 
@@ -73,10 +73,31 @@ def test_known_name_rules_and_knoten_false_positive() -> None:
         "Zeugnis_Bachelor.pdf": Sensitivity.RESTRICTED,
         "Ausweis_Kopie.pdf": Sensitivity.RESTRICTED,
         "Immatrikulation_Bescheinigung.pdf": Sensitivity.RESTRICTED,
+        "Terminsladung_Amtsgericht.pdf": Sensitivity.RESTRICTED,
+        "PKH-Beschluss.pdf": Sensitivity.RESTRICTED,
+        "Antrag_Prozesskostenhilfe.pdf": Sensitivity.RESTRICTED,
+        "Gerichtsbeschluss_2020.pdf": Sensitivity.RESTRICTED,
+        "Schreiben Aktenzeichen 12-3.pdf": Sensitivity.RESTRICTED,
         "Knotenpunkt_Analyse.pdf": Sensitivity.NORMAL,
+        # Physics "Ladung" (electric charge) and words merely containing "pkh" must stay normal.
+        "Zusaetzliche Bilder Aufladung.pdf": Sensitivity.NORMAL,
+        "Ladungstraeger_Halbleiter.pdf": Sensitivity.NORMAL,
+        "Schupkhaus.pdf": Sensitivity.NORMAL,
     }
     assert {name: automatic_sensitivity(name).sensitivity for name in expected} == expected
     assert automatic_sensitivity("Labornoten_SS21.xlsx").rule == "Noten"
+    assert automatic_sensitivity("PKH-Beschluss.pdf").rule == "Gerichtsdokument"
+
+
+def test_local_processing_gate_blocks_restricted_and_third_party_and_rechecks_paths() -> None:
+    ok = local_processing_allowed
+    assert ok(BlobStatus.ACTIVE, Sensitivity.NORMAL, ["Mechanik\\Skript.pdf"])
+    assert ok(BlobStatus.ACTIVE, Sensitivity.PERSONAL, ["Mechanik\\Skript.pdf"])
+    assert not ok(BlobStatus.ACTIVE, Sensitivity.RESTRICTED, ["Mechanik\\Skript.pdf"])
+    assert not ok(BlobStatus.ACTIVE, Sensitivity.THIRD_PARTY_PERSONAL, ["Mechanik\\Skript.pdf"])
+    assert not ok(BlobStatus.EXCLUDED, Sensitivity.NORMAL, ["Mechanik\\Skript.pdf"])
+    # A registry classified under older rules still says "normal"; the current path rules must still block it.
+    assert not ok(BlobStatus.ACTIVE, Sensitivity.NORMAL, ["lernen\\Terminsladung_und_PKH-Beschluss.pdf"])
 
 
 def test_stage_classifies_known_examples_and_default_exclusions(

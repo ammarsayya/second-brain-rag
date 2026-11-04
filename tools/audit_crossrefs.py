@@ -5,7 +5,10 @@ import glob, os, re, sys, collections
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 D = os.path.join(ROOT, "docs")
-txt = {os.path.basename(f): open(f, encoding="utf-8").read() for f in glob.glob(os.path.join(D, "*"))}
+# Keys are paths relative to docs/ (plain file names at the top level); subdirectories such as docs/reports/ are
+# audited too, so dated reports cannot cite an undefined ID.
+txt = {os.path.relpath(f, D): open(f, encoding="utf-8").read()
+       for f in glob.glob(os.path.join(D, "**", "*"), recursive=True) if os.path.isfile(f)}
 txt["CLAUDE.md"] = open(os.path.join(ROOT, "CLAUDE.md"), encoding="utf-8").read()
 defs = {
     "ADR": set(re.findall(r"^### (ADR-\d+)", txt["24_DECISION_LOG.md"], re.M)),

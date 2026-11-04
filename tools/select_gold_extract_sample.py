@@ -127,7 +127,9 @@ def main() -> int:
                 page_count = pdf_pages.get(blob.blob_id)
                 if page_count is None:
                     continue  # census error (e.g. permanently encrypted) - cannot probe further
-                producer, scanned, annotated, landscape = _probe_pdf(source_fs, obs.root_id, obs.relpath, page_count)
+                producer, scanned, annotated, landscape = _probe_pdf(
+                    source_fs, obs.root_id, obs.relpath_raw, page_count
+                )
                 descriptors.append(
                     BlobDescriptor(
                         blob_id=blob.blob_id,
@@ -143,7 +145,7 @@ def main() -> int:
                     )
                 )
             elif blob.format in _OFFICE_ZIP_FORMATS:
-                page_count, has_omml = _probe_office_zip(source_fs, obs.root_id, obs.relpath, blob.format)
+                page_count, has_omml = _probe_office_zip(source_fs, obs.root_id, obs.relpath_raw, blob.format)
                 descriptors.append(
                     BlobDescriptor(
                         blob_id=blob.blob_id,

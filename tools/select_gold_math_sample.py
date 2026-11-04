@@ -155,13 +155,13 @@ def _has_native_omml(data: bytes) -> bool:
 
 
 def _omml_candidates(
-    source_fs: SourceFS, eligible: list[tuple[str, str, str]]
+    source_fs: SourceFS, eligible: list[tuple[str, str, str, str]]
 ) -> tuple[list[OmmlCandidateData], list[dict[str, Any]], list[dict[str, Any]]]:
     candidates: list[OmmlCandidateData] = []
     failures: list[dict[str, Any]] = []
     mismatches: list[dict[str, Any]] = []
-    for blob_id, root_id, relpath in eligible:
-        data = source_fs.read_bytes(root_id, relpath)
+    for blob_id, root_id, relpath_raw, relpath in eligible:  # open by the exact OS name, report the NFC one
+        data = source_fs.read_bytes(root_id, relpath_raw)
         if not _has_native_omml(data):
             continue
         latex_output, error = _pandoc_latex(data)
@@ -298,12 +298,12 @@ def main() -> int:
         blobs = {blob.blob_id: blob for blob in db.repo(reg.BLOB).find()}
         observations = {obs.obs_id: obs for obs in db.repo(reg.PATH_OBSERVATION).find()}
 
-    eligible_docx: list[tuple[str, str, str]] = []
+    eligible_docx: list[tuple[str, str, str, str]] = []
     for blob in blobs.values():
         if blob.format != "docx" or not _safe_blob(blob) or blob.canonical_obs_id not in observations:
             continue
         observation = observations[blob.canonical_obs_id]
-        eligible_docx.append((blob.blob_id, observation.root_id, observation.relpath))
+        eligible_docx.append((blob.blob_id, observation.root_id, observation.relpath_raw, observation.relpath))
 
     omml_data, omml_failures, omml_mismatches = _omml_candidates(source_fs, sorted(eligible_docx))
     pdf_data: list[PdfCandidateData] = []

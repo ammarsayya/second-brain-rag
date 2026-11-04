@@ -19,11 +19,12 @@ The VaultWriter rules (19 §2), git commits per batch, and tests TS-VAULT-* (edi
 - **Sensitivity classes:** `normal`, `personal` (owner's own contracts, reports, personal data), `third_party_personal` (grade lists
   with other students, e.g. `Labornoten`, `Ergebnislisten`), `restricted` (owner-marked).
 - The t2 re-audit (docs/37) found the owner's **identity documents, CVs/applications and certificates** (including a third party's) in the corpus. Default rule: `restricted` (registered by metadata only, never processed, never sent anywhere, counts-only reporting; Q-I12).
-- Classification: path and name rules (Vertrag, Noten (excluding "Knoten"), Ergebnisliste, Bewerbung, Lebenslauf, Zeugnis, Ausweis, Immatrikulation …) + content signals (tables of names + grades) +
+- Classification: path and name rules (Vertrag, Noten (excluding "Knoten"), Ergebnisliste, Bewerbung, Lebenslauf, Zeugnis, Ausweis, Immatrikulation, and since rules version 2 (2026-11-04) court/legal-aid papers: Terminsladung, Prozesskostenhilfe/PKH, Gerichtsbeschluss, Aktenzeichen …) + content signals (tables of names + grades) +
   owner overrides in `curation/sensitivity_overrides.yaml`.
 - **Policy:** `third_party_personal` → registered but **not processed beyond metadata** by default (Q-I04). `personal` → processed locally.
   It is sent to remote models only if the role config allows it. The gateway enforces this per call using the chunk or document sensitivity.
 - Logs and traces redact sensitive content (hashes plus truncated text only).
+- Evaluation/spike tools that open source content go through `sbr.eval.spike_gate.processable_blobs` (active, not `restricted`/`third_party_personal`, current path rules re-applied to every alias). They report gated blobs as a count only.
 
 ## 4. Copyright and licensing
 
