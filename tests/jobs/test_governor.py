@@ -3,12 +3,13 @@
 from __future__ import annotations
 
 import ctypes
+import os
 from datetime import datetime
 
 import pytest
 
 from sbr.config import GovernorConfig, ProcessPriority
-from sbr.jobs.governor import PauseReason, ResourceGovernor, SystemMetrics, set_process_priority
+from sbr.jobs.governor import PauseReason, ResourceGovernor, SystemMetrics, _maxrss_to_gb, set_process_priority
 
 NOON = datetime(2026, 9, 24, 12, 0)
 MIDNIGHT_THIRTY = datetime(2026, 9, 24, 0, 30)
@@ -97,4 +98,42 @@ def test_priority_is_set_on_windows_and_a_no_op_elsewhere(monkeypatch: pytest.Mo
     assert calls == [("handle", 0x00004000)]
 
     monkeypatch.delattr(ctypes, "windll", raising=False)
+    monkeypatch.delattr(os, "setpriority", raising=False)
     assert set_process_priority(ProcessPriority.BELOW_NORMAL) is False
+
+
+def test_posix_priority_only_ever_lowers_the_process_priority(monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.delattr(ctypes, "windll", raising=False)
+    nice = {"value": 0}
+    calls: list[int] = []
+
+    def fake_set(_which: int, _who: int, value: int) -> None:
+        calls.append(value)
+        nice["value"] = value
+
+    monkeypatch.setattr(os, "getpriority", lambda _which, _who: nice["value"], raising=False)
+    monkeypatch.setattr(os, "setpriority", fake_set, raising=False)
+    monkeypatch.setattr(os, "PRIO_PROCESS", 0, raising=False)
+
+    assert set_process_priority(ProcessPriority.BELOW_NORMAL) is True
+    assert set_process_priority(ProcessPriority.IDLE) is True
+    # Already nicer than NORMAL asks for: raising priority would need root, so it is left alone and reported as unset.
+    assert set_process_priority(ProcessPriority.NORMAL) is False
+    assert calls == [10, 19]
+
+    def denied(_which: int, _who: int, _value: int) -> None:
+        raise PermissionError
+
+    nice["value"] = 0
+    monkeypatch.setattr(os, "setpriority", denied, raising=False)
+    assert set_process_priority(ProcessPriority.IDLE) is False
+
+
+@pytest.mark.parametrize(
+    ("platform", "maxrss", "expected_gb"),
+    [("darwin", 512 * 1024**2, 0.5), ("linux", 512 * 1024, 0.5), ("freebsd14", 2 * 1024**3, 2.0)],
+)
+def test_peak_rss_units_follow_the_platform(platform: str, maxrss: int, expected_gb: float) -> None:
+    # ru_maxrss is bytes on macOS/BSD and KiB on Linux. Reading macOS bytes as KiB made a 50 MB process look like
+    # ~50 GB and tripped the default 40 GB ceiling on every check.
+    assert _maxrss_to_gb(maxrss, platform) == pytest.approx(expected_gb)

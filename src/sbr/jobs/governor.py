@@ -10,7 +10,9 @@ tests exercise the decision logic with simulated disk/RAM/time values instead of
 from __future__ import annotations
 
 import ctypes
+import os
 import shutil
+import sys
 from collections.abc import Callable
 from dataclasses import dataclass
 from datetime import datetime, time
@@ -60,28 +62,52 @@ def real_metrics(disk_path: str | Path = ".") -> SystemMetrics:
     return SystemMetrics(disk_free_gb=free / 1e9, ram_used_gb=_ram_used_gb(), now=datetime.now().astimezone())
 
 
+def _maxrss_to_gb(maxrss: int, platform: str) -> float:
+    """Convert ``ru_maxrss`` to GB: it is bytes on macOS and the BSDs, kibibytes on Linux."""
+    in_bytes = platform == "darwin" or platform.startswith(("freebsd", "openbsd", "netbsd"))
+    return maxrss / (1024**3 if in_bytes else 1024**2)
+
+
 def _ram_used_gb() -> float:
-    """Best-effort resident set size of this process, in GB. No third-party dependency (NFR-06 has no spike for one)."""
+    """Best-effort peak resident set size of this process, in GB. No third-party dependency (NFR-06 has no spike)."""
     try:
-        import resource  # 'resource' is POSIX-only; absent (ImportError) on Windows, this project's target platform.
+        import resource  # POSIX-only; absent (ImportError) on Windows.
     except ImportError:
         return 0.0  # no 'resource' module (e.g. Windows): unknown, so never gate on it
-    # ru_maxrss is kibibytes on Linux, bytes on macOS/BSD; kibibytes is the common case for this project's targets.
-    return resource.getrusage(resource.RUSAGE_SELF).ru_maxrss / (1024 * 1024)  # type: ignore[attr-defined,no-any-return,unused-ignore]
+    maxrss = resource.getrusage(resource.RUSAGE_SELF).ru_maxrss  # type: ignore[attr-defined,unused-ignore]
+    return _maxrss_to_gb(int(maxrss), sys.platform)
+
+
+# POSIX niceness per priority class. Only ever applied to *lower* priority: raising it needs privileges.
+_POSIX_NICE: Final = {ProcessPriority.IDLE: 19, ProcessPriority.BELOW_NORMAL: 10, ProcessPriority.NORMAL: 0}
 
 
 def set_process_priority(priority: ProcessPriority) -> bool:
-    """Best-effort set this process' priority class (docs/08 §5). Windows only; a no-op (returns False) elsewhere."""
+    """Best-effort set this process' priority (docs/08 §5): priority class on Windows, niceness on POSIX.
+
+    Returns whether it took effect. On POSIX the process is never made *less* nice than it already is.
+    """
     windll = getattr(ctypes, "windll", None)
-    if windll is None:
+    if windll is not None:
+        classes = {
+            ProcessPriority.IDLE: 0x00000040,  # IDLE_PRIORITY_CLASS
+            ProcessPriority.BELOW_NORMAL: 0x00004000,  # BELOW_NORMAL_PRIORITY_CLASS
+            ProcessPriority.NORMAL: 0x00000020,  # NORMAL_PRIORITY_CLASS
+        }
+        handle = windll.kernel32.GetCurrentProcess()
+        return bool(windll.kernel32.SetPriorityClass(handle, classes[priority]))
+    setpriority = getattr(os, "setpriority", None)
+    getpriority = getattr(os, "getpriority", None)
+    if setpriority is None or getpriority is None:
         return False
-    classes = {
-        ProcessPriority.IDLE: 0x00000040,  # IDLE_PRIORITY_CLASS
-        ProcessPriority.BELOW_NORMAL: 0x00004000,  # BELOW_NORMAL_PRIORITY_CLASS
-        ProcessPriority.NORMAL: 0x00000020,  # NORMAL_PRIORITY_CLASS
-    }
-    handle = windll.kernel32.GetCurrentProcess()
-    return bool(windll.kernel32.SetPriorityClass(handle, classes[priority]))
+    target = _POSIX_NICE[priority]
+    try:
+        if getpriority(os.PRIO_PROCESS, 0) >= target:
+            return False
+        setpriority(os.PRIO_PROCESS, 0, target)
+    except OSError:
+        return False
+    return True
 
 
 def _parse_window(window: str) -> tuple[time, time]:

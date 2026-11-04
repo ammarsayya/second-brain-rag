@@ -17,6 +17,7 @@ from sbr.config import (
 )
 
 EXAMPLE = Path(__file__).resolve().parent.parent / "config" / "sbr.example.toml"
+MACOS_EXAMPLE = EXAMPLE.with_name("sbr.macos.example.toml")
 
 
 def base(**over: Any) -> dict[str, Any]:
@@ -37,6 +38,18 @@ def test_example_config_is_valid() -> None:
     assert cfg.roots.vault == r"D:\AgenticAI\second-brain-rag\vault"  # Q-B02 resolved by ADR-037
     assert cfg.models.roles["reason"].primary is None  # Q-B04 open
     assert cfg.config_hash().startswith("sha256:")
+
+
+def test_macos_example_config_is_valid_and_keeps_the_same_safety_settings() -> None:
+    windows, macos = load_config(EXAMPLE), load_config(MACOS_EXAMPLE)
+    assert [(s.id, s.kind, s.read_only) for s in macos.roots.sources] == [
+        (s.id, s.kind, s.read_only) for s in windows.roots.sources
+    ]
+    assert macos.roots.sources[0].path == "/Users/ammar/DriveD/MBI-BRAIN"
+    assert macos.roots.protected == ["/Users/ammar/DriveD/studium_duplicated"]
+    assert macos.models.roles["reason"].primary is None  # Q-B04 open
+    assert macos.models.roles["reason"].allowed_sensitivity == windows.models.roles["reason"].allowed_sensitivity
+    assert macos.governor.max_ram_gb < 36  # below the M5 Max's 36 GB of unified memory
 
 
 def test_source_root_cannot_be_writable() -> None:

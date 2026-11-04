@@ -1,0 +1,33 @@
+# sbr configuration example for the macOS host (docs/32 §6; migration notes in docs/reports/2026-11-04_unblock_session.md).
+# Copy to config/sbr.toml (git-ignored) or point SBR_CONFIG at a copy. Paths follow the global mapping D:\ -> /Users/ammar/DriveD/.
+#
+# CAUTION: the production registry (var/db/registry.sqlite) was built on Windows and stores source_root 'mbi' as
+# 'D:\MBI-BRAIN'. Read-only tools (spikes, selectors, reports) work against it with this file. Do NOT run
+# `sbr scan`/`sbr hash`/`sbr sensitivity` against that registry with this file until the owner has authorised the
+# macOS rescan (registry rewrite); use a copy of var/ instead.
+
+[roots]
+# Source roots are always read-only (HC-01/HC-03). `read_only = false` is rejected.
+sources = [{ id = "mbi", path = "/Users/ammar/DriveD/MBI-BRAIN", kind = "university" }]
+var = "/Users/ammar/DriveD/AgenticAI/second-brain-rag/var"
+curation = "/Users/ammar/DriveD/AgenticAI/second-brain-rag/curation"
+vault = "/Users/ammar/DriveD/AgenticAI/second-brain-rag/vault"  # separate Git repository (ADR-037)
+# Never read or written by sbr, and never a source root (docs/24 "Owner decisions").
+protected = ["/Users/ammar/DriveD/studium_duplicated"]
+
+[governor]
+# Apple M5 Max, 18 cores, 36 GB unified memory (shared with the GPU/Neural Engine). Keep RAM well under physical.
+max_workers = 8
+max_ram_gb = 24
+disk_floor_gb = 50
+priority = "below_normal"  # POSIX: nice 10
+time_windows = []
+
+[logging]
+level = "INFO"
+
+# Model roles (docs/17). Concrete models are decided by SPIKE-MODELGW after Q-B04; leave `primary` unset until then.
+# `restricted` is never allowed in allowed_sensitivity.
+[models.roles.reason]
+fallbacks = []
+allowed_sensitivity = ["normal"]

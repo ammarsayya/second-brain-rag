@@ -34,7 +34,7 @@ gap analysis, and approval-gated external research. It is not "PDF â†’ chunks â†
   (83,880 files / 558.75 GB; 2,033 exact copies quarantined; docs/38, `audit/phase0/t3/`). `docs/03` is the historical t0/t1 record.
 - `/Users/ammar/DriveD/studium_duplicated` is quarantine/rollback evidence. It is **not a source root**, is never ingested and never written.
 - `audit/` (t0/t1/t2/t3, `dedup_quarantine/`) is historical evidence. Never modify it. `.venv-audit/` is disposable audit tooling.
-- Toolchain: uv is installed in the user site (`%APPDATA%\Python\Python314\Scripts\uv.exe`); the project uses Python 3.12 via uv. Run `tools/check.ps1` for lint, types and tests.
+- Toolchain: uv (macOS: `~/.local/bin/uv`; Windows: user-site `%APPDATA%\Python\Python314\Scripts\uv.exe`); the project uses Python 3.12 via uv. Run `python tools/check.py` (any OS) or `tools/check.ps1` (Windows) for lint, types and tests. macOS migration status: `docs/reports/2026-11-04_macos_migration_plan.md`.
 
 ## How to continue
 

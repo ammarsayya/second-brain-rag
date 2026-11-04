@@ -281,6 +281,11 @@ Each task is written so that it can be independently verified. Spike tasks link 
 - **Validation method:** Unit tests with simulated metrics.
 - **Expected artifacts:** src/sbr/jobs/governor.py
 
+- **Addendum (2026-11-04, macOS; status unchanged: DONE):** `_ram_used_gb()` read `ru_maxrss` as KiB, but macOS
+  reports bytes, so a 50 MB process looked like ~50 GB and the default 40 GB ceiling refused every worker. Fixed via
+  `_maxrss_to_gb()` (bytes on darwin/BSD, KiB on Linux). `set_process_priority()` now also lowers POSIX niceness
+  (below_normal 10, idle 19; never raised). Tests in `tests/jobs/test_governor.py`.
+
 ### T-P1-11 — CLI skeleton
 - **Phase:** P1
 - **Status:** DONE
