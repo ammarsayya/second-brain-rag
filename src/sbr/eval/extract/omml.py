@@ -46,8 +46,13 @@ def is_syntactically_plausible_latex(latex: str) -> bool:
     if any(marker in latex for marker in _PANDOC_ERROR_MARKERS):
         return False
     depth = 0
+    escaped = False
     for char in latex:
-        if char == "{":
+        if escaped:  # "\{" and "\}" are literal braces (e.g. "\left\{"), "\\" a line break
+            escaped = False
+        elif char == "\\":
+            escaped = True
+        elif char == "{":
             depth += 1
         elif char == "}":
             depth -= 1

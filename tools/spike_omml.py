@@ -30,17 +30,23 @@ from __future__ import annotations
 import argparse
 import io
 import json
+import posixpath
 import random
 import subprocess
 import tempfile
 import zipfile
-from pathlib import Path
+from collections import Counter
+from pathlib import Path, PureWindowsPath
 from typing import Any
+from xml.etree import ElementTree
+
+from ruamel.yaml import YAML
 
 from sbr.config import load_config
 from sbr.db import registry as reg
 from sbr.db.registry import RegistryDB
 from sbr.eval.extract.omml import count_omml_equations, extract_latex_equations, is_syntactically_plausible_latex
+from sbr.eval.extract.omml_latex import latex_compare_key, latex_text_signature, omml_xml_to_latex
 from sbr.eval.signals import has_omml_equations
 from sbr.eval.spike_gate import processable_blobs
 from sbr.schemas.registry import RelationType
@@ -48,6 +54,8 @@ from sbr.sourcefs import SourceFS
 
 DEFAULT_OUTPUT = Path("eval/reports/spike_omml.md")
 DEFAULT_INVENTORY_OUTPUT = Path("eval/reports/spike_omml_inventory.md")
+DEFAULT_NATIVE_OUTPUT = Path("eval/reports/spike_omml_native.md")
+DEFAULT_GOLD_MATH = Path("eval/gold/math_sample.yaml")
 DEFAULT_REVIEW_SAMPLE_SIZE = 50
 DEFAULT_SEED = 20_260_926
 _OFFICE_ZIP_FORMATS = {"docx", "pptx"}
@@ -62,6 +70,12 @@ def _arguments() -> argparse.Namespace:
         action="store_true",
         help="count native OMML per DOCX/PPTX part without pandoc (sizes the PPTX gap pandoc leaves)",
     )
+    parser.add_argument(
+        "--native-latex",
+        action="store_true",
+        help="convert every native OMML equation with the stdlib prototype (no pandoc) and score it",
+    )
+    parser.add_argument("--gold", type=Path, default=DEFAULT_GOLD_MATH, help="T-P3-02 math sample for comparison")
     parser.add_argument("--review-sample-size", type=int, default=DEFAULT_REVIEW_SAMPLE_SIZE)
     parser.add_argument("--seed", type=int, default=DEFAULT_SEED)
     return parser.parse_args()
@@ -141,6 +155,289 @@ def inventory_office_file(data: bytes) -> dict[str, Any]:
                 result["slides_with_omml"] += 1
     result["total"] = sum(b["total"] for b in result["parts"].values())
     return result
+
+
+_REL_NS = "http://schemas.openxmlformats.org/officeDocument/2006/relationships"
+_PKG_REL_NS = "http://schemas.openxmlformats.org/package/2006/relationships"
+_PML_NS = "http://schemas.openxmlformats.org/presentationml/2006/main"
+
+
+def _parse_xml(data: bytes) -> ElementTree.Element | None:
+    try:
+        return ElementTree.fromstring(data)  # same expat protections as count_omml_equations
+    except ElementTree.ParseError:
+        return None
+
+
+def _rels(archive: zipfile.ZipFile, rels_name: str) -> dict[str, tuple[str, str]]:
+    """``rId -> (type, target part name)`` for one ``_rels/*.rels`` member; empty when absent or unreadable."""
+    if rels_name not in archive.namelist():
+        return {}
+    root = _parse_xml(archive.read(rels_name))
+    if root is None:
+        return {}
+    base = posixpath.dirname(posixpath.dirname(rels_name))  # ppt/_rels/presentation.xml.rels -> ppt
+    out: dict[str, tuple[str, str]] = {}
+    for rel in root.iter(f"{{{_PKG_REL_NS}}}Relationship"):
+        target = rel.get("Target", "")
+        name = target.lstrip("/") if target.startswith("/") else posixpath.normpath(posixpath.join(base, target))
+        out[rel.get("Id", "")] = (rel.get("Type", ""), name)
+    return out
+
+
+def pptx_slide_order(archive: zipfile.ZipFile) -> dict[str, int]:
+    """Slide part name -> 1-based position in the deck, from ``presentation.xml``'s ``sldIdLst`` (the file
+    number in ``slideN.xml`` is not the presentation order once slides have been moved)."""
+    if "ppt/presentation.xml" not in archive.namelist():
+        return {}
+    root = _parse_xml(archive.read("ppt/presentation.xml"))
+    if root is None:
+        return {}
+    rels = _rels(archive, "ppt/_rels/presentation.xml.rels")
+    order: dict[str, int] = {}
+    for position, slide_id in enumerate(root.iter(f"{{{_PML_NS}}}sldId"), start=1):
+        target = rels.get(slide_id.get(f"{{{_REL_NS}}}id", ""))
+        if target is not None:
+            order[target[1]] = position
+    return order
+
+
+_SLIDE_SCAFFOLDING = ("/slideLayout", "/slideMaster", "/notesMaster", "/theme", "/image", "/media", "/tags")
+
+
+def pptx_part_owner(archive: zipfile.ZipFile) -> dict[str, str]:
+    """Part name -> the slide part that references it (notes, SmartArt diagram data/drawings, charts), from each
+    slide's relationships. Layouts, masters, themes and media are shared scaffolding, not slide content."""
+    owners: dict[str, str] = {}
+    for name in archive.namelist():
+        if name.startswith("ppt/slides/slide") and name.endswith(".xml"):
+            rels_name = posixpath.join("ppt/slides/_rels", posixpath.basename(name) + ".rels")
+            for rel_type, target in _rels(archive, rels_name).values():
+                if not rel_type.endswith(_SLIDE_SCAFFOLDING):
+                    owners.setdefault(target, name)
+    return owners
+
+
+def convert_office_file(data: bytes) -> dict[str, Any]:
+    """Every native OMML equation of one DOCX/PPTX converted by the stdlib prototype, with its location.
+
+    Each equation records its part kind and, for PPTX, the deck position of its slide (notes are attributed to
+    the slide they annotate). ``count_mismatch`` reports parts where converting and counting disagree.
+    """
+    result: dict[str, Any] = {"equations": [], "unreadable_parts": 0, "count_mismatch": 0}
+    try:
+        archive = zipfile.ZipFile(io.BytesIO(data))
+    except zipfile.BadZipFile:
+        result["error"] = "BadZipFile"
+        return result
+    with archive:
+        order = pptx_slide_order(archive)
+        part_owner = pptx_part_owner(archive)
+        for name in archive.namelist():
+            kind = part_kind(name)
+            if kind is None:
+                continue
+            xml = archive.read(name)
+            converted = omml_xml_to_latex(xml)
+            counted = count_omml_equations(xml)
+            if converted is None or counted is None:
+                result["unreadable_parts"] += 1
+                continue
+            if len(converted) != counted.total:
+                result["count_mismatch"] += 1
+            slide_part = part_owner.get(name, name)
+            for ordinal, equation in enumerate(converted, start=1):
+                result["equations"].append(
+                    {
+                        "part": name,
+                        "kind": kind,
+                        "slide": order.get(slide_part),
+                        "ordinal": ordinal,
+                        "latex": equation.latex,
+                        "unsupported": list(equation.unsupported),
+                        "valid": is_syntactically_plausible_latex(equation.latex),
+                    }
+                )
+    return result
+
+
+def compare_with_gold(gold_path: Path) -> dict[str, Any] | None:
+    """Score the prototype on the T-P3-02 OMML gold candidates: each sample's exact OMML crop is converted and
+    compared with the pandoc LaTeX the selector paired with it by ordinal. ``None`` if the local gold is absent."""
+    if not gold_path.is_file():
+        return None
+    data = YAML(typ="safe").load(gold_path.read_text(encoding="utf-8"))
+    base = gold_path.parent.parent.parent  # eval/gold/math_sample.yaml -> repository root (crop paths are relative)
+    result: dict[str, Any] = {"compared": 0, "equal": 0, "differs": [], "mispaired": [], "missing_crop": 0}
+    for sample in data.get("samples", []):
+        if sample.get("source_kind") != "omml_exact":
+            continue
+        crop = base / PureWindowsPath(sample["crop"]["path"]).as_posix()
+        if not crop.is_file():
+            result["missing_crop"] += 1
+            continue
+        converted = omml_xml_to_latex(crop.read_bytes())
+        native = converted[0].latex if converted else ""
+        pandoc = sample.get("latex") or ""
+        result["compared"] += 1
+        if latex_text_signature(native) != latex_text_signature(pandoc):
+            result["mispaired"].append({"sample_id": sample["sample_id"], "relpath": sample["relpath"]})
+        elif latex_compare_key(native) == latex_compare_key(pandoc):
+            result["equal"] += 1
+        else:
+            result["differs"].append({"sample_id": sample["sample_id"], "pandoc": pandoc, "native": native})
+    return result
+
+
+def _native_latex(args: argparse.Namespace) -> int:
+    config = load_config(args.config)
+    source_fs = SourceFS(config)
+    output: Path = args.output or DEFAULT_NATIVE_OUTPUT
+    with RegistryDB.open(config) as db:
+        observations = {o.obs_id: o for o in db.repo(reg.PATH_OBSERVATION).find()}
+        blobs = processable_blobs(db, observations.values(), _OFFICE_ZIP_FORMATS)
+
+    files: list[dict[str, Any]] = []
+    read_errors = 0
+    for blob in blobs.values():
+        obs = observations.get(blob.canonical_obs_id) if blob.canonical_obs_id else None
+        if obs is None or blob.format is None:
+            continue
+        try:
+            data = source_fs.read_bytes(obs.root_id, obs.relpath_raw)
+        except OSError:
+            read_errors += 1
+            continue
+        converted = convert_office_file(data)
+        if converted["equations"] or converted.get("error"):
+            files.append({"fmt": blob.format, "relpath": obs.relpath, **converted})
+
+    def _fmt_totals(fmt: str) -> dict[str, Any]:
+        equations = [e for f in files if f["fmt"] == fmt for e in f["equations"]]
+        unsupported = Counter(tag for e in equations for tag in e["unsupported"])
+        return {
+            "files": sum(1 for f in files if f["fmt"] == fmt and f["equations"]),
+            "equations": len(equations),
+            "valid": sum(1 for e in equations if e["valid"]),
+            "empty": sum(1 for e in equations if not e["latex"].strip()),
+            "exact": sum(1 for e in equations if not e["unsupported"]),
+            "unsupported": unsupported,
+            "by_kind": Counter(e["kind"] for e in equations),
+            "count_mismatch": sum(f["count_mismatch"] for f in files if f["fmt"] == fmt),
+            "unreadable_parts": sum(f["unreadable_parts"] for f in files if f["fmt"] == fmt),
+        }
+
+    totals = {fmt: _fmt_totals(fmt) for fmt in ("docx", "pptx")}
+    pptx_equations = [
+        {"relpath": f["relpath"], **e}
+        for f in sorted(files, key=lambda f: f["relpath"])
+        if f["fmt"] == "pptx"
+        for e in f["equations"]
+    ]
+    rng = random.Random(args.seed)
+    sample = sorted(
+        rng.sample(pptx_equations, min(args.review_sample_size, len(pptx_equations))),
+        key=lambda e: (e["relpath"], e["slide"] or 0, e["part"], e["ordinal"]),
+    )
+    gold = compare_with_gold(args.gold)
+
+    def _pct(part: int, whole: int) -> str:
+        return f"{100 * part / whole:.1f}%" if whole else "n/a"
+
+    lines = [
+        "# SPIKE-OMML follow-up: native OMML -> LaTeX prototype (T-P3-07)",
+        "",
+        "`sbr.eval.extract.omml_latex` converts OMML with the Python standard library, so DOCX and PPTX math share "
+        "one path and pandoc is not needed. Every equation `count_omml_equations` counts is converted; PPTX slide "
+        "positions come from `presentation.xml` (deck order), and notes are attributed to the slide they annotate.",
+        "",
+        "**Evidence, not a decision.** *Valid* is syntactic plausibility (balanced braces, non-empty), not "
+        "correctness. *Exact* means no OMML element fell back to plain text. Choosing the ADR-009 Office-math path "
+        "and accepting any converter needs the owner's review of the sample below. Blobs the sensitivity gate "
+        "rejects are not opened.",
+        "",
+        f"- files that could not be read from the source: {read_errors}",
+    ]
+    for fmt, t in totals.items():
+        unsupported = ", ".join(f"{tag} {n}" for tag, n in t["unsupported"].most_common()) or "none"
+        kinds = ", ".join(f"{kind} {n}" for kind, n in sorted(t["by_kind"].items()))
+        lines += [
+            "",
+            f"## {fmt.upper()}",
+            "",
+            f"- files with native OMML: {t['files']}; equations converted: {t['equations']} ({kinds})",
+            f"- syntactically valid: {t['valid']} ({_pct(t['valid'], t['equations'])}); exact (no fallback): "
+            f"{t['exact']} ({_pct(t['exact'], t['equations'])}); empty `m:oMath` placeholders (count as not valid): "
+            f"{t['empty']}",
+            f"- elements that fell back to plain text: {unsupported}",
+            f"- parts where converted and counted equations differ: {t['count_mismatch']}; unreadable parts: "
+            f"{t['unreadable_parts']}",
+        ]
+    if gold is None:
+        lines += ["", "## Comparison with pandoc on the T-P3-02 gold candidates", "", "- local gold set not found"]
+    else:
+        aligned = gold["compared"] - len(gold["mispaired"])
+        lines += [
+            "",
+            "## Comparison with pandoc on the T-P3-02 OMML gold candidates",
+            "",
+            "Each candidate's exact OMML crop is converted and compared with the pandoc LaTeX the T-P3-02 selector "
+            "paired with it **by ordinal**. A different letter/digit content means the pair is not the same "
+            "equation (*mis-paired*); otherwise the two are compared after folding notation (`latex_compare_key`).",
+            "",
+            f"- candidates compared: {gold['compared']} (crops missing: {gold['missing_crop']})",
+            f"- **mis-paired** (pandoc LaTeX belongs to another equation): {len(gold['mispaired'])} "
+            f"({_pct(len(gold['mispaired']), gold['compared'])})",
+            f"- correctly paired and equal after notation folding: {gold['equal']}/{aligned} "
+            f"({_pct(gold['equal'], aligned)})",
+            f"- correctly paired but different: {len(gold['differs'])}",
+            "",
+            "Mis-paired sample ids by file: "
+            + "; ".join(
+                f"{PureWindowsPath(relpath).name}: {', '.join(ids)}"
+                for relpath, ids in sorted(_group_ids(gold["mispaired"]).items())
+            ),
+            "",
+        ]
+    if gold is not None and gold["differs"]:
+        lines += [
+            "",
+            "| sample | pandoc | native |",
+            "|---|---|---|",
+            *(f"| {d['sample_id']} | `{_cell(d['pandoc'])}` | `{_cell(d['native'])}` |" for d in gold["differs"]),
+        ]
+    lines += [
+        "",
+        f"## PPTX review sample ({len(sample)} of {len(pptx_equations)}, seed {args.seed})",
+        "",
+        "| relpath | slide | part | # | LaTeX | exact |",
+        "|---|---|---|---|---|---|",
+        *(
+            f"| {e['relpath']} | {e['slide'] or '-'} | {posixpath.basename(e['part'])} | {e['ordinal']} | "
+            f"`{_cell(e['latex'])}` | {not e['unsupported']} |"
+            for e in sample
+        ),
+        "",
+    ]
+    output.parent.mkdir(parents=True, exist_ok=True)
+    output.write_text("\n".join(lines), encoding="utf-8")
+    summary = {fmt: {k: v for k, v in t.items() if not isinstance(v, Counter)} for fmt, t in totals.items()}
+    if gold is not None:
+        summary["gold"] = {"compared": gold["compared"], "equal": gold["equal"], "mispaired": len(gold["mispaired"])}
+    print(json.dumps(summary, indent=2, sort_keys=True))
+    print(f"report written to {output}")
+    return 0
+
+
+def _group_ids(rows: list[dict[str, Any]]) -> dict[str, list[str]]:
+    grouped: dict[str, list[str]] = {}
+    for row in rows:
+        grouped.setdefault(row["relpath"], []).append(row["sample_id"])
+    return grouped
+
+
+def _cell(latex: str) -> str:
+    return latex.replace("|", "\\vert ").replace("`", "'")
 
 
 def _pptx_inventory(args: argparse.Namespace) -> int:
@@ -240,6 +537,8 @@ def _pptx_inventory(args: argparse.Namespace) -> int:
 
 def main() -> int:
     args = _arguments()
+    if args.native_latex:
+        return _native_latex(args)
     if args.pptx_inventory:
         return _pptx_inventory(args)
     output: Path = args.output or DEFAULT_OUTPUT

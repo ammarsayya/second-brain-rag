@@ -31,6 +31,7 @@ from sbr.config import load_config
 from sbr.db import registry as reg
 from sbr.db.registry import RegistryDB
 from sbr.eval.extract.omml import extract_latex_equations, is_syntactically_plausible_latex
+from sbr.eval.extract.omml_latex import latex_text_signature, omml_xml_to_latex
 from sbr.eval.gold_math import (
     DEFAULT_SEED,
     DEFAULT_TARGET_EQUATIONS,
@@ -146,6 +147,14 @@ def _ordered_omml_xml(docx_bytes: bytes) -> list[tuple[str, bool]]:
     return [item for item in found if item[1]] + [item for item in found if not item[1]]
 
 
+def paired_text_agrees(omml_xml: str, latex: str) -> bool:
+    """Whether an ordinal-paired pandoc LaTeX string has the same letters/digits as the OMML subtree it was paired
+    with (converted natively). Different content means the pair is two different equations."""
+    converted = omml_xml_to_latex(omml_xml.encode("utf-8"))
+    native = converted[0].latex if converted else ""
+    return latex_text_signature(native) == latex_text_signature(latex)
+
+
 def _has_native_omml(data: bytes) -> bool:
     try:
         with zipfile.ZipFile(io.BytesIO(data)) as archive:
@@ -185,6 +194,10 @@ def _omml_candidates(
             display = index < display_count
             if display != xml_display:
                 mismatches.append({"blob_id": blob_id, "equation_ordinal": index + 1, "display_kind_mismatch": True})
+                continue
+            if not paired_text_agrees(xml, latex):
+                # Ordinal pairing drifted (2026-11-04: 42 of 180 earlier candidates carried another equation's LaTeX).
+                mismatches.append({"blob_id": blob_id, "equation_ordinal": index + 1, "text_mismatch": True})
                 continue
             candidate_id = f"omml-{blob_id.removeprefix('b3:')[:16]}-{index + 1:04d}"
             candidate = MathCandidate(candidate_id, blob_id, "omml_exact", difficulty_tag(latex, display=display))

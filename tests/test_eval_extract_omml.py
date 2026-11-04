@@ -98,3 +98,10 @@ def test_refuses_entity_expansion_and_external_entities() -> None:
     xxe = b'<?xml version="1.0"?><!DOCTYPE r [<!ENTITY x SYSTEM "file:///etc/passwd">]><r>&x;</r>'
     assert count_omml_equations(bomb) is None
     assert count_omml_equations(xxe) is None
+
+
+def test_is_syntactically_plausible_treats_escaped_braces_as_literals() -> None:
+    assert is_syntactically_plausible_latex(r"\left\{ \begin{aligned} a \\ b \end{aligned} \right.") is True
+    assert is_syntactically_plausible_latex(r"\{x\}") is True
+    assert is_syntactically_plausible_latex(r"a \\{b}") is True  # a line break, then a real group
+    assert is_syntactically_plausible_latex(r"a \\{b") is False

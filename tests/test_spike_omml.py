@@ -85,3 +85,105 @@ def test_pptx_inventory_end_to_end_over_a_registry(make_config: Callable[..., Sb
     assert "- slides carrying native OMML: 1" in report
     assert "| pptx | folien.pptx | 1 | 0 | 1 / 1 | False |" in report
     assert "| docx | uebung1.docx |" in report
+
+
+M_NS = "http://schemas.openxmlformats.org/officeDocument/2006/math"
+P_NS = "http://schemas.openxmlformats.org/presentationml/2006/main"
+R_NS = "http://schemas.openxmlformats.org/officeDocument/2006/relationships"
+PKG = "http://schemas.openxmlformats.org/package/2006/relationships"
+
+
+def _omath(text: str) -> str:
+    return f'<m:oMath xmlns:m="{M_NS}"><m:r><m:t>{text}</m:t></m:r></m:oMath>'
+
+
+def _deck_with_moved_slides() -> bytes:
+    """slide2.xml is shown first; its notes (notesSlide1.xml) carry an equation."""
+    buffer = io.BytesIO()
+    with zipfile.ZipFile(buffer, "w") as archive:
+        archive.writestr(
+            "ppt/presentation.xml",
+            f'<p:presentation xmlns:p="{P_NS}" xmlns:r="{R_NS}"><p:sldIdLst>'
+            '<p:sldId id="256" r:id="rId9"/><p:sldId id="257" r:id="rId8"/></p:sldIdLst></p:presentation>',
+        )
+        archive.writestr(
+            "ppt/_rels/presentation.xml.rels",
+            f'<Relationships xmlns="{PKG}"><Relationship Id="rId8" Type="slide" Target="slides/slide1.xml"/>'
+            '<Relationship Id="rId9" Type="slide" Target="slides/slide2.xml"/></Relationships>',
+        )
+        archive.writestr("ppt/slides/slide1.xml", f'<p:sld xmlns:p="{P_NS}">{_omath("b")}</p:sld>')
+        archive.writestr("ppt/slides/slide2.xml", f'<p:sld xmlns:p="{P_NS}">{_omath("a")}</p:sld>')
+        archive.writestr(
+            "ppt/slides/_rels/slide2.xml.rels",
+            f'<Relationships xmlns="{PKG}"><Relationship Id="rId2" Type="{R_NS}/notesSlide" '
+            'Target="../notesSlides/notesSlide1.xml"/></Relationships>',
+        )
+        archive.writestr("ppt/notesSlides/notesSlide1.xml", f'<p:notes xmlns:p="{P_NS}">{_omath("n")}</p:notes>')
+    return buffer.getvalue()
+
+
+def test_pptx_equations_carry_deck_position_and_notes_belong_to_their_slide() -> None:
+    result = spike_omml.convert_office_file(_deck_with_moved_slides())
+    located = sorted((e["latex"], e["kind"], e["slide"]) for e in result["equations"])
+    assert located == [("a", "pptx_slide", 1), ("b", "pptx_slide", 2), ("n", "pptx_notes", 1)]
+    assert (result["count_mismatch"], result["unreadable_parts"]) == (0, 0)
+
+
+def test_convert_office_file_handles_the_fixture_deck_and_bad_input() -> None:
+    result = spike_omml.convert_office_file((FIXTURES / "folien.pptx").read_bytes())
+    [equation] = result["equations"]
+    assert (equation["kind"], equation["valid"], equation["unsupported"]) == ("pptx_slide", True, [])
+    assert spike_omml.convert_office_file(b"not a zip")["error"] == "BadZipFile"
+
+
+def test_native_latex_end_to_end_flags_a_mispaired_gold_candidate(
+    make_config: Callable[..., SbrConfig], tmp_path: Path
+) -> None:
+    config = make_config()
+    root = Path(config.roots.sources[0].path)
+    (root / "folien.pptx").write_bytes((FIXTURES / "folien.pptx").read_bytes())
+    config_file = tmp_path / "omml.toml"
+    config_file.write_text(
+        "[roots]\n"
+        f"sources = [{{ id = 'fx', path = '{root.as_posix()}' }}]\n"
+        f"var = '{Path(config.roots.var).as_posix()}'\n"
+        f"curation = '{Path(config.roots.curation).as_posix()}'\n"
+        f"protected = ['{Path(config.roots.protected[0]).as_posix()}']\n",
+        encoding="utf-8",
+    )
+    curation_dir = Path(config.roots.curation)
+    curation_dir.mkdir(parents=True, exist_ok=True)
+    (curation_dir / "canonical_path_overrides.yaml").write_text("overrides: []\n", encoding="utf-8")
+    db = RegistryDB.open(config)
+    db.migrate()
+    scan_root(config, db, "fx")
+    hash_pending(config, db)
+    classify_pending(config, db)
+    select_canonical_paths(config, db)
+    db.close()
+
+    gold_root = tmp_path / "repo"
+    crops = gold_root / "eval" / "gold" / "math" / "crops"
+    crops.mkdir(parents=True)
+    (crops / "math-001.omml.xml").write_text(_omath("Umin"), encoding="utf-8")
+    (crops / "math-002.omml.xml").write_text(_omath("x²"), encoding="utf-8")
+    gold = gold_root / "eval" / "gold" / "math_sample.yaml"
+    gold.write_text(
+        "samples:\n"
+        "- {sample_id: math-001, source_kind: omml_exact, relpath: 'a\\\\MSR.docx', latex: 'L_{\\max}',\n"
+        "   crop: {path: 'eval\\\\gold\\\\math\\\\crops\\\\math-001.omml.xml'}}\n"
+        "- {sample_id: math-002, source_kind: omml_exact, relpath: 'a\\\\b.docx', latex: 'x²',\n"
+        "   crop: {path: 'eval\\\\gold\\\\math\\\\crops\\\\math-002.omml.xml'}}\n",
+        encoding="utf-8",
+    )
+    output = tmp_path / "native.md"
+    args = argparse.Namespace(config=config_file, output=output, gold=gold, review_sample_size=5, seed=1)
+
+    assert spike_omml._native_latex(args) == 0
+
+    report = output.read_text(encoding="utf-8")
+    assert "- files with native OMML: 1; equations converted: 1 (pptx_slide 1)" in report
+    assert "- **mis-paired** (pandoc LaTeX belongs to another equation): 1 (50.0%)" in report
+    assert "- correctly paired and equal after notation folding: 1/1 (100.0%)" in report
+    assert "MSR.docx: math-001" in report
+    assert "| folien.pptx | 1 | slide1.xml | 1 |" in report
