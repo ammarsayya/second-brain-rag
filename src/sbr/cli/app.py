@@ -28,6 +28,7 @@ from sbr.eval.extract.contracts import Extractor
 from sbr.eval.extract.dummy import DummyTextExtractor
 from sbr.eval.extract.goldfile import load_gold_samples
 from sbr.eval.extract.harness import run_harness
+from sbr.models import Gateway, ModelGatewayError
 from sbr.obs.trace import TraceDB, TraceNotFoundError, render_run_trace
 from sbr.ops.backup import create_backup
 from sbr.registry.archives import inventory_archives
@@ -62,6 +63,8 @@ eval_app = typer.Typer(help="Extraction/retrieval evaluation harnesses (P3+).")
 app.add_typer(eval_app, name="eval")
 artifacts_app = typer.Typer(help="Inspect and explicitly maintain the rebuildable artifact store.")
 app.add_typer(artifacts_app, name="artifacts")
+models_app = typer.Typer(help="Model gateway: configured roles and local providers (local-only, ADR-039/ADR-040).")
+app.add_typer(models_app, name="models")
 
 EXTRACTORS: dict[str, Extractor] = {"dummy_text_layer": DummyTextExtractor()}
 GoldFileOption = typer.Option(..., "--gold", help="Gold-file YAML (sbr.eval.extract.goldfile schema).")
@@ -589,6 +592,34 @@ def eval_extract_cmd(
 def config_show_cmd(config: Path | None = ConfigOption) -> None:
     """Print the effective, validated configuration as JSON."""
     _run("config show", config, lambda rt: dict(rt.config.model_dump(mode="json")))
+
+
+@models_app.command("status")
+def models_status_cmd(
+    config: Path | None = ConfigOption,
+    probe: bool = typer.Option(False, "--probe", help="Contact each configured local provider (loopback only)."),
+) -> None:
+    """Roles, providers and capability checks. Sends no content; --probe only lists models on local servers."""
+
+    def body(rt: Runtime) -> dict[str, object]:
+        try:
+            gateway = Gateway(rt.config.models)
+        except ModelGatewayError as exc:
+            return {"ok": False, "error": str(exc), "remote_providers_allowed": False}
+        providers: dict[str, object] = {}
+        for name, provider in gateway.providers.items():
+            entry: dict[str, object] = {
+                "kind": provider.kind,
+                "locality": provider.locality.value,
+                "capabilities": sorted(c.value for c in provider.capabilities),
+            }
+            if probe:
+                result = provider.probe(timeout_s=rt.config.models.providers[name].timeout_s)
+                entry["probe"] = {"ok": result.ok, "detail": result.detail, "models": list(result.models)}
+            providers[name] = entry
+        return {"ok": True, "remote_providers_allowed": False, "providers": providers, "roles": gateway.role_status()}
+
+    _run("models status", config, body)
 
 
 def main() -> None:

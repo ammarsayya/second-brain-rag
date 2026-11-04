@@ -30,6 +30,8 @@ from typing import Annotated, Any, Literal, Self
 from pydantic import BaseModel, ConfigDict, Field, ValidationError, field_validator, model_validator
 from pydantic_settings import BaseSettings, PydanticBaseSettingsSource, SettingsConfigDict
 
+from sbr.egress import local_url_problem
+
 DEFAULT_CONFIG_PATH = Path("config") / "sbr.toml"
 CONFIG_ENV_VAR = "SBR_CONFIG"
 
@@ -205,7 +207,8 @@ class GovernorConfig(_Strict):
 
 
 class RoleConfig(_Strict):
-    """A model role (docs/17 §1). ``primary`` stays unset until SPIKE-MODELGW / Q-B04 decide concrete models."""
+    """A model role (docs/17 §1). ``primary``/``fallbacks`` are ``provider/model`` references into
+    ``[models.providers]``; a role without ``primary`` is unconfigured and the gateway refuses it."""
 
     primary: str | None = None
     fallbacks: list[str] = Field(default_factory=list)
@@ -222,8 +225,80 @@ class RoleConfig(_Strict):
         return v
 
 
+MODEL_ROLES = frozenset(
+    {"embed", "rerank", "ocr", "math_ocr", "layout", "classify", "extract", "reason", "judge", "vision", "research"}
+)  # docs/17 §1
+_PROVIDER_NAME_RE = re.compile(r"^[a-z][a-z0-9_-]{0,31}$")
+_ENV_NAME_RE = re.compile(r"^[A-Z_][A-Z0-9_]{0,127}$")
+
+
+class ProviderKind(StrEnum):
+    """Adapter kinds implemented by :mod:`sbr.models` (ADR-040). No remote kind exists in this phase."""
+
+    MOCK = "mock"  # deterministic, in-process; for tests and dry runs
+    OPENAI_COMPATIBLE = "openai_compatible"  # a local server (Ollama, llama.cpp server, LM Studio, vLLM) on loopback
+
+
+class ProviderConfig(_Strict):
+    """One model provider. Remote endpoints are rejected (ADR-039/ADR-040); credentials are never stored here."""
+
+    kind: ProviderKind
+    base_url: str | None = Field(default=None, description="Loopback endpoint, e.g. http://127.0.0.1:11434/v1")
+    timeout_s: Annotated[float, Field(gt=0, le=3600)] = 120.0
+    max_retries: Annotated[int, Field(ge=0, le=5)] = 1
+    capabilities: list[str] | None = Field(
+        default=None, description="Restrict the adapter's capabilities (cannot add any it does not implement)"
+    )
+    api_key_env: str | None = Field(
+        default=None, description="Name of an environment variable holding a token for a local server (never the token)"
+    )
+
+    @model_validator(mode="after")
+    def _check(self) -> Self:
+        if self.kind is ProviderKind.OPENAI_COMPATIBLE:
+            if not self.base_url:
+                raise ValueError("openai_compatible providers need base_url (a loopback URL)")
+            problem = local_url_problem(self.base_url)
+            if problem:
+                raise ValueError(f"base_url {self.base_url!r}: {problem}")
+        elif self.base_url is not None:
+            raise ValueError("mock providers take no base_url")
+        if self.api_key_env is not None and not _ENV_NAME_RE.match(self.api_key_env):
+            raise ValueError("api_key_env must be an environment variable NAME (A-Z, 0-9, _), not a key")
+        return self
+
+
 class ModelsConfig(_Strict):
+    """Role-to-model map and providers (docs/17, ADR-025/ADR-040).
+
+    ``allow_remote`` can only be ``false``: the owner has not authorized remote providers (Q-B03/Q-B04, 2026-11-04).
+    Enabling one needs a new owner authorization and a reviewed code change, not a configuration flag.
+    """
+
+    allow_remote: Literal[False] = False
+    providers: dict[str, ProviderConfig] = Field(default_factory=dict)
     roles: dict[str, RoleConfig] = Field(default_factory=dict)
+
+    @model_validator(mode="after")
+    def _check_references(self) -> Self:
+        problems: list[str] = []
+        for name in self.providers:
+            if not _PROVIDER_NAME_RE.match(name):
+                problems.append(f"provider name {name!r} must match {_PROVIDER_NAME_RE.pattern}")
+        for role, rc in self.roles.items():
+            if role not in MODEL_ROLES:
+                problems.append(f"unknown role {role!r} (known: {', '.join(sorted(MODEL_ROLES))})")
+            for ref in ([rc.primary] if rc.primary else []) + rc.fallbacks:
+                provider, sep, model = ref.partition("/")
+                if not sep or not provider or not model:
+                    problems.append(f"role {role!r}: model reference {ref!r} must look like 'provider/model'")
+                elif provider not in self.providers:
+                    problems.append(f"role {role!r}: provider {provider!r} is not defined in [models.providers]")
+            if rc.fallbacks and not rc.primary:
+                problems.append(f"role {role!r}: fallbacks without a primary")
+        if problems:
+            raise ValueError("; ".join(problems))
+        return self
 
 
 class LoggingConfig(_Strict):

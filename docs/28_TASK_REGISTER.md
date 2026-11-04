@@ -1641,7 +1641,7 @@ Each task is written so that it can be independently verified. Spike tasks link 
 
 ### T-P7-01 — Model gateway
 - **Phase:** P7
-- **Status:** NOT_STARTED
+- **Status:** DONE
 - **Priority:** critical
 - **Dependencies:** T-P1-02
 - **Scope limit (owner decision 2026-11-04, docs/24):** the `T-P7-02` dependency was removed so the gateway can be built before SPIKE-MODELGW, **with mock or local backends only**. Real-provider adapters, credentials and provider acceptance/benchmarking remain T-P7-02's job and need further owner authorization (ADR-040).
@@ -1652,6 +1652,22 @@ Each task is written so that it can be independently verified. Spike tasks link 
 - **Acceptance criteria:** Fake-model tests; sensitivity gate blocks remote calls for restricted docs; cost logged.
 - **Validation method:** Tests.
 - **Expected artifacts:** src/sbr/models/*
+- **Verification (2026-11-04, Linux container; not run on the owner's Mac):** DONE within the owner-limited scope
+  (mock/local backends only). `src/sbr/models/` provides `Gateway` (role routing over all docs/17 §1 roles,
+  capability checks at construction, sensitivity gate, bounded retries with backoff for retryable errors, local-only
+  fallbacks, in-memory content-addressed response cache, structured output validated against a Pydantic schema,
+  `CallRecord` accounting with cost, tokens, latency and hashes, logged without content), a deterministic
+  `MockProvider`, and an `OpenAICompatibleProvider` for a loopback inference server (stdlib only; proxies ignored,
+  redirects refused, size cap, deadline). `sbr.config` gains `[models.providers]` with loopback-only URLs,
+  `allow_remote` fixed to `false`, `api_key_env` names only, and role/provider reference validation; `sbr.egress`
+  holds the shared predicates. `sbr models status [--probe]` added. **Acceptance:** fake-model tests are in
+  `tests/models/` (72 tests, including the loopback HTTP integration tests); restricted content is refused for
+  every role before any provider call, and remote providers are refused at configuration, construction and call
+  time; cost is logged per call (0.0 locally). Full suite 640 passed, 5 skipped; ruff, strict mypy, plan validation,
+  cross-reference audit and schema export check clean. **Not done (explicitly out of scope):** remote adapters and
+  credentials (T-P7-02, not authorized); `rerank` and local vision adapters (no backend yet; configuring those roles
+  fails validation instead of claiming support); a persistent response cache under `var/`; any measurement against a
+  real local model server (none in this environment).
 
 ### T-P7-02 — SPIKE-MODELGW: access to OpenCode-configured models
 - **Phase:** P7

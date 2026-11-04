@@ -51,3 +51,40 @@ Model upgrades go through eval gates (20).
 
 Per-run and per-day budgets. Dry-run cost estimation for batch jobs (relation extraction, AI notes) before execution. The cache is keyed by
 (role, model version, prompt version, input hash).
+
+## 6. Implementation (T-P7-01, 2026-11-04)
+
+`sbr.models` implements §1 for the local-only phase (ADR-039, ADR-040).
+
+| Piece | Module | State |
+|---|---|---|
+| Gateway (routing, sensitivity gate, retries, local fallbacks, cache, accounting) | `gateway.py` | implemented, tested |
+| Deterministic mock adapter (generate, structured, embed, vision input) | `mock.py` | implemented, tested |
+| Local OpenAI-compatible adapter (Ollama, llama.cpp server, LM Studio, vLLM) | `openai_compat.py` | implemented; tested against a loopback test server only, **not against a real inference server** |
+| Remote adapters (Anthropic, OpenAI, OpenCode, ...) | none | not authorized (ADR-040); T-P7-02 |
+| `rerank` capability | none | no adapter implements it; configuring `rerank` fails validation |
+| Vision input on the local adapter | none | not implemented; `ocr`/`math_ocr`/`layout`/`vision` work only with the mock until a local VLM adapter is measured |
+
+**Roles in practice.** Every docs/17 §1 role is routable. A role is usable only when its provider implements the
+capability it needs (`ROLE_CAPABILITY`): `embed` needs `embed`; `ocr`, `math_ocr`, `layout`, `vision` need `vision`;
+`classify`, `extract`, `reason`, `judge`, `research` need `generate`; `rerank` needs `rerank`. The checks run when
+the gateway is built, so a misconfigured role fails at start-up, not mid-run.
+
+**Call contract.** Every request carries an explicit `sensitivity`. `restricted` is refused for every role, and other
+classes only where the role's `allowed_sensitivity` lists them. Each call yields a `CallRecord`: role, provider,
+model, server-reported model version, prompt version, subject id, input/output SHA-256 and sizes, token usage,
+latency, attempts, cache hit, outcome, error type, cost (0.0 locally), and `provenance_class = AI_GENERATED`. It is
+logged on `sbr.models` without any prompt or output text.
+
+**Reliability.** `max_retries` (0-5, default 1) applies only to retryable errors: timeouts, HTTP 429/5xx and dropped
+connections. Backoff is 0.5 s, 1 s, 2 s, ..., capped at 4 s. A refused connection (no local server) is not retried;
+the error says so and names the config key to fix. Each fallback is tried in turn and must be local. Policy errors
+are never retried and never fall back. The response cache is in-memory only: a persistent, content-hash-keyed cache
+under `var/` is still open work.
+
+**Limitations.** The deadline covers the whole response, but it is checked between reads, so one stalled read can
+take up to `timeout_s` more (worst case about 2 × `timeout_s`). Throughput, memory use and output quality of real
+local models are **unmeasured**. That is SPIKE-EMBED, SPIKE-MATH and SPIKE-COMPUTE work on the owner's Mac.
+
+CLI: `sbr models status [--probe]` lists providers, capabilities and role readiness. `--probe` only calls `GET /models`
+on the configured loopback servers.

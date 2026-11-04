@@ -5,21 +5,25 @@
   "updated_by": "Claude (Q-B03/Q-B04 owner decisions recorded as ADR-039/040; T-P7-01 dependency adjusted per owner decision)",
   "authoritative_docs": "docs/28_TASK_REGISTER.md (tasks), docs/24_DECISION_LOG.md (decisions), docs/25_OPEN_QUESTIONS.md, docs/34_RESEARCH_AND_SPIKE_REGISTER.md",
   "current_phase": "P3/P4/P5/P13",
-  "current_phase_status": "P3 in_progress (T-P3-01, T-P3-04 DONE; T-P3-02/T-P3-03/T-P3-07/T-P3-08 IN_PROGRESS - evidence or drafts gathered, owner review pending; T-P3-02 also has 120 PDF-native equations gated on Q-B04/model access); P4 in progress (T-P4-01, T-P4-02, T-P4-13 DONE); P5 in progress (T-P5-06 taxonomy drafted, owner approval pending); P13 in progress (T-P13-02, T-P13-04 DONE)",
+  "current_phase_status": "P3 in_progress (T-P3-01, T-P3-04 DONE; T-P3-02/T-P3-03/T-P3-07/T-P3-08 IN_PROGRESS - evidence or drafts gathered, owner review pending; T-P3-02 also has 120 PDF-native equations that need a measured local math/vision model, since remote access is not authorized); P4 in progress (T-P4-01, T-P4-02, T-P4-13 DONE); P5 in progress (T-P5-06 taxonomy drafted, owner approval pending); P7 in progress (T-P7-01 gateway DONE, mock/local only; T-P7-03 DONE; T-P7-02 BLOCKED on credentials/activation); P13 in progress (T-P13-02, T-P13-04 DONE)",
   "last_task_verification": {
-    "task": "T-P5-06",
-    "date": "2026-09-27",
-    "status": "IN_PROGRESS",
-    "summary": "Taxonomy v0 is drafted as 43 bilingual SKOS-like concepts under 10 curriculum-level domains, and all 42 curated courses map to at least one valid concept; the task remains open on the acceptance criterion's required owner review and approval.",
+    "task": "T-P7-01",
+    "date": "2026-11-04",
+    "status": "DONE",
+    "summary": "Model gateway implemented for the owner-limited local-only scope (ADR-039/ADR-040): role routing, sensitivity gate, bounded retries, local-only fallbacks, in-memory response cache, structured output, call accounting without content; deterministic mock and loopback OpenAI-compatible adapters; remote providers refused at config, construction and call time.",
     "files": [
-      "curation/taxonomy.yaml",
-      "curation/course_map.yaml",
-      "src/sbr/curation.py",
-      "tests/test_curation.py",
-      "docs/28_TASK_REGISTER.md",
-      "docs/35_EXECUTION_STATE.json"
+      "src/sbr/models/",
+      "src/sbr/egress.py",
+      "src/sbr/config.py",
+      "src/sbr/cli/app.py",
+      "tests/models/",
+      "tests/test_cli_commands.py",
+      "config/sbr.example.toml",
+      "config/sbr.macos.example.toml",
+      "docs/17_MODEL_STRATEGY.md",
+      "docs/22_SECURITY_AND_SAFETY.md"
     ],
-    "verification": "curation/taxonomy.yaml loads through load_taxonomy() with 43 unique bilingual concepts and 10 roots. Every broader/narrower/related reference resolves; broader/narrower and related relationships are reciprocal, including intentional poly-hierarchy. The additive defaulted CourseMapEntry.domains field preserves existing consumers, while every one of the 42 real course_map.yaml rows carries at least one valid taxonomy concept. Focused curation/course tests: 31 passed. Full suite: 470 passed with only the four known pdflatex-only fixture-generation failures. Strict mypy, ruff check/format, plan validation, and cross-reference audit are clean. The owner must still review and approve or correct the domain structure, bilingual labels, relationships, and all 42 course assignments; T-P5-06 is not DONE."
+    "verification": "Linux container only (no macOS run, no real inference server, no corpus). 72 gateway/adapter/egress/config tests incl. loopback HTTP integration; full suite 640 passed, 5 skipped; ruff check/format, strict mypy, validate_plan, audit_crossrefs and export_schemas --check clean."
   },
   "phases": {
     "P0": {
@@ -70,8 +74,8 @@
   },
   "task_totals": {
     "total": 146,
-    "DONE": 45,
-    "NOT_STARTED": 92,
+    "DONE": 46,
+    "NOT_STARTED": 91,
     "IN_PROGRESS": 5,
     "BLOCKED": 1,
     "DEFERRED": 3
@@ -162,7 +166,7 @@
     "T-P6-11": "NOT_STARTED",
     "T-P6-12": "NOT_STARTED",
     "T-P6-13": "NOT_STARTED",
-    "T-P7-01": "NOT_STARTED",
+    "T-P7-01": "DONE",
     "T-P7-02": "BLOCKED",
     "T-P7-03": "DONE",
     "T-P7-04": "NOT_STARTED",
@@ -266,6 +270,7 @@
     "T-P4-01",
     "T-P4-02",
     "T-P13-04",
+    "T-P7-01",
     "T-P7-03",
     "T-P9-02",
     "T-P4-13",
@@ -281,9 +286,7 @@
   "blocked_tasks": [
     "T-P7-02"
   ],
-  "next_eligible_tasks": [
-    "T-P7-01"
-  ],
+  "next_eligible_tasks": [],
   "first_implementation_task_after_approval": "T-P1-01",
   "decisions": {
     "accepted": [
@@ -808,6 +811,24 @@
       "files": [
         "docs/reports/2026-11-04_owner_review_index.md",
         "docs/reports/2026-11-04_decision_packages_QB03_QB04.md"
+      ]
+    },
+    {
+      "task": "T-P7-01",
+      "date": "2026-11-04",
+      "status": "DONE",
+      "summary": "Model gateway implemented for the owner-limited local-only scope (ADR-039/ADR-040): role routing, sensitivity gate, bounded retries, local-only fallbacks, in-memory response cache, structured output, call accounting without content; deterministic mock and loopback OpenAI-compatible adapters; remote providers refused at config, construction and call time. Owner decisions Q-B03/Q-B04 recorded (ADR-039/ADR-040); T-P7-01 dependency on T-P7-02 removed by owner decision. No further task became eligible: every T-P7-01 dependent also waits on NOT_STARTED or owner-gated tasks.",
+      "files": [
+        "src/sbr/models/",
+        "src/sbr/egress.py",
+        "src/sbr/config.py",
+        "src/sbr/cli/app.py",
+        "tests/models/",
+        "tests/test_cli_commands.py",
+        "config/sbr.example.toml",
+        "config/sbr.macos.example.toml",
+        "docs/17_MODEL_STRATEGY.md",
+        "docs/22_SECURITY_AND_SAFETY.md"
       ]
     }
   ]
